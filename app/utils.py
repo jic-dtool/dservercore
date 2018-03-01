@@ -8,4 +8,6 @@ def dataset_info_is_valid(dataset_info):
         return False
     if "uri" not in dataset_info:
         return False
+    if dataset_info["type"] != "dataset":
+        return False
     return True
