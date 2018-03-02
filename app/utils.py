@@ -23,7 +23,15 @@ def num_datasets(collection):
 
 
 def register_dataset(collection, dataset_info):
-    """Register dataset info in the collection."""
+    """Register dataset info in the collection.
+
+    If the "uuid" and "uri" are the same as another record in
+    the mongodb collection a new record is not created, and
+    the UUID is returned.
+
+    Returns None if dataset_info is invalid.
+    Returns UUID of dataset otherwise.
+    """
     if not dataset_info_is_valid(dataset_info):
         return None
 
