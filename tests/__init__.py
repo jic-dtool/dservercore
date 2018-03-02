@@ -1,7 +1,14 @@
 import random
 import string
+import os
+import sys
 
 import pytest
+
+# Pytest does not add the working directory to the path so we do it here.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_ROOT = os.path.join(_HERE, "..")
+sys.path.insert(0, _ROOT)
 
 def random_string(
     size=9,

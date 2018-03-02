@@ -1,9 +1,4 @@
-import sys, os
-
-# Pytest does not add the working directory to the path so we do it here.
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_ROOT = os.path.join(_HERE, "..")
-sys.path.insert(0, _ROOT)
+"""Test app.utils.dataset_info_is_valid helper function."""
 
 def test_dataset_info_is_valid_returns_true_on_valid_info():
     from app.utils import dataset_info_is_valid
