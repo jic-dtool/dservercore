@@ -2,6 +2,7 @@
 
 from pymongo import MongoClient
 
+
 def test_mongodb_utiliites_functional():
 
     from app.utils import (
@@ -22,9 +23,9 @@ def test_mongodb_utiliites_functional():
         # It is possible to register dataset in the collection by supplying
         # the relevant information.
         info = {
-          u"uuid": u"af6727bf-29c7-43dd-b42f-a5d7ede28337",
-          u"type": u"dataset",
-          u"uri": u"file:///tmp/a_dataset"
+            u"uuid": u"af6727bf-29c7-43dd-b42f-a5d7ede28337",
+            u"type": u"dataset",
+            u"uri": u"file:///tmp/a_dataset"
         }
         uuid = register_dataset(collection, info)
         assert "_id" not in info
@@ -44,9 +45,9 @@ def test_mongodb_utiliites_functional():
 
         # Register a second dataset.
         info_2 = {
-          u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
-          u"type": u"dataset",
-          u"uri": u"file:///tmp/another_dataset"
+            u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
+            u"type": u"dataset",
+            u"uri": u"file:///tmp/another_dataset"
         }
         uuid_2 = register_dataset(collection, info_2)
         assert num_datasets(collection) == 2
@@ -54,9 +55,9 @@ def test_mongodb_utiliites_functional():
         # The same dataset can be registered in more than one location.
         # Register a second dataset.
         info_2_alt = {
-          u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
-          u"type": u"dataset",
-          u"uri": u"s3:/test-dtool-s3-bucket/c58038a4-3a54-425e-9087-144d0733387f"
+            u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
+            u"type": u"dataset",
+            u"uri": u"s3:/test-dtool/c58038a4-3a54-425e-9087-144d0733387f"
         }
         assert register_dataset(collection, info_2_alt) == uuid_2
         assert num_datasets(collection) == 3

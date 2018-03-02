@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, abort
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 
 import utils
 
@@ -14,6 +13,7 @@ collection = db["datasets"]
 app.config["mongo_client"] = client
 app.config["mongo_db"] = db
 app.config["mongo_collection"] = collection
+
 
 @app.route("/")
 def index():

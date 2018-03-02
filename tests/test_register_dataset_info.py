@@ -4,6 +4,7 @@ import json
 
 from . import tmp_app  # NOQA
 
+
 def test_register_dataset(tmp_app):  # NOQA
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
@@ -40,4 +41,3 @@ def test_register_dataset_raises_bad_request_when_dataset_info_is_invalid(tmp_ap
     )
 
     assert r.status_code == 400
-
