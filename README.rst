@@ -49,7 +49,7 @@ Look up the dataset(s) associated with the registered UUID::
       }
     ]
 
-Register another version of the dataset stored in AWS S3 object store::
+Register another copy of the dataset stored in AWS S3 object store::
 
     $ curl \
         -H "Content-Type: application/json"  \
