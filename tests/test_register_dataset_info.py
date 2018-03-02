@@ -13,7 +13,7 @@ def test_register_dataset(tmp_app):  # NOQA
         "uri": "file:///tmp/a_dataset"
     }
     r = tmp_app.post(
-        "/register_dataset_info",
+        "/register_dataset",
         data=json.dumps(data),
         content_type='application/json'
     )
@@ -34,7 +34,7 @@ def test_register_dataset_raises_bad_request_when_dataset_info_is_invalid(tmp_ap
     }
 
     r = tmp_app.post(
-        "/register_dataset_info",
+        "/register_dataset",
         data=json.dumps(data),
         content_type='application/json'
     )

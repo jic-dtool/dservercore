@@ -30,8 +30,8 @@ def lookup_dataset_info(uuid):
     return jsonify(dataset_info)
 
 
-@app.route("/register_dataset_info", methods=["POST"])
-def register_dataset_info():
+@app.route("/register_dataset", methods=["POST"])
+def register_dataset():
     dataset_info = request.get_json()
     uuid = utils.register_dataset(
         app.config["mongo_collection"],
