@@ -25,9 +25,11 @@ def index():
 
 @app.route("/lookup_datasets/<uuid>")
 def lookup_datasets(uuid):
-    dataset_info = app.config["mongo_collection"].find_one()
-    del dataset_info["_id"]
-    return jsonify(dataset_info)
+    datasets = utils.lookup_datasets(
+        app.config["mongo_collection"],
+        uuid
+    )
+    return jsonify(datasets)
 
 
 @app.route("/register_dataset", methods=["POST"])

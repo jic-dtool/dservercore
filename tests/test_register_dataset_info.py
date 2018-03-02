@@ -22,7 +22,7 @@ def test_register_dataset(tmp_app):  # NOQA
 
     lookup_url = "/lookup_datasets/{}".format(uuid)
     r = tmp_app.get(lookup_url)
-    assert data == json.loads(r.data)
+    assert [data] == json.loads(r.data)
 
 
 def test_register_dataset_raises_bad_request_when_dataset_info_is_invalid(tmp_app):  # NOQA
