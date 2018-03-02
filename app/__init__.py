@@ -23,8 +23,8 @@ def index():
     return message
 
 
-@app.route("/lookup_dataset_info/<uuid>")
-def lookup_dataset_info(uuid):
+@app.route("/lookup_datasets/<uuid>")
+def lookup_datasets(uuid):
     dataset_info = app.config["mongo_collection"].find_one()
     del dataset_info["_id"]
     return jsonify(dataset_info)

@@ -20,7 +20,7 @@ def test_register_dataset(tmp_app):  # NOQA
 
     assert r.status_code == 200
 
-    lookup_url = "/lookup_dataset_info/{}".format(uuid)
+    lookup_url = "/lookup_datasets/{}".format(uuid)
     r = tmp_app.get(lookup_url)
     assert data == json.loads(r.data)
 
