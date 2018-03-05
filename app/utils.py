@@ -54,8 +54,4 @@ def register_dataset(collection, dataset_info):
 
 def lookup_datasets(collection, uuid):
     """Return list of dataset info dictionaries with matching uuid."""
-    result = []
-    for info in collection.find({"uuid": uuid}):
-        del info["_id"]
-        result.append(info)
-    return result
+    return [i for i in collection.find({"uuid": uuid}, {"_id": False})]
