@@ -9,6 +9,7 @@ def test_mongodb_utiliites_functional():
         num_datasets,
         register_dataset,
         lookup_datasets,
+        search_for_datasets,
     )
 
     db_name = "testing_db"
@@ -72,6 +73,28 @@ def test_mongodb_utiliites_functional():
         lookup_result = lookup_datasets(collection, uuid_2)
         assert len(lookup_result) == 2
         assert sorted(lookup_result) == sorted([info_2, info_2_alt])
+
+        search_result = search_for_datasets(collection, query={})
+        assert len(search_result) == 3
+        assert "_id" not in lookup_result[0]
+
+        # Add a dataset with more metadata.
+        info_3 = {
+            u"uuid": u"d5c0d959-4d0d-4c51-a1da-57d5b750c24f",
+            u"frozen_at": 1511195175,
+            u"creator_username": u"olssont",
+            u"type": u"dataset",
+            u"name": u"chrX-rna-seq",
+            u"uri": u"s3:/test-dtool/"
+        }
+        register_dataset(collection, info_3)
+
+        search_result = search_for_datasets(
+            collection,
+            query={"name": "chrX-rna-seq"}
+        )
+        assert len(search_result) == 1
+        assert info_3 == search_result[0]
 
     finally:
         client.drop_database(db_name)

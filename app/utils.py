@@ -55,3 +55,8 @@ def register_dataset(collection, dataset_info):
 def lookup_datasets(collection, uuid):
     """Return list of dataset info dictionaries with matching uuid."""
     return [i for i in collection.find({"uuid": uuid}, {"_id": False})]
+
+
+def search_for_datasets(collection, query):
+    """Return list of dataset info dictionaries matching the query."""
+    return [i for i in collection.find(query, {"_id": False})]
