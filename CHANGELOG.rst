@@ -10,8 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Ability to mass register datasets from a base URI
-
 
 Changed
 ^^^^^^^
@@ -31,6 +29,16 @@ Fixed
 
 Security
 ^^^^^^^^
+ 
+
+[0.3.0] - 2018-03-06
+--------------------
+
+Added
+^^^^^
+
+- Ability to mass register datasets from a base URI
+
 
 [0.2.0] - 2018-03-06
 --------------------
