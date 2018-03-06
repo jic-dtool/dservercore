@@ -1,11 +1,13 @@
-"""Test registering of datasets."""
+"""Test the /register_dataset route."""
 
 import json
 
 from . import tmp_app  # NOQA
 
 
-def test_register_dataset(tmp_app):  # NOQA
+def test_register_dataset_route(tmp_app):  # NOQA
+
+    from app.utils import lookup_datasets
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     data = {
@@ -21,12 +23,12 @@ def test_register_dataset(tmp_app):  # NOQA
 
     assert r.status_code == 200
 
-    lookup_url = "/lookup_datasets/{}".format(uuid)
-    r = tmp_app.get(lookup_url)
-    assert [data] == json.loads(r.data)
+    # Check that the dataset has been added to mongo.
+    collection = tmp_app.application.config["mongo_collection"]
+    assert [data] == lookup_datasets(collection, uuid)
 
 
-def test_register_dataset_raises_bad_request_when_dataset_info_is_invalid(tmp_app):  # NOQA
+def test_register_dataset_route_returns_bad_request_when_dataset_info_is_invalid(tmp_app):  # NOQA
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     data = {
         "uuid": uuid,
