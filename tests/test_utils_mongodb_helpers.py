@@ -58,7 +58,7 @@ def test_mongodb_utiliites_functional():
         info_2_alt = {
             u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
             u"type": u"dataset",
-            u"uri": u"s3:/test-dtool/c58038a4-3a54-425e-9087-144d0733387f"
+            u"uri": u"s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f"
         }
         assert register_dataset(collection, info_2_alt) == uuid_2
         assert num_datasets(collection) == 3
