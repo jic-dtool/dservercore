@@ -44,3 +44,15 @@ def register_dataset():
     if uuid is None:
         abort(400)
     return uuid
+
+
+@app.route("/search_for_datasets", methods=["POST"])
+def search_for_datasets():
+    query = request.get_json()
+    print(query)
+    datasets = utils.search_for_datasets(
+        app.config["mongo_collection"],
+        query
+    )
+    print "datasets in route", datasets
+    return jsonify(datasets)
