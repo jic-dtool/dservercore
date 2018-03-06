@@ -10,6 +10,8 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Ability to mass register datasets from a base URI
+
 
 Changed
 ^^^^^^^
