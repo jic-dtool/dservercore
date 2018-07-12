@@ -4,6 +4,13 @@ Dtool Lookup Server
 Dtool Lookup Server is an application that given a dataset UUID returns a URI
 to where the dataset is stored.
 
+Setup and installation
+----------------------
+
+Install requirements::
+
+    $ pip install -r requirements.txt
+
 Create a directory where the MongoDB data will be stored::
 
     $ mkdir data
@@ -16,6 +23,17 @@ Start the Flask app::
 
     $ export FLASK_APP=app/__init__.py
     $ flask run
+
+Mass registration
+-----------------
+
+This package provides a script for mass registration of all datasets in a
+base URI. It can be run with::
+
+    $ python registration_utils/mass_registration.py BASE_URI
+
+The REST API
+------------
 
 Initially no datasets have been registered::
 
