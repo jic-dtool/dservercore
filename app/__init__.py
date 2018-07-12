@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, abort
 from pymongo import MongoClient
 
-import utils
+from . import utils
 
 __version__ = "0.2.0"
 
@@ -54,5 +54,5 @@ def search_for_datasets():
         app.config["mongo_collection"],
         query
     )
-    print "datasets in route", datasets
+    print("datasets in route {}".format(datasets))
     return jsonify(datasets)
