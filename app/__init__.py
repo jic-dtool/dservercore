@@ -4,7 +4,7 @@ from pymongo import MongoClient
 
 from . import utils
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"
 
 app = Flask(__name__)
 
