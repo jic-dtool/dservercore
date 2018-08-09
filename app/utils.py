@@ -34,15 +34,19 @@ def register_dataset(collection, dataset_info):
     if not dataset_info_is_valid(dataset_info):
         return None
 
-    # If a record with the same UUID and URI exists return the uuid
-    # without adding a duplicate record.
-    exists = collection.find_one({
+    query = {
         "uuid": dataset_info["uuid"],
         "uri": dataset_info["uri"]
-    })
+    }
+
+    # If a record with the same UUID and URI exists return the uuid
+    # without adding a duplicate record.
+    exists = collection.find_one(query)
 
     if exists is None:
         collection.insert_one(dataset_info)
+    else:
+        collection.find_one_and_replace(query, dataset_info)
 
     # The MongoDB client dynamically updates the dataset_info dict
     # with and '_id' key. Remove it.

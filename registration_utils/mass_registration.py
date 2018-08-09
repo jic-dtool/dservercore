@@ -1,6 +1,11 @@
 """Helpers script to register all datasets in a base URI."""
 
 import argparse
+import json
+
+from datetime import date, datetime
+
+import yaml
 
 
 # Placeholder until app becomes a package or some other solution
@@ -26,6 +31,12 @@ db = client["dtool_info"]
 collection = db["datasets"]
 
 
+def json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type {} not serializable".format(type(obj)))
+
+
 def register_all_datasets(base_uri):
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     StorageBroker = dtoolcore._get_storage_broker(base_uri, CONFIG_PATH)
@@ -36,6 +47,14 @@ def register_all_datasets(base_uri):
             pass
         dataset_info = dataset._admin_metadata
         dataset_info["uri"] = dataset.uri
+
+        # Add the readme info.
+        readme_info = yaml.load(dataset.get_readme_content())
+        dataset_info["readme"] = readme_info
+
+        # Clean up datetime.data.
+        dataset_info_json_str = json.dumps(dataset_info, default=json_serial)
+        dataset_info = json.loads(dataset_info_json_str)
 
         r = register_dataset(collection, dataset_info)
         print("Registered: {}".format(r))
