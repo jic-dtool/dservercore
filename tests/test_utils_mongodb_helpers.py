@@ -1,6 +1,7 @@
 """Test mongodb utility helper functions."""
 
 from pymongo import MongoClient
+from operator import itemgetter
 
 
 def test_mongodb_utiliites_functional():
@@ -72,7 +73,7 @@ def test_mongodb_utiliites_functional():
 
         lookup_result = lookup_datasets(collection, uuid_2)
         assert len(lookup_result) == 2
-        assert sorted(lookup_result) == sorted([info_2, info_2_alt])
+        assert sorted(lookup_result, key=itemgetter("uuid")) == sorted([info_2, info_2_alt], key=itemgetter("uuid"))  # NOQA
 
         search_result = search_for_datasets(collection, query={})
         assert len(search_result) == 3

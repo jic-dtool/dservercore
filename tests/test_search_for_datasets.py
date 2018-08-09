@@ -1,6 +1,7 @@
 """Test /search_for_datasets route."""
 
 import json
+from operator import itemgetter
 
 from . import tmp_app  # NOQA
 
@@ -11,7 +12,7 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
 
     # Get the collection out of the tmp_app.
     collection = tmp_app.application.config["mongo_collection"]
-    print collection
+    print(collection)
 
     # Use utils.register_dataset to register some datasets.
     datasets_to_register = [
@@ -44,7 +45,7 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 200
-    assert sorted(datasets_to_register) == sorted(json.loads(r.data))
+    assert sorted(datasets_to_register, key=itemgetter("uuid")) == sorted(json.loads(r.data), key=itemgetter("uuid"))  # NOQA
 
     query = {"creator_username": "olssont"}
     r = tmp_app.post(
@@ -53,7 +54,7 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 200
-    assert sorted(datasets_to_register) == sorted(json.loads(r.data))
+    assert sorted(datasets_to_register, key=itemgetter("uuid")) == sorted(json.loads(r.data), key=itemgetter("uuid"))  # NOQA
 
     query = {"name": "simulated-lambda-phage-reads"}
     r = tmp_app.post(

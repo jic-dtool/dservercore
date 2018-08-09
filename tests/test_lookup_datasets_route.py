@@ -20,7 +20,6 @@ def test_lookup_datasets_route(tmp_app):  # NOQA
     collection = tmp_app.application.config["mongo_collection"]
     register_dataset(collection, data)
 
-
     lookup_url = "/lookup_datasets/{}".format(uuid)
     r = tmp_app.get(lookup_url)
     assert [data] == json.loads(r.data)
