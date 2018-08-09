@@ -31,6 +31,18 @@ Security
 ^^^^^^^^
  
 
+[0.4.0] - 2018-08-09
+--------------------
+
+Added
+^^^^^
+
+- Add ability to update a record
+- Add inclusion of descriptive metadata from README to mass_registration.py
+  script
+- Add entire document wild card search indexing
+
+
 [0.3.0] - 2018-03-06
 --------------------
 
