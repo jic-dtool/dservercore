@@ -3,5 +3,6 @@
 
 data/*
 env/*
+env3/*
 .cache/*
 .pytest_cache/*
