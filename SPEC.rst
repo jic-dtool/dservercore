@@ -17,42 +17,56 @@ could be used to search the metadata to find relevant datasets.
 Technical details
 -----------------
 
-Programmatic access would most conveniently be through a web server hosted REST
-API.
+Requirements
+^^^^^^^^^^^^
 
-In order to protect metadata such a web server would require an
-authentication/authorization mechanism. The lookup server would therefore need
-to store users. There would be at least two types of users: standard and admin
-users.
+- The lookup server must be accessible to clients on the network, i.e. it
+  should be a web server
+- Scripts and applications should be able to interact with the lookup server
+  through an API, maybe a RESTful API
+- Users should only be able to find metadata and URIs of datasets that live in
+  base URIs that they have been given access to, as such the server needs to
+  include authentication and authorisation
+- There should be three types of user roles: standard, data champion and admin
+  user roles
+- A standard user is only able to search the lookup server for datasets in base
+  URIs that he/she has access to
+- A data champion user is also able to register datasets from base URIs that
+  he/she has been given access to
+- An admin user can create users and set their roles
+- An admin user can add a base URI to the system
+- An admin user can associate base URIs with a user to give that user access to
+  search those base URIs for metadata and dataset URIs
+- The lookup server should be able to manage authorisation itself
+- The lookup server should be able to delegate authorisation to an LDAP server
+- As well as the API the lookup server will have a basic web (HTML) interface
+  allowing standard users to list and search for datasets
 
-Standard users would use the lookup server to search for datasets of interest.
+Routes
+^^^^^^
 
-Admin would be able to:
+``/``: HTML web application
 
-- Add users to the lookup server
-- Add base URIs to be indexed to the lookup server
-- Re-index a base URI
-- Give standard users the ability to search one or more base URIs
+``/login``: POST request to login
 
-In the simplest form the lookup server would manage users, passwords,
-authentication and authorization.
+``/logout``: POST request to logout
 
-In the future the lookup server needs to be able to delegate authentication to
-a LDAP server so that standard users don't need to remember another password.
+``/dataset/lookup/<UUID>``: GET request to list locations where the dataset can be found.
 
-Authentication will be persisted using cookies so that the end user does not
-need to type in the password every time the search functionality is used. It is
-up to the client to implement the handling the persistance of cookies. In the
-case of the dtool CLI this will be done using the dtool config file.
+``/dataset/search``: POST request to list datasets found by search query.
 
-The lookup server is meant to be a piece in a distributed, loosely coupled
-dtool eco-system. Access to datasets in AWS S3 is likely to be controlled using
-policies on buckets. As such if the group of people with access to that bucket
-changes the change should also be reflected in the lookup server. This can only
-be achieved if these types of chnages can be made to the lookup server in a
-programmatic fashion. I.e. it is anticipated that one would write a wrapper
-script that updated both the AWS S3 policy and the lookup server access at the
-same time.
+``/dataset/register``: POST request to register a dataset. Only admin and data champion allowed.
+
+``/user/create``: POST to create a user. Only admin allowed.
+
+``/user/base_uri_search``: POST to give/remove a user's permissions to search on a base URI. Only admin allowed.
+
+``/user/base_uri_register``: POST to give/remove a user's permissions to register datasets on a base URI. Only admin allowed.
+
+``/user/info/<USERNAME>``: GET request for user details. Only admin and user in question allowed.
+
+``/base_uri/register``: POST request to register a base URI. Only admin allowed.
+
 
 
 User stories
@@ -61,10 +75,6 @@ User stories
 This user story uses many raw ``curl`` requests to the REST API for
 illustrative purposes. In practice one would write helper scripts that called
 the REST API.
-
-The admin user installs the system using Ansible::
-
-    ansible-playbook -i hosts playbook.yml
 
 The admin user tries to add a standard user called ``grumpy``::
 
