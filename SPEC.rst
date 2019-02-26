@@ -11,8 +11,10 @@ Introduction
 
 When a base URI contains many datasets commands such as ``dtool ls <BASE_URI>``
 can take a long time to complete. It would be good to have a means to query
-data quicker.  Furthermore it would be great to be able to have a system that
+data quicker.  It would also be great to be able to have a system that
 could be used to search the metadata to find relevant datasets.
+Finally, it would be fantastic to have a web interface to list and search for
+datasets.
 
 High level user stories
 -----------------------
@@ -25,12 +27,15 @@ High level user stories
   datasets my group has pushed to the object storage so that I can
   reassure myself that the data is safe and secure
 - As a systems administrator I want to be able to add users to the lookup server
-  and associate them with base URIs so that the users can make use of the lookup
-  server to find their data
-- As a systems administrator I want to be able to give a user data champion
-  privileges on a base URI to allow him/her to register datasets to it
-- As a data champion I want to be able to re-index a base URI when new datasets
-  have been uploaded to it
+- As a systems administrator I want to be able to give a user
+  privileges to search for datasets in a base URI so that they can find datasets
+  from that base URI
+- As a systems administrator I want to be able to give a user
+  privileges register datasets on a base URI so that they can register datasets
+  from that base URI
+- As a data champion, a user with privileges to register datasets, I want to be
+  able to re-index a base URI when new datasets have been uploaded to the base
+  URI
 
 Technical details
 -----------------
