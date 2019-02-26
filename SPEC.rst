@@ -37,8 +37,66 @@ High level user stories
   able to re-index a base URI when new datasets have been uploaded to the base
   URI
 
+Detailed user story
+-------------------
+
+The lookup server has been configured and it contains a single admin user.  The
+admin user, fondly known as Magic Mirror,  starts off by registering a base
+URI with the lookup server::
+
+    $ curl \
+        -H "Content-Type: application/json"  \
+        -X POST  \
+        -d '{"base_uri": "s3://snow-white"}'  \
+        https://localhost:5000/base_uri/register
+
+The Magic Mirror admin user then registers the seven dwarfs as standard users
+of the lookup server::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+      -d '["bashful", "doc", "dopey", "happy", "grumpy", "sleepy", "sneezy"]'  \
+      https://localhost:5000/user/register
+
+The Magic Mirror admin then tries to register the huntsman as a single user::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+      -d '"huntsman"'  \
+      https://localhost:5000/user/register
+
+Since, this is a string rather than an array the lookup server returns ``400
+Bad Request``.
+
+The Magic Mirror admin then corrects the request by using an array instead of a
+string::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+      -d '["huntsman"]'  \
+      https://localhost:5000/user/register
+
+To ensure that all seven dwarfs and the huntsman have been added the Magic
+Mirror lists all the users registered in the lookup server::
+
+    $ curl https://localhost:5000/user/list
+    ["bashful", "doc", "dopey", "happy", "huntsman", "grumpy", "sleepy", "sneezy"]
+
 Technical details
 -----------------
+
+Questions
+^^^^^^^^^
+
+- What is the difference between a token based authentication system and basic auth?
+- Does ``curl`` support token based authentication?
+- Which authentication system should be used?
+- What database is most suitable for managing users? NoSQL vs SQL...
+- What database is best for searching for metadata? NoSQL vs SQL...
+- What Python web framework should be used? Flask vs Pyramid vs Django?
 
 Requirements
 ^^^^^^^^^^^^
