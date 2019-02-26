@@ -14,6 +14,24 @@ can take a long time to complete. It would be good to have a means to query
 data quicker.  Furthermore it would be great to be able to have a system that
 could be used to search the metadata to find relevant datasets.
 
+High level user stories
+-----------------------
+
+- As a bioinformatician I want to be able to use free text search so that I can
+  find URIs of datasets of interest to me.
+- As a bioinformatician I want to be able to retrieve all URIs of a dataset with
+  a specific UUID so that I can decide which URI to use in my processing pipeline
+- As a project leader I want to be able to use a web browser to view all the
+  datasets my group has pushed to the object storage so that I can
+  reassure myself that the data is safe and secure
+- As a systems administrator I want to be able to add users to the lookup server
+  and associate them with base URIs so that the users can make use of the lookup
+  server to find their data
+- As a systems administrator I want to be able to give a user data champion
+  privileges on a base URI to allow him/her to register datasets to it
+- As a data champion I want to be able to re-index a base URI when new datasets
+  have been uploaded to it
+
 Technical details
 -----------------
 
@@ -23,50 +41,138 @@ Requirements
 - The lookup server must be accessible to clients on the network, i.e. it
   should be a web server
 - Scripts and applications should be able to interact with the lookup server
-  through an API, maybe a RESTful API
+  through an API
 - Users should only be able to find metadata and URIs of datasets that live in
   base URIs that they have been given access to, as such the server needs to
   include authentication and authorisation
-- There should be three types of user roles: standard, data champion and admin
-  user roles
-- A standard user is only able to search the lookup server for datasets in base
-  URIs that he/she has access to
-- A data champion user is also able to register datasets from base URIs that
-  he/she has been given access to
-- An admin user can create users and set their roles
+- There are two types of users: standard and admin
+- A standard user is granted permissions on base URIs by an admin user
+- There are two types of permissions a standard user can be granted on a base URI:
+  search and register
+- Search permissions allow a standard user to search the lookup server for
+  datasets in the base URI
+- Register permissions allow a standard user to register datasets from the base URI
+- An admin user can create users
 - An admin user can add a base URI to the system
-- An admin user can associate base URIs with a user to give that user access to
-  search those base URIs for metadata and dataset URIs
+- An admin user can grant a user permissions on a base URI
 - The lookup server should be able to manage authorisation itself
 - The lookup server should be able to delegate authorisation to an LDAP server
 - As well as the API the lookup server will have a basic web (HTML) interface
   allowing standard users to list and search for datasets
 
-Routes
-^^^^^^
+Suggested routes
+^^^^^^^^^^^^^^^^
 
-``/``: HTML web application
+Web application
+~~~~~~~~~~~~~~~
 
-``/login``: POST request to login
+``/``:
 
-``/logout``: POST request to logout
+    HTML web application
 
-``/dataset/lookup/<UUID>``: GET request to list locations where the dataset can be found.
 
-``/dataset/search``: POST request to list datasets found by search query.
+Authentication
+~~~~~~~~~~~~~~
 
-``/dataset/register``: POST request to register a dataset. Only admin and data champion allowed.
+``/login``:
 
-``/user/create``: POST to create a user. Only admin allowed.
+    POST request to login
 
-``/user/base_uri_search``: POST to give/remove a user's permissions to search on a base URI. Only admin allowed.
+``/logout``:
 
-``/user/base_uri_register``: POST to give/remove a user's permissions to register datasets on a base URI. Only admin allowed.
+    POST request to logout
 
-``/user/info/<USERNAME>``: GET request for user details. Only admin and user in question allowed.
+Dataset search and lookup
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``/base_uri/register``: POST request to register a base URI. Only admin allowed.
+``/dataset/lookup/<UUID>``:
 
+    GET request to list locations where the dataset can be found.
+
+``/dataset/search``:
+
+    POST request to list datasets found by search query.
+
+
+Base URI management
+~~~~~~~~~~~~~~~~~~~
+
+``/base_uri/register``:
+
+    POST request to register a base URI. Only admin allowed.
+
+``/base_uri/list``:
+
+    GET request to list all base URIs a user is authorised to search.
+
+
+Dataset management
+~~~~~~~~~~~~~~~~~~
+
+``/dataset/register``:
+
+    POST request to register a dataset. Only admin and data champions allowed.
+
+``/dataset/list``:
+
+    GET request to list all datasets a user is authorised to view.
+
+
+User management
+~~~~~~~~~~~~~~~
+
+``/user/register``:
+
+    POST request to create/register a user. Only admin allowed.
+
+``/user/list``:
+
+    GET request to list all users. Only admin allowed.
+
+``/user/info/<USERNAME>``:
+
+    GET request for user details, including base URIs that the user has been
+    given search and register privileges on. Only admin and user in question
+    are allowed.
+
+
+Permission management
+~~~~~~~~~~~~~~~~~~~~~
+
+``/permission/update_permissions_for_specific_user_on_base_uri``:
+
+    POST to give a update a specific user's permissions a base URI. Only admin allowed.
+
+    Grant Grumpy search privileges on the snow-white bucket::
+
+        {"user": "grumpy", "base_uri": "s3://snow-white", "permissions": ["search"]}
+
+    Grant Sleepy search and register privileges on the snow-white bucket::
+
+        {"user": "sleepy", "base_uri": "s3://snow-white", "permissions": ["search", "register"]}
+
+    Revoke all Dopey's  privileges on the snow-white bucket::
+
+        {"user": "dopey", "base_uri": "s3://snow-white", "permissions": []}
+
+    Server responds with ``200 OK`` if successful. Server responds with ``409 Conflict`` if
+    either the username or the base URI does not exist in the lookup server.
+
+``/permission/update_all_permissions_on_base_uri``:
+
+    POST to give update a all permissions on a base URI. Only admin allowed.
+
+    Revoke all users privileges::
+
+        {"users_with_search_permissions": [],
+         "users_with_register_permissions": [],
+         "base_uri": "s3://snow-white"}
+
+    Give Grumpy, Dopey permission to search and Sleepy permission to register datasets::
+
+        {"users_with_search_permissions": ["grumpy", "dopey"],
+         "users_with_register_permissions": ["sleepy"],
+         "base_uri": "s3://snow-white"}
 
 
 User stories
