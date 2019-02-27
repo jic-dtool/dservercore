@@ -56,19 +56,27 @@ of the lookup server::
     $ curl \
       -H "Content-Type: application/json"  \
       -X POST  \
-      -d '["bashful", "doc", "dopey", "happy", "grumpy", "sleepy", "sneezy"]'  \
+      -d '[
+        {"name": "bashful", "email": "bashful@disney.com"}, 
+        {"name": "doc", "email": "doc@disney.com"},
+        {"name": "dopey", "email": "dopey@disney.com},
+        {"name": "happy", "email": "happy@disney.com},
+        {"name": "grumpy", "email" "grumpy@disney.com"},
+        {"name": "sleepy", "email": "sleepy@disney.com"},
+        {"name": "sneezy", "email": "sneezy@disney.com"}
+      ]'  \
       https://localhost:5000/user/register
 
-The Magic Mirror admin then tries to register the huntsman as a single user::
+The Magic Mirror admin then tries to register the Snow White as a single user::
 
     $ curl \
       -H "Content-Type: application/json"  \
       -X POST  \
-      -d '"huntsman"'  \
+      -d '{"name: "snow-white", "email": "snow-white@disney.com"}'  \
       https://localhost:5000/user/register
 
-Since, this is a string rather than an array the lookup server returns ``400
-Bad Request``.
+Since, this is a dictionary rather than a list of dictionaries the lookup
+server returns ``400 Bad Request``.
 
 The Magic Mirror admin then corrects the request by using an array instead of a
 string::
@@ -76,14 +84,93 @@ string::
     $ curl \
       -H "Content-Type: application/json"  \
       -X POST  \
-      -d '["huntsman"]'  \
+      -d '[{"name: "snow-white", "email": "snow-white@disney.com"}]'  \
       https://localhost:5000/user/register
 
 To ensure that all seven dwarfs and the huntsman have been added the Magic
 Mirror lists all the users registered in the lookup server::
 
     $ curl https://localhost:5000/user/list
-    ["bashful", "doc", "dopey", "happy", "huntsman", "grumpy", "sleepy", "sneezy"]
+    ["bashful", "doc", "dopey", "happy", "grumpy", "sleepy", "sneezy", "snow-white"]
+
+At this point all the dwarfs and Snow White have been sent an email with a link
+to a one time login password.
+
+The Magic Mirror now wants to give Snow White permissions to register datasets
+stored in the ``s3://snow-white`` bucket and for all users to be able to search
+for datasets that have been registered from this base URI::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+        {
+          "users_with_search_permissions": [
+            "bashful",
+            "doc",
+            "dopey",
+            "happy",
+            "grumpy",
+            "sleepy",
+            "sneezy",
+            "snow-white"
+          ]
+          "users_with_register_permissions": ["snow-white],
+          "base_uri": "s3://snow-white"
+        }
+      https://localhost:5000/permission/update_all_permissions_on_base_uri
+
+Snow White has logs in and updates her password using the web interface. She
+then registers all the datasets in the ``s3://snow-white`` bucket using
+the ``mass_registration.py`` script::
+
+    python mass_registration.py --lookup-server="https://localhost:5000" s3://snow-white
+
+This script loops over all the datasets in the ``s3://snow-white`` bucket and constructs
+HTTP POST requests along the lines of that below::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+        {
+          "base_uri": "s3://snow-white",
+          "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
+          "uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337",
+          "type": "dataset",
+          "created_at": 1536236399.19497,
+          "frozen_at": 1536238185.881941,
+          "dtoolcore_version": "3.6.0",
+          "creator_username": "dopey",
+          "name": "red.apples",
+          "readme": {"description": "lots of bad apples"}
+        }
+      https://localhost:5000/dataset/register
+
+One of the dwarfs, who is looking very sleepy, then tries to search for
+datasets using the term ``apple``::
+
+    $ curl https://localhost:5000/dataset/list?any=apple
+
+Then the sleepy dwarf looks for all datasets created by ``dopey``::
+
+    $ curl https://localhost:5000/dataset/list?creator_username=dopey
+
+Then the sleepy dwarf looks for all datasets created by ``dopey`` with the term
+``apple``::
+
+    $ curl https://localhost:5000/dataset/list?creator_username=dopey&any=apple
+
+The dopey dwarf also wants to search for datasets. However, he has forgotten his
+new password. He therefore generates sends a request to generate another one
+time login password::
+
+    $ curl \
+      -H "Content-Type: application/json"  \
+      -X POST  \
+        {
+          "user": "dopey"
+        }
+      https://localhost:5000/reset_password
+
 
 Technical details
 -----------------
@@ -236,118 +323,3 @@ Permission management
         {"users_with_search_permissions": ["grumpy", "dopey"],
          "users_with_register_permissions": ["sleepy"],
          "base_uri": "s3://snow-white"}
-
-
-User stories
-------------
-
-This user story uses many raw ``curl`` requests to the REST API for
-illustrative purposes. In practice one would write helper scripts that called
-the REST API.
-
-The admin user tries to add a standard user called ``grumpy``::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{
-            "username":"grumpy",
-            "email":"grumpy@mr-men.com"}'  \
-        https://localhost:5000/add_user
-
-The admin user has forgotten to configure the ``BASIC_AUTH_HEADER`` environment
-variable and gets a ``401 Unauthrized`` status response.
-
-The admin user sets the ``BASIC_AUTH_HEADER`` and  tries again.  The server
-responds with ``201 Created``. The user is added to the lookup server and the
-user is emailed a one time password and a link to a web page for changing the
-password. The user updates the password.
-
-The admin user accidentally submits the POST request to add the ``grumpy`` user
-again. The server responds with ``409 Conflict``
-
-The ``grumpy`` user should be authorized to search the datasets stored in the
-``s3://mr-men`` and the ``azure://snow-white`` buckets. First of all these base
-URIs need to be registered with the lookup server. The admin user adds the
-``s3://mr-men`` base URI first::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{"base_uri": "s3://mr-men"}'  \
-        https://localhost:5000/add_base_uri
-
-The server responds with ``201 Created``.  The admin user accidentally submits
-the POST request to add the ``s3://mr-men`` base URI again. The server responds
-with ``409 Conflict``. The admin user then adds the ``azure://snow-white`` base
-URI::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{"base_uri": "azure://snow-white"}'  \
-        https://localhost:5000/add_base_uri
-
-The admin user indexes the lookup server using the ``mass_registration.py`` script::
-
-    python mass_registration.py s3://mr-men
-
-This pulls out relevant information from the datasets in the base URL and makes
-requests along the lines of the below::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{
-            "uri":"s3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337",
-            "uuid":"af6727bf-29c7-43dd-b42f-a5d7ede28337",
-            "type":"dataset"}'  \
-        http://localhost:5000/register_dataset
-
-For each of these requests the server responds with ``201 Created``.  If the
-base URI had not been registered before the server would have responded with
-``409 Conflict``.
-
-The admin user then adds ``grumpy`` to the ``s3://mr-men`` by running the
-command::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{
-            "username":"grumpy",
-            "base_uri": "s3://mr-men"
-            }'  \
-        http://localhost:5000/give_user_access_to_base_uri
-
-The server responds with ``200 OK``. The admin runs a similar command to add
-``grumpy`` to the ``azure://snow-white`` base URI.
-
-The user can now search for datasets. When the ``grumpy`` user makes a search
-hits from the ``s3://mr-men`` and ``azure://snow-white`` base URIs are
-returned.
-
-The user ``sleepy`` has only had the ``azure://snow-white`` base URI added to
-him. When the ``sleepy`` user makes searches the lookup server only hits from
-the ``azure://snow-white`` base URI are returned.
-
-The admin also adds the user ``dopey`` to the system. Shortly after the admin
-gets an email from ``dopey`` asking for help logging into the system as he has
-forgotten the password. The admin user runs the command::
-
-    $ curl \
-        -u ${BASIC_AUTH_HEADER}  \
-        -H "Content-Type: application/json"  \
-        -X POST  \
-        -d '{
-            "username": "dopey"
-            }'  \
-        http://localhost:5000/reset_password
-
-The ``dopey`` user is emailed a one time password and a link to a web page for
-changing the password.
