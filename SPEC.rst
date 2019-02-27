@@ -79,8 +79,8 @@ The Magic Mirror admin then tries to register the Snow White as a single user::
 Since, this is a dictionary rather than a list of dictionaries the lookup
 server returns ``400 Bad Request``.
 
-The Magic Mirror admin then corrects the request by using an array instead of a
-string::
+The Magic Mirror admin then corrects the request by using a list of
+dictionaries instead of a dictionary::
 
     $ curl \
       -H "Content-Type: application/json"  \
@@ -88,7 +88,7 @@ string::
       -d '[{"name: "snow-white", "email": "snow-white@disney.com"}]'  \
       https://localhost:5000/user/register
 
-To ensure that all seven dwarfs and the huntsman have been added the Magic
+To ensure that all seven dwarfs and the Snow White have been added the Magic
 Mirror lists all the users registered in the lookup server::
 
     $ curl https://localhost:5000/user/list
@@ -120,7 +120,7 @@ for datasets that have been registered from this base URI::
         }
       https://localhost:5000/permission/update_all_permissions_on_base_uri
 
-Snow White has logs in and updates her password using the web interface. She
+Snow White logs in and updates her password using the web interface. She
 then registers all the datasets in the ``s3://snow-white`` bucket using
 the ``mass_registration.py`` script::
 
@@ -161,8 +161,8 @@ Then the sleepy dwarf looks for all datasets created by ``dopey`` with the term
     $ curl https://localhost:5000/dataset/list?creator_username=dopey&any=apple
 
 The dopey dwarf also wants to search for datasets. However, he has forgotten his
-new password. He therefore generates sends a request to generate another one
-time login password::
+new password. He therefore sends a request to generate another one time login
+password::
 
     $ curl \
       -H "Content-Type: application/json"  \
