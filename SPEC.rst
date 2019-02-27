@@ -179,13 +179,36 @@ Technical details
 Questions
 ^^^^^^^^^
 
-- What is the difference between a token based authentication system and basic auth?
+- What is the difference between a token based authentication system and basic
+  auth?
 - Does ``curl`` support token based authentication?
 - Which authentication system should be used?
 - What database is most suitable for managing users? NoSQL vs SQL...
 - What database is best for searching for metadata? NoSQL vs SQL...
 - What Python web framework should be used? Flask vs Pyramid vs Django?
 
+Further reading
+^^^^^^^^^^^^^^^
+
+Authentication
+~~~~~~~~~~~~~~
+
+- https://blog.risingstack.com/web-authentication-methods-explained/
+- https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication
+- https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec
+
+Python tutorials
+~~~~~~~~~~~~~~~~
+
+- https://realpython.com/token-based-authentication-with-flask/
+- https://codeburst.io/jwt-authorization-in-flask-c63c1acf4eeb
+- https://pypi.org/project/pyramid_jwt/
+- https://blog.apcelent.com/json-web-token-tutorial-with-example-in-python.html
+
+Development tools
+~~~~~~~~~~~~~~~~~
+
+- https://www.getpostman.com/
 Requirements
 ^^^^^^^^^^^^
 
