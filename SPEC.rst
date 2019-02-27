@@ -1,13 +1,14 @@
 Draft Specification
 ===================
 
-:Date: 21 February 2019
+.. |date| date::
+
 :Author: Tjelvar Olsson
+:Date: |date|
+:Status: Draft
 
 Introduction
 ------------
-
-*This is a draft!*
 
 When a base URI contains many datasets commands such as ``dtool ls <BASE_URI>``
 can take a long time to complete. It would be good to have a means to query
