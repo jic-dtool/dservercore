@@ -181,6 +181,7 @@ Requirements
 
 - The lookup server must be accessible to clients on the network, i.e. it
   should be a web server
+- The lookup server must be served over HTTPS
 - Scripts and applications should be able to interact with the lookup server
   through an API, both in terms of searching for datasets and managing users
   and what base URIs the users are authenticated to work with
@@ -326,9 +327,9 @@ will be a setting to enable LDAP pass through authentication. Once a user is
 registered in the system it will be possible for him/her to request a JSON Web Token.
 Using this token the user is able to authenticate against the lookup server.
 
-- https://blog.risingstack.com/web-authentication-methods-explained/
-- https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication
-- https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec
+- `Web Authentication Methods Explained <https://blog.risingstack.com/web-authentication-methods-explained/>`
+- `The Ins and Outs of Token Based Authentication <https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication>`_
+- `5 Easy Steps to Understanding JSON Web Tokens <https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec>`_
 
 Databases
 ^^^^^^^^^
@@ -358,10 +359,8 @@ unstructured data. As such it will be used to manage:
 
 Further reading:
 
-- https://www.stratoscale.com/blog/dbaas/hybrid-databases-combining-relational-nosql/
-- https://medium.com/swlh/should-you-use-nosql-or-sql-db-or-both-349cb26c9add
-- https://www.newgenapps.com/blog/sql-vs-nosql-finding-the-right-dbms-for-your-project
-- https://docs.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-overview
+- `Hybrid Databases: Combining Relational and NoSQL <https://www.stratoscale.com/blog/dbaas/hybrid-databases-combining-relational-nosql/>`_
+- `Should You Use NoSQL Or SQL Db Or Both? <https://medium.com/swlh/should-you-use-nosql-or-sql-db-or-both-349cb26c9add>`_
 
 Python web framworks
 ^^^^^^^^^^^^^^^^^^^^
@@ -387,15 +386,24 @@ There is plenty of tutorials and documentation describing how to work with Flask
 Initially we will try to use Flask to implement the lookup server. It may be useful
 to make use of the tutorials and extensions listed below:
 
-- https://codeburst.io/jwt-authorization-in-flask-c63c1acf4eeb
-- https://realpython.com/token-based-authentication-with-flask/
-- https://flask-user.readthedocs.io/en/latest/
-- https://flask-ldap3-login.readthedocs.io/en/latest/
-- http://flask-sqlalchemy.pocoo.org/2.3/
-- https://flask-pymongo.readthedocs.io/en/latest/
-- http://flask.pocoo.org/docs/1.0/testing/
+- `JWT authorization in Flask <https://codeburst.io/jwt-authorization-in-flask-c63c1acf4eeb>`_
+- `Token-Based Authentication With Flask <https://realpython.com/token-based-authentication-with-flask/>`_
+- `Flask-User <https://flask-user.readthedocs.io/en/latest/>`_
+- `Flask LDAP3 Login <https://flask-ldap3-login.readthedocs.io/en/latest/>`_
+- `Flask-SQLAlchemy <http://flask-sqlalchemy.pocoo.org/2.3/>`_
+- `Flask-PyMongo <https://flask-pymongo.readthedocs.io/en/latest/>`_
+- `Testing Flask Applications <http://flask.pocoo.org/docs/1.0/testing/>`_
+
+HTTPS
+~~~~~
+
+Let’s Encrypt is a free, automated, and open Certificate Authority.
+
+- `How to Secure Apache with Let's Encrypt on CentOS 7 <https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-centos-7>`_
+- `Securing NGINX with SSL using Let’s Encrypt on CentOS 7.x <https://osjournal.com/securing-nginx-with-ssl-using-lets-encrypt-on-centos-7-x-18/>`_
+- `Let’s Encrypt <https://letsencrypt.org/>`_
 
 Development tools
 ^^^^^^^^^^^^^^^^^
 
-- https://www.getpostman.com/
+- `Postman Simplifies API Development <https://www.getpostman.com/>`_
