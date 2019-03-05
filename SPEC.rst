@@ -92,7 +92,8 @@ To ensure that all seven dwarfs and the Snow White have been added the Magic
 Mirror lists all the users registered in the lookup server::
 
     $ curl https://localhost:5000/user/list
-    ["bashful", "doc", "dopey", "happy", "grumpy", "sleepy", "sneezy", "snow-white"]
+    ["bashful", "doc", "dopey", "happy",
+     "grumpy", "sleepy", "sneezy", "snow-white"]
 
 At this point all the dwarfs and Snow White have been sent an email with a link
 to a one time login password.
@@ -124,7 +125,7 @@ Snow White logs in, updates her password using the web interface and obtains an
 authentication token. She then registers all the datasets in the
 ``s3://snow-white`` bucket using the ``mass_registration.py`` script::
 
-    python mass_registration.py --lookup-server="https://localhost:5000" s3://snow-white
+    python mass_registration.py s3://snow-white
 
 This script loops over all the datasets in the ``s3://snow-white`` bucket and constructs
 HTTP POST requests along the lines of that below::
@@ -172,6 +173,9 @@ password::
         }
       https://localhost:5000/reset_password
 
+.. raw:: pdf
+
+   PageBreak
 
 Technical details
 -----------------
@@ -202,129 +206,6 @@ Requirements
 - The lookup server should be able to delegate authorisation to an LDAP server
 - As well as the API the lookup server will have a web (HTML) interface
   allowing standard users to list and search for datasets
-
-Suggested routes
-^^^^^^^^^^^^^^^^
-
-Web application
-~~~~~~~~~~~~~~~
-
-``/``:
-
-    HTML web application
-
-
-Authentication
-~~~~~~~~~~~~~~
-
-``/login``:
-
-    POST request to login
-
-``/logout``:
-
-    POST request to logout
-
-Dataset search and lookup
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``/dataset/lookup/<UUID>``:
-
-    GET request to list locations where the dataset can be found.
-
-``/dataset/search``:
-
-    POST request to list datasets found by search query.
-
-
-Base URI management
-~~~~~~~~~~~~~~~~~~~
-
-``/base_uri/register``:
-
-    POST request to register a base URI. Only admin allowed.
-
-``/base_uri/list``:
-
-    GET request to list all base URIs a user is authorised to search.
-
-
-Dataset management
-~~~~~~~~~~~~~~~~~~
-
-``/dataset/register``:
-
-    POST request to register a dataset. Only admin and data champions allowed.
-
-``/dataset/list``:
-
-    GET request to list all datasets a user is authorised to view.
-
-
-User management
-~~~~~~~~~~~~~~~
-
-``/user/register``:
-
-    POST request to create/register a user. Only admin allowed.
-
-``/user/list``:
-
-    GET request to list all users. Only admin allowed.
-
-``/user/info/<USERNAME>``:
-
-    GET request for user details, including base URIs that the user has been
-    given search and register privileges on. Only admin and user in question
-    are allowed.
-
-
-Permission management
-~~~~~~~~~~~~~~~~~~~~~
-
-``/permission/update_permissions_for_specific_user_on_base_uri``:
-
-    POST to update a specific user's permissions a base URI. Only admin allowed.
-
-    Grant Grumpy search privileges on the snow-white bucket::
-
-        {
-           "user": "grumpy",
-           "base_uri": "s3://snow-white",
-           "permissions": ["search"]
-        }
-
-    Grant Sleepy search and register privileges on the snow-white bucket::
-
-        {
-          "user": "sleepy",
-          "base_uri": "s3://snow-white",
-          "permissions": ["search", "register"]
-        }
-
-    Revoke all Dopey's  privileges on the snow-white bucket::
-
-        {"user": "dopey", "base_uri": "s3://snow-white", "permissions": []}
-
-    Server responds with ``200 OK`` if successful. Server responds with ``409 Conflict`` if
-    either the username or the base URI does not exist in the lookup server.
-
-``/permission/update_all_permissions_on_base_uri``:
-
-    POST to update all permissions on a base URI. Only admin allowed.
-
-    Revoke all users privileges::
-
-        {"users_with_search_permissions": [],
-         "users_with_register_permissions": [],
-         "base_uri": "s3://snow-white"}
-
-    Give Grumpy, Dopey permission to search and Sleepy permission to register datasets::
-
-        {"users_with_search_permissions": ["grumpy", "dopey"],
-         "users_with_register_permissions": ["sleepy"],
-         "base_uri": "s3://snow-white"}
-
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -410,3 +291,128 @@ Development tools
 ^^^^^^^^^^^^^^^^^
 
 - `Postman Simplifies API Development <https://www.getpostman.com/>`_
+
+Suggested routes
+^^^^^^^^^^^^^^^^
+
+Web application
+~~~~~~~~~~~~~~~
+
+``/``:
+
+    HTML web application
+
+
+Authentication
+~~~~~~~~~~~~~~
+
+``/login``:
+
+    POST request to login
+
+``/logout``:
+
+    POST request to logout
+
+Dataset search and lookup
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``/dataset/lookup/<UUID>``:
+
+    GET request to list locations where the dataset can be found.
+
+``/dataset/search``:
+
+    POST request to list datasets found by search query.
+
+
+Base URI management
+~~~~~~~~~~~~~~~~~~~
+
+``/base_uri/register``:
+
+    POST request to register a base URI. Only admin allowed.
+
+``/base_uri/list``:
+
+    GET request to list all base URIs a user is authorised to search.
+
+
+Dataset management
+~~~~~~~~~~~~~~~~~~
+
+``/dataset/register``:
+
+    POST request to register a dataset. Only admin and data champions allowed.
+
+``/dataset/list``:
+
+    GET request to list all datasets a user is authorised to view.
+
+
+User management
+~~~~~~~~~~~~~~~
+
+``/user/register``:
+
+    POST request to create/register a user. Only admin allowed.
+
+``/user/list``:
+
+    GET request to list all users. Only admin allowed.
+
+``/user/info/<USERNAME>``:
+
+    GET request for user details, including base URIs that the user has been
+    given search and register privileges on. Only admin and user in question
+    are allowed.
+
+.. raw:: pdf
+
+   PageBreak
+
+Permission management
+~~~~~~~~~~~~~~~~~~~~~
+
+``/permission/update_permissions_for_specific_user_on_base_uri``:
+
+    POST to update a specific user's permissions a base URI. Only admin allowed.
+
+    Grant Grumpy search privileges on the snow-white bucket::
+
+        {
+           "user": "grumpy",
+           "base_uri": "s3://snow-white",
+           "permissions": ["search"]
+        }
+
+    Grant Sleepy search and register privileges on the snow-white bucket::
+
+        {
+          "user": "sleepy",
+          "base_uri": "s3://snow-white",
+          "permissions": ["search", "register"]
+        }
+
+    Revoke all Dopey's  privileges on the snow-white bucket::
+
+        {"user": "dopey", "base_uri": "s3://snow-white", "permissions": []}
+
+    Server responds with ``200 OK`` if successful. Server responds with ``409 Conflict`` if
+    either the username or the base URI does not exist in the lookup server.
+
+``/permission/update_all_permissions_on_base_uri``:
+
+    POST to update all permissions on a base URI. Only admin allowed.
+
+    Revoke all users privileges::
+
+        {"users_with_search_permissions": [],
+         "users_with_register_permissions": [],
+         "base_uri": "s3://snow-white"}
+
+    Give Grumpy, Dopey permission to search and Sleepy permission to register datasets::
+
+        {"users_with_search_permissions": ["grumpy", "dopey"],
+         "users_with_register_permissions": ["sleepy"],
+         "base_uri": "s3://snow-white"}
