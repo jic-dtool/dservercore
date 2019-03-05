@@ -176,46 +176,14 @@ password::
 Technical details
 -----------------
 
-Questions
-^^^^^^^^^
-
-- What is the difference between a token based authentication system and basic
-  auth?
-- Does ``curl`` support token based authentication?
-- Which authentication system should be used?
-- What database is most suitable for managing users? NoSQL vs SQL...
-- What database is best for searching for metadata? NoSQL vs SQL...
-- What Python web framework should be used? Flask vs Pyramid vs Django?
-
-Further reading
-^^^^^^^^^^^^^^^
-
-Authentication
-~~~~~~~~~~~~~~
-
-- https://blog.risingstack.com/web-authentication-methods-explained/
-- https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication
-- https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec
-
-Python tutorials
-~~~~~~~~~~~~~~~~
-
-- https://realpython.com/token-based-authentication-with-flask/
-- https://codeburst.io/jwt-authorization-in-flask-c63c1acf4eeb
-- https://pypi.org/project/pyramid_jwt/
-- https://blog.apcelent.com/json-web-token-tutorial-with-example-in-python.html
-
-Development tools
-~~~~~~~~~~~~~~~~~
-
-- https://www.getpostman.com/
 Requirements
 ^^^^^^^^^^^^
 
 - The lookup server must be accessible to clients on the network, i.e. it
   should be a web server
 - Scripts and applications should be able to interact with the lookup server
-  through an API
+  through an API, both in terms of searching for datasets and managing users
+  and what base URIs the users are authenticated to work with
 - Users should only be able to find metadata and URIs of datasets that live in
   base URIs that they have been given access to, as such the server needs to
   include authentication and authorisation
@@ -347,3 +315,87 @@ Permission management
         {"users_with_search_permissions": ["grumpy", "dopey"],
          "users_with_register_permissions": ["sleepy"],
          "base_uri": "s3://snow-white"}
+
+
+Authentication
+^^^^^^^^^^^^^^
+
+The lookup server needs to manage users. In it's most basic form users and
+their hashed passwords will be stored in a relational database. However, there
+will be a setting to enable LDAP pass through authentication. Once a user is
+registered in the system it will be possible for him/her to request a JSON Web Token.
+Using this token the user is able to authenticate against the lookup server.
+
+- https://blog.risingstack.com/web-authentication-methods-explained/
+- https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication
+- https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec
+
+Databases
+^^^^^^^^^
+
+The lookup server will manage several different pieces of information including:
+
+- Users
+- Base URIs
+- User to base URI relationships
+- Dataset administrative data (base_uri, uuid, uri, created_at,
+  frozen_at, dtoolcore_version, creator_username, name)
+- Dataset descriptive metadata
+
+A relational database, such as MySQL, is the best option for managing
+structured data relationships. As such it will be used to manage:
+
+- Users
+- Base URIs
+- User to base URI relationships
+- Dataset administrative data (base_uri, uuid, uri, created_at,
+  frozen_at, dtoolcore_version, creator_username, name)
+
+A NoSQL document database, such as MongoDB, is the best option for managing
+unstructured data. As such it will be used to manage:
+
+- Dataset descriptive metadata
+
+Further reading:
+
+- https://www.stratoscale.com/blog/dbaas/hybrid-databases-combining-relational-nosql/
+- https://medium.com/swlh/should-you-use-nosql-or-sql-db-or-both-349cb26c9add
+- https://www.newgenapps.com/blog/sql-vs-nosql-finding-the-right-dbms-for-your-project
+- https://docs.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-overview
+
+Python web framworks
+^^^^^^^^^^^^^^^^^^^^
+
+There are several popular Python web frameworks including Django, Pyramid and
+Flask.
+
+Django is popular because it has built in user management. However, this system
+is based on sessions and cookies rather than JSON web token and as such it does
+not give much.  Django makes use of its own object relational mapper rather
+then the more generic Python library SQLAlchemy. Django does not have any
+support for working with other databases such as MongoDB.
+
+Pyramid markets itself as a web framework that can scale from small to big.
+It has support for JWT, LDAP, SQLAlchemy, MongoDB. However, it does not have
+an out of the box solution for managing users. Also, there seems to be fewer
+tutorials and ways to learn about Pyramid than Django and Flask.
+
+Flask markets itself as a micro framework. It seem like the best fit as it supports
+JWT, LDAP, SQLAlchemy, MongoDB. Furthermore, it has an extension for user management.
+There is plenty of tutorials and documentation describing how to work with Flask.
+
+Initially we will try to use Flask to implement the lookup server. It may be useful
+to make use of the tutorials and extensions listed below:
+
+- https://codeburst.io/jwt-authorization-in-flask-c63c1acf4eeb
+- https://realpython.com/token-based-authentication-with-flask/
+- https://flask-user.readthedocs.io/en/latest/
+- https://flask-ldap3-login.readthedocs.io/en/latest/
+- http://flask-sqlalchemy.pocoo.org/2.3/
+- https://flask-pymongo.readthedocs.io/en/latest/
+- http://flask.pocoo.org/docs/1.0/testing/
+
+Development tools
+^^^^^^^^^^^^^^^^^
+
+- https://www.getpostman.com/
