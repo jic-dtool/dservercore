@@ -32,8 +32,8 @@ High level user stories
   privileges to search for datasets in a base URI so that they can find datasets
   from that base URI
 - As a systems administrator I want to be able to give a user
-  privileges register datasets on a base URI so that they can register datasets
-  from that base URI
+  privileges to register datasets on a base URI so that they can register
+  datasets from that base URI
 - As a data champion, a user with privileges to register datasets, I want to be
   able to re-index a base URI when new datasets have been uploaded to the base
   URI
@@ -68,7 +68,7 @@ of the lookup server::
       ]'  \
       https://localhost:5000/user/register
 
-The Magic Mirror admin then tries to register the Snow White as a single user::
+The Magic Mirror admin then tries to register Snow White as a single user::
 
     $ curl \
       -H "Content-Type: application/json"  \
@@ -120,9 +120,9 @@ for datasets that have been registered from this base URI::
         }
       https://localhost:5000/permission/update_all_permissions_on_base_uri
 
-Snow White logs in and updates her password using the web interface. She
-then registers all the datasets in the ``s3://snow-white`` bucket using
-the ``mass_registration.py`` script::
+Snow White logs in, updates her password using the web interface and obtains an
+authentication token. She then registers all the datasets in the
+``s3://snow-white`` bucket using the ``mass_registration.py`` script::
 
     python mass_registration.py --lookup-server="https://localhost:5000" s3://snow-white
 
@@ -200,7 +200,7 @@ Requirements
 - An admin user can grant a user permissions on a base URI
 - The lookup server should be able to manage authorisation itself
 - The lookup server should be able to delegate authorisation to an LDAP server
-- As well as the API the lookup server will have a basic web (HTML) interface
+- As well as the API the lookup server will have a web (HTML) interface
   allowing standard users to list and search for datasets
 
 Suggested routes
@@ -284,11 +284,15 @@ Permission management
 
 ``/permission/update_permissions_for_specific_user_on_base_uri``:
 
-    POST to give a update a specific user's permissions a base URI. Only admin allowed.
+    POST to update a specific user's permissions a base URI. Only admin allowed.
 
     Grant Grumpy search privileges on the snow-white bucket::
 
-        {"user": "grumpy", "base_uri": "s3://snow-white", "permissions": ["search"]}
+        {
+           "user": "grumpy",
+           "base_uri": "s3://snow-white",
+           "permissions": ["search"]
+        }
 
     Grant Sleepy search and register privileges on the snow-white bucket::
 
@@ -307,7 +311,7 @@ Permission management
 
 ``/permission/update_all_permissions_on_base_uri``:
 
-    POST to give update a all permissions on a base URI. Only admin allowed.
+    POST to update all permissions on a base URI. Only admin allowed.
 
     Revoke all users privileges::
 
@@ -331,24 +335,19 @@ will be a setting to enable LDAP pass through authentication. Once a user is
 registered in the system it will be possible for him/her to request a JSON Web Token.
 Using this token the user is able to authenticate against the lookup server.
 
-- `Web Authentication Methods Explained <https://blog.risingstack.com/web-authentication-methods-explained/>`
+- `Web Authentication Methods Explained <https://blog.risingstack.com/web-authentication-methods-explained/>`_
 - `The Ins and Outs of Token Based Authentication <https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication>`_
 - `5 Easy Steps to Understanding JSON Web Tokens <https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec>`_
 
 Databases
 ^^^^^^^^^
 
-The lookup server will manage several different pieces of information including:
-
-- Users
-- Base URIs
-- User to base URI relationships
-- Dataset administrative data (base_uri, uuid, uri, created_at,
-  frozen_at, dtoolcore_version, creator_username, name)
-- Dataset descriptive metadata
+The lookup server will manage several different pieces of information
+including: users, base URIs, user to base URI relationships, dataset
+administrative data, and dataset descriptive metadata.
 
 A relational database, such as MySQL, is the best option for managing
-structured data relationships. As such it will be used to manage:
+structured data and relationships. As such it will be used to manage:
 
 - Users
 - Base URIs
