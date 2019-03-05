@@ -292,7 +292,11 @@ Permission management
 
     Grant Sleepy search and register privileges on the snow-white bucket::
 
-        {"user": "sleepy", "base_uri": "s3://snow-white", "permissions": ["search", "register"]}
+        {
+          "user": "sleepy",
+          "base_uri": "s3://snow-white",
+          "permissions": ["search", "register"]
+        }
 
     Revoke all Dopey's  privileges on the snow-white bucket::
 
@@ -395,7 +399,7 @@ to make use of the tutorials and extensions listed below:
 - `Testing Flask Applications <http://flask.pocoo.org/docs/1.0/testing/>`_
 
 HTTPS
-~~~~~
+^^^^^
 
 Let’s Encrypt is a free, automated, and open Certificate Authority.
 
