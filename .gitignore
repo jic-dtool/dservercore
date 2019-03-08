@@ -2,6 +2,7 @@ TODO.rst
 
 *.swp
 *.pyc
+*.egg-info
 
 data/*
 env/*

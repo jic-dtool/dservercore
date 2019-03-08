@@ -1,6 +1,1 @@
-Flask
-pymongo
-dtoolcore
-dtool_irods
-dtool_s3
-pyyaml
+-e .

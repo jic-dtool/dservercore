@@ -7,9 +7,9 @@ to where the dataset is stored.
 Setup and installation
 ----------------------
 
-Install requirements::
+Install the dtool lookup server::
 
-    $ pip install -r requirements.txt
+    $ python setup.py install
 
 Create a directory where the MongoDB data will be stored::
 
@@ -21,7 +21,7 @@ Start Mongo DB in docker::
 
 Start the Flask app::
 
-    $ export FLASK_APP=dtool_lookup_server/__init__.py
+    $ export FLASK_APP=dtool_lookup_server
     $ flask run
 
 Mass registration
