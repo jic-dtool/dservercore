@@ -9,7 +9,7 @@ setup(
         'flask',
         'flask-sqlalchemy',
         'flask-migrate',
-        'pymongo',
+        'flask-pymongo',
         'dtoolcore',
         'dtool_irods',
         'dtool_s3',

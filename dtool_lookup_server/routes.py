@@ -1,18 +1,18 @@
 from flask import request, jsonify, abort, render_template
 
-from dtool_lookup_server import app, utils
+from dtool_lookup_server import app, mongo, utils
 
 
 @app.route("/")
 def index():
-    num_datasets = app.config["mongo_collection"].count()
+    num_datasets = mongo.db.datasets.count()
     return render_template("index.html", num_datasets=num_datasets)
 
 
 @app.route("/lookup_datasets/<uuid>")
 def lookup_datasets(uuid):
     datasets = utils.lookup_datasets(
-        app.config["mongo_collection"],
+        mongo.db.datasets,
         uuid
     )
     return jsonify(datasets)
@@ -22,7 +22,7 @@ def lookup_datasets(uuid):
 def register_dataset():
     dataset_info = request.get_json()
     uuid = utils.register_dataset(
-        app.config["mongo_collection"],
+        mongo.db.datasets,
         dataset_info
     )
     if uuid is None:
@@ -35,7 +35,7 @@ def search_for_datasets():
     query = request.get_json()
     print(query)
     datasets = utils.search_for_datasets(
-        app.config["mongo_collection"],
+        mongo.db.datasets,
         query
     )
     print("datasets in route {}".format(datasets))
