@@ -22,16 +22,21 @@ def random_string(
 @pytest.fixture
 def tmp_app(request):
 
-    from dtool_lookup_server import app
+    from dtool_lookup_server import create_app, mongo
+
     tmp_db_name = random_string()
-    client = app.config["mongo_client"]
-    db = client[tmp_db_name]
-    collection = db["datasets"]
-    app.config["mongo_db"] = db
-    app.config["mongo_collection"] = collection
+
+    config = {
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_db_name),
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SECRET_KEY": "dev"
+    }
+
+    app = create_app(config)
 
     @request.addfinalizer
     def teardown():
-        app.config["mongo_client"].drop_database(tmp_db_name)
+        mongo.cx.drop_database(tmp_db_name)
 
     return app.test_client()

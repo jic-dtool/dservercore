@@ -8,10 +8,13 @@ from . import tmp_app  # NOQA
 
 def test_search_for_datasets_route(tmp_app):  # NOQA
 
+    from dtool_lookup_server import mongo
     from dtool_lookup_server.utils import register_dataset, num_datasets
 
     # Get the collection out of the tmp_app.
-    collection = tmp_app.application.config["mongo_collection"]
+    collection = mongo.db.datasets
+    print(mongo)
+    print(mongo.db)
     print(collection)
 
     # Use utils.register_dataset to register some datasets.

@@ -12,9 +12,15 @@ mongo = PyMongo()
 sql_db = SQLAlchemy()
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
-    app.config.from_object(Config)
+
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_object(Config)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
 
     mongo.init_app(app)
 

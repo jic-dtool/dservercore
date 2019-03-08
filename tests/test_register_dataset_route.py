@@ -7,6 +7,7 @@ from . import tmp_app  # NOQA
 
 def test_register_dataset_route(tmp_app):  # NOQA
 
+    from dtool_lookup_server import mongo
     from dtool_lookup_server.utils import lookup_datasets
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
@@ -24,7 +25,7 @@ def test_register_dataset_route(tmp_app):  # NOQA
     assert r.status_code == 200
 
     # Check that the dataset has been added to mongo.
-    collection = tmp_app.application.config["mongo_collection"]
+    collection = mongo.db.datasets
     assert [data] == lookup_datasets(collection, uuid)
 
 
