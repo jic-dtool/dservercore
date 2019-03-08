@@ -1,14 +1,12 @@
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, render_template
 
 from dtool_lookup_server import app, utils
 
 
 @app.route("/")
 def index():
-    message = "{} registered datasets".format(
-        app.config["mongo_collection"].count()
-    )
-    return message
+    num_datasets = app.config["mongo_collection"].count()
+    return render_template("index.html", num_datasets=num_datasets)
 
 
 @app.route("/lookup_datasets/<uuid>")

@@ -4,6 +4,7 @@ setup(
     name='dtool-lookup-server',
     packages=['dtool_lookup_server'],
     include_package_data=True,
+    package_data={"dtool_lookup_server": ["templates/*"]},
     install_requires=[
         'flask',
         'pymongo',
