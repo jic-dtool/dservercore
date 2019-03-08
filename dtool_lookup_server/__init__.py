@@ -8,15 +8,20 @@ from dtool_lookup_server import nosql_db
 
 __version__ = "0.4.0"
 
-app = Flask(__name__)
-app.config.from_object(Config)
-
-mongo = PyMongo(app)
-#nosql_db.init_mongo_db(app)
-
-sql_db = SQLAlchemy(app)
-migrate = Migrate(app, sql_db)
+mongo = PyMongo()
+sql_db = SQLAlchemy()
 
 
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-from dtool_lookup_server import routes, sql_models
+    mongo.init_app(app)
+
+    sql_db.init_app(app)
+    migrate = Migrate(app, sql_db)
+
+    from dtool_lookup_server import routes
+    app.register_blueprint(routes.bp)
+
+    return app
