@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 nosql_db.init_mongo_db(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+sql_db = SQLAlchemy(app)
+migrate = Migrate(app, sql_db)
 
-from dtool_lookup_server import routes
+from dtool_lookup_server import routes, sql_models

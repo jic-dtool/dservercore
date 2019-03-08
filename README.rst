@@ -19,6 +19,12 @@ Start Mongo DB in docker::
 
     $ docker run -d -p 27017:27017 -v `pwd`/data:/data/db mongo
 
+Create the latest version of the SQL database, for more details see `The Flask
+Mega-Tutorial Part IV: Database
+<https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database>`_::
+
+    $ flask db upgrade
+
 Start the Flask app::
 
     $ export FLASK_APP=dtool_lookup_server
