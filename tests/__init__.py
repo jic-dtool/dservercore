@@ -22,7 +22,7 @@ def random_string(
 @pytest.fixture
 def tmp_app(request):
 
-    from app import app
+    from dtool_lookup_server import app
     tmp_db_name = random_string()
     client = app.config["mongo_client"]
     db = client[tmp_db_name]

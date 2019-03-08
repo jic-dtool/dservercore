@@ -21,7 +21,7 @@ Start Mongo DB in docker::
 
 Start the Flask app::
 
-    $ export FLASK_APP=app/__init__.py
+    $ export FLASK_APP=dtool_lookup_server/__init__.py
     $ flask run
 
 Mass registration

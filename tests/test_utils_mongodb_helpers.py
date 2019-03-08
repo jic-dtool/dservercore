@@ -6,7 +6,7 @@ from operator import itemgetter
 
 def test_mongodb_utiliites_functional():
 
-    from app.utils import (
+    from dtool_lookup_server.utils import (
         num_datasets,
         register_dataset,
         lookup_datasets,

@@ -6,7 +6,7 @@ __version__ = "0.4.0"
 
 app = Flask(__name__)
 
-from app import routes
+from dtool_lookup_server import routes
 
 client = MongoClient()
 

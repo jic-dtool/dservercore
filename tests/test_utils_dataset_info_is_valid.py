@@ -1,8 +1,8 @@
-"""Test app.utils.dataset_info_is_valid helper function."""
+"""Test dtool_lookup_server.utils.dataset_info_is_valid helper function."""
 
 
 def test_dataset_info_is_valid_returns_true_on_valid_info():
-    from app.utils import dataset_info_is_valid
+    from dtool_lookup_server.utils import dataset_info_is_valid
 
     # Below is the minimum data required to register a dataset.
     info = {
@@ -14,7 +14,7 @@ def test_dataset_info_is_valid_returns_true_on_valid_info():
 
 
 def test_dataset_info_returns_false_when_key_data_is_missing():
-    from app.utils import dataset_info_is_valid
+    from dtool_lookup_server.utils import dataset_info_is_valid
 
     info = {
         "type": "dataset",
@@ -36,7 +36,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
 
 
 def test_dataset_info_returns_false_when_type_is_not_dataset():
-    from app.utils import dataset_info_is_valid
+    from dtool_lookup_server.utils import dataset_info_is_valid
 
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
@@ -47,7 +47,7 @@ def test_dataset_info_returns_false_when_type_is_not_dataset():
 
 
 def test_dataset_info_returns_false_if_uuid_looks_invalid():
-    from app.utils import dataset_info_is_valid
+    from dtool_lookup_server.utils import dataset_info_is_valid
 
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f",

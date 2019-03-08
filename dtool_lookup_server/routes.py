@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort
 
-from app import app, utils
+from dtool_lookup_server import app, utils
 
 
 @app.route("/")
