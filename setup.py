@@ -7,6 +7,8 @@ setup(
     package_data={"dtool_lookup_server": ["templates/*"]},
     install_requires=[
         'flask',
+        'flask-sqlalchemy',
+        'flask-migrate',
         'pymongo',
         'dtoolcore',
         'dtool_irods',
