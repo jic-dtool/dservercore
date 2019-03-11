@@ -35,3 +35,6 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
 
     # Test non-existing user.
     assert get_user_info("no-one") is None
+
+    # Test registering existing user again.
+    assert register_user(data_champion_username) is None

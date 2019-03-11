@@ -1,16 +1,25 @@
 """Utility functions."""
 
-
-#############################################################################
-# User helper functions
-#############################################################################
+from sqlalchemy.sql import exists
 
 from dtool_lookup_server import sql_db
 from dtool_lookup_server.sql_models import User
 
 
+#############################################################################
+# User helper functions
+#############################################################################
+
+
 def register_user(username, is_admin=False):
-    """Register a user in the system."""
+    """Register a user in the system.
+
+    :returns: user id if successful, None if the user already exists
+    """
+    # Return None if the user already exists.
+    if sql_db.session.query(exists().where(User.username == username)).scalar():
+        return None
+
     user = User(username=username, is_admin=is_admin)
     sql_db.session.add(user)
     sql_db.session.commit()
