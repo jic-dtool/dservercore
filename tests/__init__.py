@@ -22,7 +22,7 @@ def random_string(
 @pytest.fixture
 def tmp_app(request):
 
-    from dtool_lookup_server import create_app, mongo
+    from dtool_lookup_server import create_app, mongo, sql_db
 
     tmp_db_name = random_string()
 
@@ -34,6 +34,12 @@ def tmp_app(request):
     }
 
     app = create_app(config)
+
+    # Ensure the sql database has been put into the context.
+    app.app_context().push()
+
+    # Populate the database.
+    sql_db.Model.metadata.create_all(sql_db.engine)
 
     @request.addfinalizer
     def teardown():
