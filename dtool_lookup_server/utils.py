@@ -1,6 +1,37 @@
 """Utility functions."""
 
 
+#############################################################################
+# User helper functions
+#############################################################################
+
+from dtool_lookup_server import sql_db
+from dtool_lookup_server.sql_models import User
+
+
+def register_user(username, is_admin=False):
+    """Register a user in the system."""
+    user = User(username=username, is_admin=is_admin)
+    sql_db.session.add(user)
+    sql_db.session.commit()
+    return user.id
+
+
+def get_user_info(username):
+    """Return information about a user."""
+    user = User.query.filter_by(username=username).first()
+    user_info = {
+        "username": user.username,
+        "is_admin": user.is_admin,
+        "base_uris": []
+    }
+    return user_info
+
+
+#############################################################################
+# Dataset helper functions
+#############################################################################
+
 def dataset_info_is_valid(dataset_info):
     """Return True if the dataset info is valid."""
     if "uuid" not in dataset_info:
