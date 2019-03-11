@@ -18,8 +18,15 @@ def register_user(username, is_admin=False):
 
 
 def get_user_info(username):
-    """Return information about a user."""
+    """Return information about a user as a dictionary.
+
+    Return None if the user does not exist.
+    """
     user = User.query.filter_by(username=username).first()
+
+    if user is None:
+        return None
+
     user_info = {
         "username": user.username,
         "is_admin": user.is_admin,

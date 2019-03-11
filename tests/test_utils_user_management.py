@@ -32,3 +32,6 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         "base_uris": []
     }
     assert user_info == expected_content
+
+    # Test non-existing user.
+    assert get_user_info("no-one") is None
