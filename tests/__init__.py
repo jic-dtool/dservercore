@@ -2,6 +2,8 @@ import random
 import string
 import os
 import sys
+import shutil
+import tempfile
 
 import pytest
 
@@ -24,11 +26,11 @@ def tmp_app(request):
 
     from dtool_lookup_server import create_app, mongo, sql_db
 
-    tmp_db_name = random_string()
+    tmp_mongo_db_name = random_string()
 
     config = {
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_db_name),
+        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "SECRET_KEY": "dev"
     }
@@ -43,6 +45,7 @@ def tmp_app(request):
 
     @request.addfinalizer
     def teardown():
-        mongo.cx.drop_database(tmp_db_name)
+        mongo.cx.drop_database(tmp_mongo_db_name)
+        sql_db.session.remove()
 
     return app.test_client()
