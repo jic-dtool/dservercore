@@ -3,13 +3,12 @@
 from sqlalchemy.sql import exists
 
 from dtool_lookup_server import sql_db
-from dtool_lookup_server.sql_models import User
+from dtool_lookup_server.sql_models import User, BaseURI
 
 
 #############################################################################
 # User helper functions
 #############################################################################
-
 
 def register_users(users):
     """Register a list of users in the system.
@@ -62,6 +61,25 @@ def get_user_info(username):
         return None
 
     return user.as_dict()
+
+
+#############################################################################
+# Base URI helper functions
+#############################################################################
+
+def register_base_uri(base_uri):
+    """Register a base URI in the dtool lookup server."""
+    base_uri = BaseURI(base_uri=base_uri)
+    sql_db.session.add(base_uri)
+    sql_db.session.commit()
+
+
+def list_base_uris():
+    """List the base URIs in the dtool lookup server."""
+    base_uris = []
+    for bu in BaseURI.query.all():
+        base_uris.append(bu.as_dict())
+    return base_uris
 
 
 #############################################################################
