@@ -94,4 +94,4 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
             "register_permissions_on_base_uris": []
         },
     ]
-    assert sorted(list_users()) == sorted(expected_content)
+    assert list_users() == expected_content
