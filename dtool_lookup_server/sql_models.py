@@ -13,7 +13,8 @@ class User(db.Model):
         return {
             "username": self.username,
             "is_admin": self.is_admin,
-            "base_uris": [],
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": [],
         }
 
 

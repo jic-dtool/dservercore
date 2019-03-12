@@ -28,7 +28,8 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
     expected_content = {
         "username": admin_username,
         "is_admin": True,
-        "base_uris": []
+        "search_permissions_on_base_uris": [],
+        "register_permissions_on_base_uris": []
     }
     assert user_info == expected_content
 
@@ -36,7 +37,8 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
     expected_content = {
         "username": data_champion_username,
         "is_admin": False,
-        "base_uris": []
+        "search_permissions_on_base_uris": [],
+        "register_permissions_on_base_uris": []
     }
     assert user_info == expected_content
 
@@ -44,7 +46,8 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
     expected_content = {
         "username": standard_user_username,
         "is_admin": False,
-        "base_uris": []
+        "search_permissions_on_base_uris": [],
+        "register_permissions_on_base_uris": []
     }
     assert user_info == expected_content
 
@@ -59,15 +62,36 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
     expected_content = {
         "username": new_username,
         "is_admin": False,
-        "base_uris": []
+        "search_permissions_on_base_uris": [],
+        "register_permissions_on_base_uris": []
     }
     assert user_info == expected_content
 
     # Test listing users.
     expected_content = [
-        {"username": admin_username, "is_admin": True, "base_uris": []},
-        {"username": data_champion_username, "is_admin": False, "base_uris": []},
-        {"username": standard_user_username, "is_admin": False, "base_uris": []},
-        {"username": new_username, "is_admin": False, "base_uris": []},
+        {
+            "username": admin_username,
+            "is_admin": True,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": data_champion_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": standard_user_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": new_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
     ]
     assert sorted(list_users()) == sorted(expected_content)
