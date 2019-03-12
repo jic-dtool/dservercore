@@ -11,19 +11,35 @@ from dtool_lookup_server.sql_models import User
 #############################################################################
 
 
-def register_user(username, is_admin=False):
-    """Register a user in the system.
+def register_users(users):
+    """Register a list of users in the system.
 
-    :returns: user id if successful, None if the user already exists
+    Example input structure::
+
+        [
+            {"username": "magic.mirror", "is_admin": True},
+            {"username": "snow.white", "is_admin": False},
+            {"username": "dopey"},
+            {"username": "sleepy"},
+        ]
+
+    If a user is already registered in the system it is skipped. To change the
+    ``is_admin`` status of an existing user use the
+    :func:`dtool_lookup_server.utils.set_user_is_admin`` function.
     """
-    # Return None if the user already exists.
-    if sql_db.session.query(exists().where(User.username == username)).scalar():
-        return None
 
-    user = User(username=username, is_admin=is_admin)
-    sql_db.session.add(user)
+    for user in users:
+        username = user["username"]
+        is_admin = user.get("is_admin", False)
+
+        # Skip existing users.
+        if sql_db.session.query(exists().where(User.username == username)).scalar():
+            continue
+
+        user = User(username=username, is_admin=is_admin)
+        sql_db.session.add(user)
+
     sql_db.session.commit()
-    return user.id
 
 
 def get_user_info(username):
