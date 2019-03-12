@@ -10,6 +10,9 @@ from dtool_lookup_server.sql_models import User, BaseURI
 # User helper functions
 #############################################################################
 
+def _get_user_obj(username_str):
+    return User.query.filter_by(username=username_str).first()
+
 def register_users(users):
     """Register a list of users in the system.
 
@@ -67,6 +70,9 @@ def get_user_info(username):
 # Base URI helper functions
 #############################################################################
 
+def _get_base_uri_obj(base_uri_str):
+    return BaseURI.query.filter_by(base_uri=base_uri_str).first()
+
 def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
     base_uri = BaseURI(base_uri=base_uri)
@@ -88,6 +94,18 @@ def list_base_uris():
 
 def update_all_permissions_on_base_uri(permissions):
     """Rewrite permissions on the base URI."""
+    base_uri = _get_base_uri_obj(permissions["base_uri"])
+    for username in permissions["search_users"]:
+        user = _get_user_obj(username)
+        if user is not None:
+            user.search_base_uris.append(base_uri)
+    for username in permissions["register_users"]:
+        user = _get_user_obj(username)
+        if user is not None:
+            user.register_base_uris.append(base_uri)
+    sql_db.session.commit()
+
+
 
 
 
