@@ -58,16 +58,10 @@ def get_user_info(username):
     """
     user = User.query.filter_by(username=username).first()
 
-
     if user is None:
         return None
 
-    user_info = {
-        "username": user.username,
-        "is_admin": user.is_admin,
-        "base_uris": []
-    }
-    return user_info
+    return user.as_dict()
 
 
 #############################################################################
