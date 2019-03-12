@@ -8,6 +8,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
     from dtool_lookup_server.utils import (
         register_users,
         get_user_info,
+        list_users,
     )
 
     # Create list of dictionaries of users.
@@ -61,3 +62,12 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         "base_uris": []
     }
     assert user_info == expected_content
+
+    # Test listing users.
+    expected_content = [
+        {"username": admin_username, "is_admin": True, "base_uris": []},
+        {"username": data_champion_username, "is_admin": False, "base_uris": []},
+        {"username": standard_user_username, "is_admin": False, "base_uris": []},
+        {"username": new_username, "is_admin": False, "base_uris": []},
+    ]
+    assert sorted(list_users()) == sorted(expected_content)

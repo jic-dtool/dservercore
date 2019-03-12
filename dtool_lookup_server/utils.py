@@ -33,7 +33,9 @@ def register_users(users):
         is_admin = user.get("is_admin", False)
 
         # Skip existing users.
-        if sql_db.session.query(exists().where(User.username == username)).scalar():
+        if sql_db.session.query(
+            exists().where(User.username == username)
+        ).scalar():
             continue
 
         user = User(username=username, is_admin=is_admin)
@@ -42,12 +44,20 @@ def register_users(users):
     sql_db.session.commit()
 
 
+def list_users():
+    """Return list of users."""
+    users = []
+    for u in User.query.all():
+        users.append(u.as_dict())
+    return users
+
 def get_user_info(username):
     """Return information about a user as a dictionary.
 
     Return None if the user does not exist.
     """
     user = User.query.filter_by(username=username).first()
+
 
     if user is None:
         return None

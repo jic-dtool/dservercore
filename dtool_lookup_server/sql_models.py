@@ -7,3 +7,11 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User {}, is_admin={}>'.format(self.username, self.is_admin)
+
+    def as_dict(self):
+        """Return user using dictionary representation."""
+        return {
+            "username": self.username,
+            "is_admin": self.is_admin,
+            "base_uris": [],
+        }
