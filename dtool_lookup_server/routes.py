@@ -4,6 +4,7 @@ from dtool_lookup_server import mongo, utils
 
 bp = Blueprint("legacy", __name__, url_prefix=None)
 
+
 @bp.route("/")
 def index():
     num_datasets = mongo.db.datasets.count()

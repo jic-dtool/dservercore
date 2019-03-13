@@ -24,7 +24,7 @@ def create_app(test_config=None):
     mongo.init_app(app)
 
     sql_db.init_app(app)
-    migrate = Migrate(app, sql_db)
+    Migrate(app, sql_db)
 
     from dtool_lookup_server import routes
     app.register_blueprint(routes.bp)

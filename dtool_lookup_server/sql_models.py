@@ -2,15 +2,36 @@ from dtool_lookup_server import sql_db as db
 
 search_permissions = db.Table(
     "search_permissions",
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
-    db.Column("base_uri_id", db.Integer, db.ForeignKey("base_uri.id"), primary_key=True)
+    db.Column(
+        "user_id",
+        db.Integer,
+        db.ForeignKey("user.id"),
+        primary_key=True
+    ),
+    db.Column(
+        "base_uri_id",
+        db.Integer,
+        db.ForeignKey("base_uri.id"),
+        primary_key=True
+    )
 )
 
 register_permissions = db.Table(
     "register_permissions",
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
-    db.Column("base_uri_id", db.Integer, db.ForeignKey("base_uri.id"), primary_key=True)
+    db.Column(
+        "user_id",
+        db.Integer,
+        db.ForeignKey("user.id"),
+        primary_key=True
+    ),
+    db.Column(
+        "base_uri_id",
+        db.Integer,
+        db.ForeignKey("base_uri.id"),
+        primary_key=True
+    )
 )
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,8 +54,10 @@ class User(db.Model):
         return {
             "username": self.username,
             "is_admin": self.is_admin,
-            "search_permissions_on_base_uris": [u.base_uri for u in self.search_base_uris],
-            "register_permissions_on_base_uris": [u.base_uri for u in self.register_base_uris],
+            "search_permissions_on_base_uris":
+                [u.base_uri for u in self.search_base_uris],
+            "register_permissions_on_base_uris":
+                [u.base_uri for u in self.register_base_uris],
         }
 
 
@@ -61,6 +84,8 @@ class BaseURI(db.Model):
         """Return base URI using dictionary representation."""
         return {
             "base_uri": self.base_uri,
-            "users_with_search_permissions": [u.username for u in self.search_users],
-            "users_with_register_permissions": [u.username for u in self.register_users],
+            "users_with_search_permissions":
+                [u.username for u in self.search_users],
+            "users_with_register_permissions":
+                [u.username for u in self.register_users],
         }

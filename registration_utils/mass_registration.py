@@ -5,8 +5,9 @@ import json
 
 from datetime import date, datetime
 
+import dtoolcore
 import yaml
-
+from pymongo import MongoClient
 
 # Placeholder until app becomes a package or some other solution
 # to the fact that "app" directory is not in the python path.
@@ -16,11 +17,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.join(_HERE, "..")
 sys.path.insert(0, _ROOT)
 
-from pymongo import MongoClient
-
-import dtoolcore
-
-from app.utils import register_dataset
+from app.utils import register_dataset  # NOQA
 
 
 CONFIG_PATH = None
