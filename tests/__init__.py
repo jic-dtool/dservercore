@@ -2,8 +2,6 @@ import random
 import string
 import os
 import sys
-import shutil
-import tempfile
 
 import pytest
 
