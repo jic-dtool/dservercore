@@ -3,7 +3,11 @@
 from sqlalchemy.sql import exists
 
 from dtool_lookup_server import sql_db
-from dtool_lookup_server.sql_models import User, BaseURI
+from dtool_lookup_server.sql_models import (
+    User,
+    BaseURI,
+    Dataset,
+)
 
 
 #############################################################################
@@ -107,6 +111,43 @@ def update_all_permissions_on_base_uri(permissions):
         if user is not None:
             user.register_base_uris.append(base_uri)
     sql_db.session.commit()
+
+
+#############################################################################
+# Dataset SQL functions
+#############################################################################
+
+def register_dataset_admin_metadata(admin_metadata):
+    """Register the admin metadata in the dataset SQL table."""
+    base_uri = _get_base_uri_obj(admin_metadata["base_uri"])
+    dataset = Dataset(
+        uri=admin_metadata["uri"],
+        base_uri_id=base_uri.id,
+        uuid=admin_metadata["uuid"]
+    )
+    sql_db.session.add(dataset)
+    sql_db.session.commit()
+
+
+def get_admin_metadata_from_uri(uri):
+    """Return the dataset SQL table row as dictionary."""
+    dataset = Dataset.query.filter_by(uri=uri).first()
+
+    if dataset is None:
+        return None
+
+    return dataset.as_dict()
+
+
+def list_admin_metadata_in_base_uri(base_uri_str):
+    """Return list of dictionaries with admin metadata from dataset SQL table.
+    """
+    base_uri = _get_base_uri_obj(base_uri_str)
+
+    if base_uri is None:
+        return None
+
+    return [ds.as_dict() for ds in base_uri.datasets]
 
 
 #############################################################################
