@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 from dtool_lookup_server.config import Config
-from dtool_lookup_server import nosql_db
 
 __version__ = "0.4.0"
 
