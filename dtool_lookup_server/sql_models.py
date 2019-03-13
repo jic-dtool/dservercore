@@ -76,6 +76,7 @@ class BaseURI(db.Model):
         "User",
         secondary=register_permissions,
     )
+    datasets = db.relationship("Dataset", back_populates="base_uri")
 
     def __repr__(self):
         return '<BaseURI {}>'.format(self.base_uri)
@@ -88,4 +89,28 @@ class BaseURI(db.Model):
                 [u.username for u in self.search_users],
             "users_with_register_permissions":
                 [u.username for u in self.register_users],
+        }
+
+
+# How long can a base URI be?
+class Dataset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    base_uri_id = db.Column(
+        db.Integer,
+        db.ForeignKey('base_uri.id'),
+        nullable=False
+    )
+    uri = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    uuid = db.Column(db.String(36), index=True, nullable=False)
+    base_uri = db.relationship("BaseURI", back_populates="datasets")
+
+    def __repr__(self):
+        return '<Dataset {}>'.format(self.uri)
+
+    def as_dict(self):
+        """Return user using dictionary representation."""
+        return {
+            "base_uri": self.base_uri.base_uri,
+            "uri": self.uri,
+            "uuid": self.uuid,
         }
