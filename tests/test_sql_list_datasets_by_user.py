@@ -8,7 +8,7 @@ def test_list_datasets_by_user(tmp_app):  # NOQA
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
-        update_all_permissions_on_base_uri,
+        update_permissions,
         register_dataset_admin_metadata,
         list_datasets_by_user,
     )
@@ -52,8 +52,8 @@ def test_list_datasets_by_user(tmp_app):  # NOQA
         "search_users": [username_1, username_2],
         "register_users": []
     }
-    update_all_permissions_on_base_uri(permissions_1)
-    update_all_permissions_on_base_uri(permissions_2)
+    update_permissions(permissions_1)
+    update_permissions(permissions_2)
 
     expected_content = [admin_metadata_1, admin_metadata_2]
     assert list_datasets_by_user(username_1) == expected_content

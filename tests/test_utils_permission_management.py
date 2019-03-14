@@ -10,7 +10,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         register_base_uri,
         list_users,
         list_base_uris,
-        update_all_permissions_on_base_uri,
+        update_permissions,
     )
 
     base_uri = "s3://snow-white"
@@ -26,7 +26,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
 
     register_base_uri(base_uri)
     register_users(users)
-    update_all_permissions_on_base_uri(permissions)
+    update_permissions(permissions)
 
     expected_content = [
         {

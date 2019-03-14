@@ -109,8 +109,8 @@ def list_base_uris():
 # Permission helper functions
 #############################################################################
 
-def update_all_permissions_on_base_uri(permissions):
-    """Rewrite permissions on the base URI."""
+def update_permissions(permissions):
+    """Rewrite permissions."""
     base_uri = _get_base_uri_obj(permissions["base_uri"])
     for username in permissions["search_users"]:
         user = _get_user_obj(username)
