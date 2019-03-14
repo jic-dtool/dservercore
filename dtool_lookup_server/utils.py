@@ -72,6 +72,16 @@ def get_user_info(username):
     return user.as_dict()
 
 
+def list_datasets_by_user(username):
+    """List the datasets the user has access to."""
+    datasets = []
+    user = _get_user_obj(username)
+    for base_uri in user.search_base_uris:
+        for ds in base_uri.datasets:
+            datasets.append(ds.as_dict())
+    return datasets
+
+
 #############################################################################
 # Base URI helper functions
 #############################################################################
