@@ -92,7 +92,8 @@ class BaseURI(db.Model):
         }
 
 
-# How long can a base URI be?
+# How long can a URI be?
+# How long can a dataset name be? => dtool-create enforces names that are max 80 chars
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     base_uri_id = db.Column(
@@ -102,6 +103,7 @@ class Dataset(db.Model):
     )
     uri = db.Column(db.String(255), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(36), index=True, nullable=False)
+    name = db.Column(db.String(80), index=True, nullable=False)
     base_uri = db.relationship("BaseURI", back_populates="datasets")
 
     def __repr__(self):
@@ -113,4 +115,5 @@ class Dataset(db.Model):
             "base_uri": self.base_uri.base_uri,
             "uri": self.uri,
             "uuid": self.uuid,
+            "name": self.name,
         }

@@ -30,12 +30,14 @@ def test_list_datasets_by_user(tmp_app):  # NOQA
     admin_metadata_1 = {
         "base_uri": base_uri_1,
         "uuid": uuid_1,
-        "uri": uri_1
+        "uri": uri_1,
+        "name": "ds_1"
     }
     admin_metadata_2 = {
         "base_uri": base_uri_2,
         "uuid": uuid_2,
-        "uri": uri_2
+        "uri": uri_2,
+        "name": "ds_2"
     }
     register_dataset_admin_metadata(admin_metadata_1)
     register_dataset_admin_metadata(admin_metadata_2)

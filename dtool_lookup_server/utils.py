@@ -133,7 +133,8 @@ def register_dataset_admin_metadata(admin_metadata):
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
-        uuid=admin_metadata["uuid"]
+        uuid=admin_metadata["uuid"],
+        name=admin_metadata["name"]
     )
     sql_db.session.add(dataset)
     sql_db.session.commit()

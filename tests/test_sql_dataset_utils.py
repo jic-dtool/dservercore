@@ -20,7 +20,8 @@ def test_sql_dataset_helper_functions(tmp_app):  # NOQA
     admin_metadata = {
         "base_uri": base_uri,
         "uuid": uuid,
-        "uri": uri
+        "uri": uri,
+        "name": "my-dataset"
     }
 
     register_dataset_admin_metadata(admin_metadata)
