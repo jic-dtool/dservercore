@@ -6,6 +6,7 @@ setup(
     include_package_data=True,
     package_data={"dtool_lookup_server": ["templates/*"]},
     install_requires=[
+        "cryptography",
         "flask",
         "flask-sqlalchemy",
         "flask-migrate",
@@ -13,6 +14,7 @@ setup(
         "dtoolcore",
         "dtool_irods",
         "dtool_s3",
+        "pyjwt",
         "pyyaml",
     ],
 )
