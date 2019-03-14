@@ -53,8 +53,8 @@ def test_list_datasets_by_user(tmp_app):  # NOQA
     update_all_permissions_on_base_uri(permissions_1)
     update_all_permissions_on_base_uri(permissions_2)
 
-    expected_conent = [admin_metadata_1, admin_metadata_2]
-    list_datasets_by_user(username_1) == expected_conent
+    expected_content = [admin_metadata_1, admin_metadata_2]
+    assert list_datasets_by_user(username_1) == expected_content
 
-    expected_conent = [admin_metadata_2]
-    list_datasets_by_user(username_2) == expected_conent
+    expected_content = [admin_metadata_2]
+    assert list_datasets_by_user(username_2) == expected_content
