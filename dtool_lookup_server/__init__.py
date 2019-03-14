@@ -26,7 +26,8 @@ def create_app(test_config=None):
     sql_db.init_app(app)
     Migrate(app, sql_db)
 
-    from dtool_lookup_server import routes
+    from dtool_lookup_server import routes, dataset_routes
     app.register_blueprint(routes.bp)
+    app.register_blueprint(dataset_routes.bp)
 
     return app
