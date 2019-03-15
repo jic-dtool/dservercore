@@ -73,9 +73,16 @@ def get_user_info(username):
 
 
 def list_datasets_by_user(username):
-    """List the datasets the user has access to."""
+    """List the datasets the user has access to.
+
+    Returns list of dicts if user is valid and has access to datasets.
+    Returns empty list if user is valid but has not got access to any datasets.
+    Returns None if user is invalid.
+    """
     datasets = []
     user = _get_user_obj(username)
+    if user is None:
+        return None
     for base_uri in user.search_base_uris:
         for ds in base_uri.datasets:
             datasets.append(ds.as_dict())
