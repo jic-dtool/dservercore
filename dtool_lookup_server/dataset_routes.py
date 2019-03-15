@@ -11,6 +11,7 @@ from dtool_lookup_server.utils import list_datasets_by_user
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 
+
 @bp.route("/list", methods=["POST"])
 def list_datasets():
     """List the dataset a user has access to."""

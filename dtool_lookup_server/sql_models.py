@@ -93,7 +93,8 @@ class BaseURI(db.Model):
 
 
 # How long can a URI be?
-# How long can a dataset name be? => dtool-create enforces names that are max 80 chars
+# How long can a dataset name be?
+#   => dtool-create enforces names that are max 80 chars
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     base_uri_id = db.Column(
