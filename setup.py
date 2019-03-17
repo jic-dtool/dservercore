@@ -5,6 +5,11 @@ setup(
     packages=["dtool_lookup_server"],
     include_package_data=True,
     package_data={"dtool_lookup_server": ["templates/*"]},
+    entry_points={
+        'flask.commands': [
+            'register_user=dtool_lookup_server.cli:register_user'
+        ],
+    },
     install_requires=[
         "cryptography",
         "flask",
