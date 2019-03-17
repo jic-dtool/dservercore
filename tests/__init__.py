@@ -27,6 +27,7 @@ def tmp_app(request):
     tmp_mongo_db_name = random_string()
 
     config = {
+        "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -65,6 +66,7 @@ def tmp_app_with_data(request):
     jwt_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDV+7UTCb5JMX/GIY3g6kus84K5ko08nKbZcPgtRbTOkdNLFDcfotefNi+Y3bDEwMydXyc7uBmLkl9hyjBwTdCj6zAJ4VhLZ5wN0qg1cmg4Wkm6EUFgBHf7NY6V5M+v6XyZFinmzoe+J5llTH5xXLkieNMNtSDPUZWtRyhT9bwNSzYzBYZ13L1/yJJVUnb8mUmC2RG5ZqT8DZ+R/Y0Z35qACNmVqFTbSwFm3IoW2XcMXZawAKGoj0e9z6Eo6KZIRmVEFOfoeokz92zhS4b+j0+OJfmknpLYLHEyHswOnyFXFeNH1AHkGjDcAZwfr5ZMKpsy9XXlGiO2kFhK7RQ1ITvF olssont@n95996.nbi.ac.uk"  # NOQA
 
     config = {
+        "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -110,3 +112,34 @@ def tmp_app_with_data(request):
         sql_db.session.remove()
 
     return app.test_client()
+
+
+@pytest.fixture
+def tmp_cli_runner(request):
+
+    from dtool_lookup_server import create_app, mongo, sql_db
+
+    tmp_mongo_db_name = random_string()
+
+    config = {
+        "FLASK_ENV": "development",
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SECRET_KEY": "dev"
+    }
+
+    app = create_app(config)
+
+    # Ensure the sql database has been put into the context.
+    app.app_context().push()
+
+    # Populate the database.
+    sql_db.Model.metadata.create_all(sql_db.engine)
+
+    @request.addfinalizer
+    def teardown():
+        mongo.cx.drop_database(tmp_mongo_db_name)
+        sql_db.session.remove()
+
+    return app.test_cli_runner()
