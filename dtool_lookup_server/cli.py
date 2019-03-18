@@ -92,7 +92,10 @@ def give_search_permission(base_uri, username):
 
 
 @app.cli.command()
-@click.argument('private-key-file', type=click.Path(exists=True, dir_okay=False))
+@click.argument(
+    'private-key-file',
+    type=click.Path(exists=True, dir_okay=False)
+)
 @click.argument('username')
 def generate_token(private_key_file, username):
     """Generate a token for a user in the dtool lookup server."""
