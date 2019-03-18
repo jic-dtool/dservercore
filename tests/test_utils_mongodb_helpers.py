@@ -8,7 +8,7 @@ def test_mongodb_utiliites_functional():
 
     from dtool_lookup_server.utils import (
         num_datasets,
-        register_dataset,
+        register_dataset_descriptive_metadata,
         lookup_datasets,
         search_for_datasets,
     )
@@ -29,7 +29,7 @@ def test_mongodb_utiliites_functional():
             u"type": u"dataset",
             u"uri": u"file:///tmp/a_dataset"
         }
-        uuid = register_dataset(collection, info)
+        uuid = register_dataset_descriptive_metadata(collection, info)
         assert "_id" not in info
         assert uuid == info["uuid"]
         assert num_datasets(collection) == 1
@@ -37,13 +37,13 @@ def test_mongodb_utiliites_functional():
         # Trying to register the same dataset information twice results
         # in the function returning the uuid, but without adding another
         # entry to the mongo database.
-        uuid = register_dataset(collection, info)
+        uuid = register_dataset_descriptive_metadata(collection, info)
         assert uuid == info["uuid"]
         assert num_datasets(collection) == 1
 
         # Trying to register a dataset using invalid information results
         # in the function returning None.
-        assert register_dataset(collection, {"not": "valid"}) is None
+        assert register_dataset_descriptive_metadata(collection, {"not": "valid"}) is None  # NOQA
 
         # Register a second dataset.
         info_2 = {
@@ -51,7 +51,7 @@ def test_mongodb_utiliites_functional():
             u"type": u"dataset",
             u"uri": u"file:///tmp/another_dataset"
         }
-        uuid_2 = register_dataset(collection, info_2)
+        uuid_2 = register_dataset_descriptive_metadata(collection, info_2)
         assert num_datasets(collection) == 2
 
         # The same dataset can be registered in more than one location.
@@ -61,7 +61,7 @@ def test_mongodb_utiliites_functional():
             u"type": u"dataset",
             u"uri": u"s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f"
         }
-        assert register_dataset(collection, info_2_alt) == uuid_2
+        assert register_dataset_descriptive_metadata(collection, info_2_alt) == uuid_2  # NOQA
         assert num_datasets(collection) == 3
 
         # One can lookup dataset information using the UUID. This returns
@@ -88,7 +88,7 @@ def test_mongodb_utiliites_functional():
             u"name": u"chrX-rna-seq",
             u"uri": u"s3:/test-dtool/"
         }
-        register_dataset(collection, info_3)
+        register_dataset_descriptive_metadata(collection, info_3)
 
         search_result = search_for_datasets(
             collection,

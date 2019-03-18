@@ -137,7 +137,7 @@ def show_permissions(base_uri_str):
 
 
 #############################################################################
-# Dataset SQL functions
+# Dataset SQL helper functions
 #############################################################################
 
 def register_dataset_admin_metadata(admin_metadata):
@@ -175,7 +175,7 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 
 
 #############################################################################
-# Dataset helper functions
+# Dataset NoSQL helper functions
 #############################################################################
 
 def dataset_info_is_valid(dataset_info):
@@ -198,7 +198,7 @@ def num_datasets(collection):
     return collection.count()
 
 
-def register_dataset(collection, dataset_info):
+def register_dataset_descriptive_metadata(collection, dataset_info):
     """Register dataset info in the collection.
 
     If the "uuid" and "uri" are the same as another record in
