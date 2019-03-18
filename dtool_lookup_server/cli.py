@@ -92,6 +92,42 @@ def give_search_permission(base_uri, username):
 
 
 @app.cli.command()
+@click.argument('base_uri')
+@click.argument('username')
+def give_register_permission(base_uri, username):
+    """Give a user register permission on a base URI."""
+
+    if _get_base_uri_obj(base_uri) is None:
+        click.secho(
+            "Base URI '{}' not registered".format(base_uri),
+            fg="red",
+            err=True
+        )
+        sys.exit(1)
+
+    if _get_user_obj(username) is None:
+        click.secho(
+            "User '{}' not registered".format(username),
+            fg="red",
+            err=True
+        )
+        sys.exit(1)
+
+    permissions = show_permissions(base_uri)
+
+    if username in permissions["users_with_register_permissions"]:
+        click.secho(
+            "User '{}' already has register permissions".format(username),
+            fg="red",
+            err=True
+        )
+        sys.exit(1)
+
+    permissions["users_with_register_permissions"].append(username)
+    update_permissions(permissions)
+
+
+@app.cli.command()
 @click.argument(
     'private-key-file',
     type=click.Path(exists=True, dir_okay=False)
