@@ -55,3 +55,64 @@ def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
         "users_with_register_permissions": []
     }
     assert new_base_uri.as_dict() == expected_content
+
+
+def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
+
+    from dtool_lookup_server.utils import (
+        _get_base_uri_obj,
+        register_users,
+        register_base_uri,
+    )
+
+    username1 = "sleepy"
+    username2 = "dopey"
+    base_uri_str = "s3://snow-white"
+    register_users([{"username": username1}, {"username": username2}])
+    register_base_uri(base_uri_str)
+
+    from dtool_lookup_server.cli import give_search_permission
+
+    result = tmp_cli_runner.invoke(
+        give_search_permission,
+        [base_uri_str, username1])
+    assert result.exit_code == 0
+
+    base_uri = _get_base_uri_obj(base_uri_str)
+    expected_content = {
+        "base_uri": base_uri_str,
+        "users_with_search_permissions": [username1],
+        "users_with_register_permissions": []
+    }
+    assert base_uri.as_dict() == expected_content
+
+    result = tmp_cli_runner.invoke(
+        give_search_permission,
+        [base_uri_str, username2])
+    assert result.exit_code == 0
+
+    base_uri = _get_base_uri_obj(base_uri_str)
+    expected_content = {
+        "base_uri": base_uri_str,
+        "users_with_search_permissions": [username1, username2],
+        "users_with_register_permissions": []
+    }
+    assert base_uri.as_dict() == expected_content
+
+    result = tmp_cli_runner.invoke(
+        give_search_permission,
+        [base_uri_str, username2])
+    assert result.exit_code != 0
+    assert "User '{}' already has search permissions".format(username2) in result.output  # NOQA
+
+    result = tmp_cli_runner.invoke(
+        give_search_permission,
+        ["s3://no-uri", "dopey"])
+    assert result.exit_code != 0
+    assert "Base URI 's3://no-uri' not registered" in result.output
+
+    result = tmp_cli_runner.invoke(
+        give_search_permission,
+        [base_uri_str, "noone"])
+    assert result.exit_code != 0
+    assert "User 'noone' not registered" in result.output
