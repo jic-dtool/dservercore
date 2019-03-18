@@ -7,7 +7,8 @@ setup(
     package_data={"dtool_lookup_server": ["templates/*"]},
     entry_points={
         'flask.commands': [
-            'register_user=dtool_lookup_server.cli:register_user'
+            'register_user=dtool_lookup_server.cli:register_user',
+            'register_base_uri=dtool_lookup_server.cli:add_base_uri',
         ],
     },
     install_requires=[
