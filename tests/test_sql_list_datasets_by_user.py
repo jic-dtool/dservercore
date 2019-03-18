@@ -44,13 +44,13 @@ def test_list_datasets_by_user(tmp_app):  # NOQA
 
     permissions_1 = {
         "base_uri": base_uri_1,
-        "search_users": [username_1],
-        "register_users": []
+        "users_with_search_permissions": [username_1],
+        "users_with_register_permissions": []
     }
     permissions_2 = {
         "base_uri": base_uri_2,
-        "search_users": [username_1, username_2],
-        "register_users": []
+        "users_with_search_permissions": [username_1, username_2],
+        "users_with_register_permissions": []
     }
     update_permissions(permissions_1)
     update_permissions(permissions_2)

@@ -119,15 +119,21 @@ def list_base_uris():
 def update_permissions(permissions):
     """Rewrite permissions."""
     base_uri = _get_base_uri_obj(permissions["base_uri"])
-    for username in permissions["search_users"]:
+    for username in permissions["users_with_search_permissions"]:
         user = _get_user_obj(username)
         if user is not None:
             user.search_base_uris.append(base_uri)
-    for username in permissions["register_users"]:
+    for username in permissions["users_with_register_permissions"]:
         user = _get_user_obj(username)
         if user is not None:
             user.register_base_uris.append(base_uri)
     sql_db.session.commit()
+
+
+def show_permissions(base_uri_str):
+    """Return the permissions of on a base URI as a dictionary."""
+    base_uri = _get_base_uri_obj(base_uri_str)
+    return base_uri.as_dict()
 
 
 #############################################################################

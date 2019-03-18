@@ -11,6 +11,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         list_users,
         list_base_uris,
         update_permissions,
+        show_permissions,
     )
 
     base_uri = "s3://snow-white"
@@ -20,13 +21,15 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
 
     permissions = {
         "base_uri": base_uri,
-        "search_users": usernames,
-        "register_users": [usernames[0]],
+        "users_with_search_permissions": usernames,
+        "users_with_register_permissions": [usernames[0]],
     }
 
     register_base_uri(base_uri)
     register_users(users)
     update_permissions(permissions)
+
+    assert show_permissions(base_uri) == permissions
 
     expected_content = [
         {

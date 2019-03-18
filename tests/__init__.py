@@ -101,8 +101,8 @@ def tmp_app_with_data(request):
 
     permissions = {
         "base_uri": base_uri,
-        "search_users": [username],
-        "register_users": []
+        "users_with_search_permissions": [username],
+        "users_with_register_permissions": []
     }
     update_permissions(permissions)
 
