@@ -11,6 +11,31 @@ from dtool_lookup_server.sql_models import (
 
 
 #############################################################################
+# Generic helper functions
+#############################################################################
+
+def dataset_info_is_valid(dataset_info):
+    """Return True if the dataset info is valid."""
+    if "uuid" not in dataset_info:
+        return False
+    if "type" not in dataset_info:
+        return False
+    if "uri" not in dataset_info:
+        return False
+    if "name" not in dataset_info:
+        return False
+    if "base_uri" not in dataset_info:
+        return False
+    if dataset_info["type"] != "dataset":
+        return False
+    if len(dataset_info["uuid"]) != 36:
+        return False
+    if dataset_info["base_uri"].endswith("/"):
+        return False
+    return True
+
+
+#############################################################################
 # User helper functions
 #############################################################################
 
@@ -177,21 +202,6 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 #############################################################################
 # Dataset NoSQL helper functions
 #############################################################################
-
-def dataset_info_is_valid(dataset_info):
-    """Return True if the dataset info is valid."""
-    if "uuid" not in dataset_info:
-        return False
-    if "type" not in dataset_info:
-        return False
-    if "uri" not in dataset_info:
-        return False
-    if dataset_info["type"] != "dataset":
-        return False
-    if len(dataset_info["uuid"]) != 36:
-        return False
-    return True
-
 
 def num_datasets(collection):
     """Return the number of datasets in the mongodb collection."""

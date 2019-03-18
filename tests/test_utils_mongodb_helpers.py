@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from operator import itemgetter
 
 
-def test_mongodb_utiliites_functional():
+def test_mongodb_utilities_functional():
 
     from dtool_lookup_server.utils import (
         num_datasets,
