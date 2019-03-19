@@ -14,7 +14,9 @@ def test_register_dataset_route(tmp_app):  # NOQA
     data = {
         "uuid": uuid,
         "type": "dataset",
-        "uri": "file:///tmp/a_dataset"
+        "uri": "file:///tmp/a_dataset",
+        "name": "a-dataset",
+        "base_uri": "file:///tmp",
     }
     r = tmp_app.post(
         "/register_dataset",
@@ -34,7 +36,9 @@ def test_register_dataset_route_returns_bad_request_when_dataset_info_is_invalid
     data = {
         "uuid": uuid,
         "type": "protodataset",
-        "uri": "file:///tmp/a_dataset"
+        "uri": "file:///tmp/a_dataset",
+        "name": "a-dataset",
+        "base_uri": "file:///tmp",
     }
 
     r = tmp_app.post(

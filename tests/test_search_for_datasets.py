@@ -27,14 +27,16 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
             u"uuid": u"c58038a4-3a54-425e-9087-144d0733387f",
             u"type": "dataset",
             u"name": u"lamda-phage-genome",
-            u"uri": u"s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f"
+            u"uri": u"s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f",
+            u"base_uri": u"s3://dtool-demo",
         },
         {
             u"uuid": u"af6727bf-29c7-43dd-b42f-a5d7ede28337",
             u"creator_username": u"olssont",
             u"type": u"dataset",
             u"name": u"simulated-lambda-phage-reads",
-            u"uri": u"s3://dtool-demo/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+            u"uri": u"s3://dtool-demo/af6727bf-29c7-43dd-b42f-a5d7ede28337",
+            u"base_uri": u"s3://dtool-demo",
         }
     ]
     for ds_info in datasets_to_register:

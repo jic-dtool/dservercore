@@ -15,7 +15,9 @@ def test_lookup_datasets_route(tmp_app):  # NOQA
     data = {
         "uuid": uuid,
         "type": "dataset",
-        "uri": "file:///tmp/a_dataset"
+        "uri": "file:///tmp/a_dataset",
+        "name": "a-dataset",
+        "base_uri": "file:///tmp"
     }
 
     collection = mongo.db.datasets
