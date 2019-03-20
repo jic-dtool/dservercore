@@ -7,7 +7,6 @@ from operator import itemgetter
 def test_mongodb_utilities_functional():
 
     from dtool_lookup_server.utils import (
-        num_datasets,
         register_dataset_descriptive_metadata,
         lookup_datasets,
         search_for_datasets,
@@ -16,11 +15,11 @@ def test_mongodb_utilities_functional():
     db_name = "testing_db"
     client = MongoClient()
     db = client[db_name]
+    collection = db["datasets"]
     try:
 
         # At the start the collection is empty.
-        collection = db["datasets"]
-        assert num_datasets(collection) == 0
+        assert collection.count() == 0
 
         # It is possible to register dataset in the collection by supplying
         # the relevant information.
@@ -34,14 +33,14 @@ def test_mongodb_utilities_functional():
         uuid = register_dataset_descriptive_metadata(collection, info)
         assert "_id" not in info
         assert uuid == info["uuid"]
-        assert num_datasets(collection) == 1
+        assert collection.count() == 1
 
         # Trying to register the same dataset information twice results
         # in the function returning the uuid, but without adding another
         # entry to the mongo database.
         uuid = register_dataset_descriptive_metadata(collection, info)
         assert uuid == info["uuid"]
-        assert num_datasets(collection) == 1
+        assert collection.count() == 1
 
         # Trying to register a dataset using invalid information results
         # in the function returning None.
@@ -56,7 +55,7 @@ def test_mongodb_utilities_functional():
             u"base_uri": u"file:///tmp",
         }
         uuid_2 = register_dataset_descriptive_metadata(collection, info_2)
-        assert num_datasets(collection) == 2
+        assert collection.count() == 2
 
         # The same dataset can be registered in more than one location.
         # Register a second dataset.
@@ -68,7 +67,7 @@ def test_mongodb_utilities_functional():
             u"base_uri": u"s3://dtool-demo",
         }
         assert register_dataset_descriptive_metadata(collection, info_2_alt) == uuid_2  # NOQA
-        assert num_datasets(collection) == 3
+        assert collection.count() == 3
 
         # One can lookup dataset information using the UUID. This returns
         # a list with all the matching entries.

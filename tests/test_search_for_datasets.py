@@ -11,14 +11,10 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
     from dtool_lookup_server import mongo
     from dtool_lookup_server.utils import (
         register_dataset_descriptive_metadata,
-        num_datasets
     )
 
     # Get the collection out of the tmp_app.
     collection = mongo.db.datasets
-    print(mongo)
-    print(mongo.db)
-    print(collection)
 
     # Use register_dataset_descriptive_metadata to register some datasets.
     datasets_to_register = [
@@ -40,10 +36,8 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
         }
     ]
     for ds_info in datasets_to_register:
-        print(ds_info)
         r = register_dataset_descriptive_metadata(collection, ds_info)
-        print(r)
-    assert num_datasets(collection) == 2
+    assert collection.count() == 2
 
     # Do some search tests.
     query = {}  # Everything.

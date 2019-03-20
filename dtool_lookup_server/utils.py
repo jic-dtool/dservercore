@@ -203,7 +203,7 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 # Dataset NoSQL helper functions
 #############################################################################
 
-def num_datasets(collection):
+def _num_datasets(collection):
     """Return the number of datasets in the mongodb collection."""
     return collection.count()
 
