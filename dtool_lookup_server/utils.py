@@ -114,6 +114,23 @@ def list_datasets_by_user(username):
     return datasets
 
 
+def lookup_datasets_by_user_and_uuid(username, uuid):
+    """Return list of dataset with matching uuid."""
+    datasets = []
+    query = sql_db.session.query(Dataset, BaseURI, User)  \
+        .filter(Dataset.uuid == uuid)  \
+        .filter(User.username == username)  \
+        .filter(BaseURI.id == Dataset.base_uri_id)  \
+        .filter(User.search_base_uris.any(BaseURI.id == Dataset.base_uri_id)) \
+        .all()
+    for ds, base_uri, user in query:
+        datasets.append(ds.as_dict())
+
+    return datasets
+
+
+
+
 #############################################################################
 # Base URI helper functions
 #############################################################################
@@ -202,10 +219,6 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 #############################################################################
 # Dataset NoSQL helper functions
 #############################################################################
-
-def _num_datasets(collection):
-    """Return the number of datasets in the mongodb collection."""
-    return collection.count()
 
 
 def register_dataset_descriptive_metadata(collection, dataset_info):
