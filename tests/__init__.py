@@ -82,29 +82,31 @@ def tmp_app_with_data(request):
     # Populate the database.
     sql_db.Model.metadata.create_all(sql_db.engine)
 
-    # Add some data to the database.
-    base_uri = "s3://snow-white"
-    register_base_uri(base_uri)
-
+    # Register some users.
     username = "grumpy"
     register_users([dict(username=username), dict(username="sleepy")])
 
-    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
-    uri = "{}/{}".format(base_uri, uuid)
-    admin_metadata = {
-        "base_uri": base_uri,
-        "uuid": uuid,
-        "uri": uri,
-        "name": "bad-apples"
-    }
-    register_dataset_admin_metadata(admin_metadata)
+    # Add some data to the database.
+    for base_uri in ["s3://snow-white", "s3://mr-men"]:
+        register_base_uri(base_uri)
 
-    permissions = {
-        "base_uri": base_uri,
-        "users_with_search_permissions": [username],
-        "users_with_register_permissions": []
-    }
-    update_permissions(permissions)
+
+        uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+        uri = "{}/{}".format(base_uri, uuid)
+        admin_metadata = {
+            "base_uri": base_uri,
+            "uuid": uuid,
+            "uri": uri,
+            "name": "bad-apples"
+        }
+        register_dataset_admin_metadata(admin_metadata)
+
+        permissions = {
+            "base_uri": base_uri,
+            "users_with_search_permissions": [username],
+            "users_with_register_permissions": []
+        }
+        update_permissions(permissions)
 
     @request.addfinalizer
     def teardown():
