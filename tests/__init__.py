@@ -90,7 +90,6 @@ def tmp_app_with_data(request):
     for base_uri in ["s3://snow-white", "s3://mr-men"]:
         register_base_uri(base_uri)
 
-
         uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
         uri = "{}/{}".format(base_uri, uuid)
         admin_metadata = {

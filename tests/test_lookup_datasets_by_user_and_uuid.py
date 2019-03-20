@@ -14,4 +14,3 @@ def test_lookup_datasets_by_user_and_uuid(tmp_app_with_data):  # NOQA
 
     datasets = lookup_datasets_by_user_and_uuid("sleepy", uuid)
     assert len(datasets) == 0
-
