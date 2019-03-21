@@ -104,10 +104,11 @@ def list_datasets_by_user(username):
     Returns empty list if user is valid but has not got access to any datasets.
     Returns None if user is invalid.
     """
-    datasets = []
     user = _get_user_obj(username)
     if user is None:
         return None
+
+    datasets = []
     for base_uri in user.search_base_uris:
         for ds in base_uri.datasets:
             datasets.append(ds.as_dict())
@@ -115,7 +116,16 @@ def list_datasets_by_user(username):
 
 
 def lookup_datasets_by_user_and_uuid(username, uuid):
-    """Return list of dataset with matching uuid."""
+    """Return list of dataset with matching uuid.
+
+    Returns list of dicts if user is valid and has access to datasets.
+    Returns empty list if user is valid but has not got access to any datasets.
+    Returns None if user is invalid.
+    """
+    user = _get_user_obj(username)
+    if user is None:
+        return None
+
     datasets = []
     query = sql_db.session.query(Dataset, BaseURI, User)  \
         .filter(Dataset.uuid == uuid)  \
