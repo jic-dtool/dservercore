@@ -17,6 +17,10 @@ class ValidationError(ValueError):
     pass
 
 
+class AuthenticationError(ValueError):
+    pass
+
+
 class AuthorizationError(ValueError):
     pass
 

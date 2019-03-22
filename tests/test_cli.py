@@ -6,16 +6,16 @@ from . import tmp_cli_runner  # NOQA
 
 
 def test_cli_register_user(tmp_cli_runner):  # NOQA
-    from dtool_lookup_server.utils import _get_user_obj
+    from dtool_lookup_server.utils import user_exists, get_user_obj
 
-    assert _get_user_obj("admin") is None
+    assert not user_exists("admin")
 
     from dtool_lookup_server.cli import register_user
 
     result = tmp_cli_runner.invoke(register_user, ["--is_admin", "admin"])
     assert result.exit_code == 0
 
-    new_user = _get_user_obj("admin")
+    new_user = get_user_obj("admin")
     expected_content = {
         "username": "admin",
         "is_admin": True,
@@ -25,7 +25,7 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
     assert new_user.as_dict() == expected_content
 
     tmp_cli_runner.invoke(register_user, ["dopey"])
-    new_user = _get_user_obj("dopey")
+    new_user = get_user_obj("dopey")
     expected_content = {
         "username": "dopey",
         "is_admin": False,

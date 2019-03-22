@@ -5,6 +5,7 @@ from sqlalchemy.sql import exists
 from dtool_lookup_server import (
     mongo,
     sql_db,
+    AuthenticationError,
     AuthorizationError,
     ValidationError,
     MONGO_COLLECTION,
@@ -50,7 +51,7 @@ def register_dataset(username, dataset_info):
             "Dataset info not valid: {}".format(dataset_info)
         ))
 
-    user = _get_user_obj(username)
+    user = get_user_obj(username)
     base_uri = _get_base_uri_obj(dataset_info["base_uri"])
 
     if base_uri not in user.register_base_uris:
@@ -65,8 +66,21 @@ def register_dataset(username, dataset_info):
 # User helper functions
 #############################################################################
 
-def _get_user_obj(username_str):
-    return User.query.filter_by(username=username_str).first()
+def _get_user_obj(username):
+    return User.query.filter_by(username=username).first()
+
+
+def user_exists(username):
+    if _get_user_obj(username) is None:
+        return False
+    return True
+
+
+def get_user_obj(username):
+    user = _get_user_obj(username)
+    if user is None:
+        raise(AuthenticationError())
+    return user
 
 
 def register_users(users):
@@ -128,11 +142,9 @@ def list_datasets_by_user(username):
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
-    Returns None if user is invalid.
+    Raises AuthenticationError if user is invalid.
     """
-    user = _get_user_obj(username)
-    if user is None:
-        return None
+    user = get_user_obj(username)
 
     datasets = []
     for base_uri in user.search_base_uris:
@@ -148,9 +160,7 @@ def search_datasets_by_user(username, query):
     Returns empty list if user is valid but has not got access to any datasets.
     Returns None if user is invalid.
     """
-    user = _get_user_obj(username)
-    if user is None:
-        return None
+    user = get_user_obj(username)
 
     datasets = []
     for base_uri in user.search_base_uris:
@@ -168,11 +178,9 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
-    Returns None if user is invalid.
+    Returns AuthenticationError if user is invalid.
     """
-    user = _get_user_obj(username)
-    if user is None:
-        return None
+    user = get_user_obj(username)
 
     datasets = []
     query = sql_db.session.query(Dataset, BaseURI, User)  \
@@ -223,12 +231,12 @@ def update_permissions(permissions):
     """Rewrite permissions."""
     base_uri = _get_base_uri_obj(permissions["base_uri"])
     for username in permissions["users_with_search_permissions"]:
-        user = _get_user_obj(username)
-        if user is not None:
+        if user_exists(username):
+            user = get_user_obj(username)
             user.search_base_uris.append(base_uri)
     for username in permissions["users_with_register_permissions"]:
-        user = _get_user_obj(username)
-        if user is not None:
+        if user_exists(username):
+            user = get_user_obj(username)
             user.register_base_uris.append(base_uri)
     sql_db.session.commit()
 

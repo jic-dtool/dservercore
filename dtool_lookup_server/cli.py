@@ -8,8 +8,8 @@ from flask_jwt_extended import create_access_token
 
 from dtool_lookup_server import ValidationError
 from dtool_lookup_server.utils import (
-    _get_user_obj,
     _get_base_uri_obj,
+    user_exists,
     register_users,
     register_base_uri,
     show_permissions,
@@ -25,7 +25,7 @@ app = Flask(__name__)
 def register_user(username, is_admin):
     """Register a user in the dtool lookup server."""
 
-    if _get_user_obj(username) is not None:
+    if user_exists(username):
         click.secho(
             "User '{}' already registered".format(username),
             fg="red",
@@ -74,7 +74,7 @@ def give_search_permission(base_uri, username):
         )
         sys.exit(1)
 
-    if _get_user_obj(username) is None:
+    if not user_exists(username):
         click.secho(
             "User '{}' not registered".format(username),
             fg="red",
@@ -112,7 +112,7 @@ def give_register_permission(base_uri, username):
         )
         sys.exit(1)
 
-    if _get_user_obj(username) is None:
+    if not user_exists(username):
         click.secho(
             "User '{}' not registered".format(username),
             fg="red",
@@ -140,7 +140,7 @@ def give_register_permission(base_uri, username):
 def generate_token(username, last_forever):
     """Generate a token for a user in the dtool lookup server."""
 
-    if _get_user_obj(username) is None:
+    if not user_exists(username):
         click.secho(
             "User '{}' not registered".format(username),
             fg="red",

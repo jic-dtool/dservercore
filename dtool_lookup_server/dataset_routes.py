@@ -6,7 +6,11 @@ from flask import (
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from dtool_lookup_server import AuthorizationError, ValidationError
+from dtool_lookup_server import (
+    AuthenticationError,
+    AuthorizationError,
+    ValidationError,
+)
 from dtool_lookup_server.utils import (
     list_datasets_by_user,
     search_datasets_by_user,
@@ -21,8 +25,9 @@ bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 def list_datasets():
     """List the dataset a user has access to."""
     username = get_jwt_identity()
-    datasets = list_datasets_by_user(username)
-    if datasets is None:
+    try:
+        datasets = list_datasets_by_user(username)
+    except AuthenticationError:
         abort(401)
     return jsonify(datasets)
 
@@ -33,8 +38,9 @@ def search_datasets():
     """List the dataset a user has access to."""
     username = get_jwt_identity()
     query = request.get_json()
-    datasets = search_datasets_by_user(username, query)
-    if datasets is None:
+    try:
+        datasets = search_datasets_by_user(username, query)
+    except AuthenticationError:
         abort(401)
     return jsonify(datasets)
 
@@ -48,6 +54,8 @@ def register():
 
     try:
         register_dataset(username, dataset_info)
+    except AuthenticationError:
+        abort(401)
     except AuthorizationError:
         abort(401)
     except ValidationError:

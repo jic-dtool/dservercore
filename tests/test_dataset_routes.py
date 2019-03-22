@@ -13,6 +13,8 @@ sleepy_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNzBhNmQ1ZS0xMTU
 
 dopey_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTIxZDhhYi1iYjg5LTRlYTgtOTg3Zi0zYjgyOTc2ODkwZjEiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzIyMzM0MCwidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzIyMzM0MCwiaWRlbnRpdHkiOiJkb3BleSJ9.K8MeDodbdwDN2ErspmWgQJCra3EXdpIrsyWQVqCNZNKsjUZsYLNAetzqJe71NhiVFuoaqDm0ta9jNnQE5NpehQSFv0SveMPu4wIaVpcCDQXHOYGGljbhHa18v0dEZibZFEYnMwY_b0VWtpzXZXZSYiLVMD2kcnUqXouV7fPXlSp5SuFCEh5Y6rw0nZqxMTVdbDvZLm2rxjJI_4GHMj1KMpsGKYGTxniA1iWvR9WionJOdDxn5gc8roDERGuSQpm4LCQxz_WJk8pNX4IdQgPuz6TVNsXnUnD2LiGe9Dz8q-FstcTwRy2u97l76OgCGSf7vkhELHTqRj32cEdxnPNpTA"  # NOQA
 
+noone_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhMzUwY2MwZS1jMzAyLTQ1MGItYTE0NC01YTQzZjE3MDc4NDkiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzI3NzA1MCwidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzI3NzA1MCwiaWRlbnRpdHkiOiJub29uZSJ9.VCRRsfLM5mwYz_viMVAJzfLf3_IF7MDTyzeWv3Ae_YYumu3UQVXUqWqJnvwyAY7KAqEIWkoFUET_bp-48WrvGaGr8q355IXiqspURpMMCLQ4G7Jwm3EnN6I61e_C6XpoyliZnd06qiVZR5VuaHxk41XclwRwgPCsEflj30SKWgVQOGbOYFfcSEdMKUvu8fyGbRwo47ynHvHrmxMAuURWjnN3g8gD-shBHCt1_4GVDSp1LSipSysDcn3-SdFa0PLGZqQ4Xj7QzM7AMmZ20J0uSHVA5U6RBzLU8d_neDdAg-Y2sjAC_G2P7jj0RdIU-QlDx2B25nyr4rOO9oSOI_q54Q"  # NOQA
+
 
 def test_dataset_list_route(tmp_app_with_data):  # NOQA
 
@@ -62,9 +64,17 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     assert r.status_code == 200
     assert len(json.loads(r.data)) == 0
 
-    r = tmp_app_with_data.get(
-        "/dataset/list",
+    r = tmp_app_with_data.post(
+        "/dataset/search",
         headers=dict(Authorization="Bearer " + dopey_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + noone_token),
         data=json.dumps(query),
         content_type="application/json"
     )
@@ -170,3 +180,21 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 400
+
+    # Try to post data from user that does not exist in the system.
+    headers = dict(Authorization="Bearer " + noone_token)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": {"description": "new metadata"},
+    }
+    r = tmp_app_with_users.post(
+        "/dataset/register",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
