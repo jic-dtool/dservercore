@@ -16,6 +16,11 @@ MONGO_COLLECTION = "datasets"
 class ValidationError(ValueError):
     pass
 
+
+class AuthorizationError(ValueError):
+    pass
+
+
 mongo = PyMongo()
 sql_db = SQLAlchemy()
 jwt = JWTManager()

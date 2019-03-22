@@ -5,6 +5,7 @@ from sqlalchemy.sql import exists
 from dtool_lookup_server import (
     mongo,
     sql_db,
+    AuthorizationError,
     ValidationError,
     MONGO_COLLECTION,
 )
@@ -42,13 +43,21 @@ def dataset_info_is_valid(dataset_info):
     return True
 
 
-def register_dataset(dataset_info):
+def register_dataset(username, dataset_info):
     """Register a dataset in the lookup server."""
     if not dataset_info_is_valid(dataset_info):
         raise(ValidationError(
             "Dataset info not valid: {}".format(dataset_info)
         ))
-    register_dataset_admin_metadata(dataset_info)
+
+    user = _get_user_obj(username)
+    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
+
+    if base_uri not in user.register_base_uris:
+        raise(AuthorizationError())
+
+    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
+        register_dataset_admin_metadata(dataset_info)
     register_dataset_descriptive_metadata(dataset_info)
 
 
