@@ -1,6 +1,5 @@
 """Command line utility functions."""
 
-import os
 import sys
 
 import click

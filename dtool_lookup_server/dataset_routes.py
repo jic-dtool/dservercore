@@ -1,8 +1,6 @@
 from flask import (
     abort,
     Blueprint,
-    current_app,
-    request,
     jsonify
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
