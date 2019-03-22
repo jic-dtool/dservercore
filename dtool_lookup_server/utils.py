@@ -35,6 +35,13 @@ def dataset_info_is_valid(dataset_info):
     return True
 
 
+def register_dataset(dataset_info):
+    """Register a dataset in the lookup server."""
+    if not dataset_info_is_valid(dataset_info):
+        raise(ValueError("Dataset info not valid: {}".format(dataset_info)))
+    register_dataset_admin_metadata(dataset_info)
+
+
 #############################################################################
 # User helper functions
 #############################################################################
