@@ -7,16 +7,17 @@ from . import tmp_app_with_data  # NOQA
 
 def test_dataset_list_route(tmp_app_with_data):  # NOQA
 
-    grumpy_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImdydW1weSJ9.lcFdRgucUyWXLrUApIp1s5c3B4zTtRHCX7SuFtgBpmAmF0cK6alUJIOazIHprIy2Df78PX45gNOhERo1uavlSAEL22FKoeHBFVB8xcea3UrETklM7n4pwew0djZoiPz7eUEhEwpVS5gdqFtmcFjaExmRODby8MBjGGpZ0FZabkVYTXAv0XKPouMjxFOEr0Ibuyqbm7gPlAakWNsxdA4M7emx9xM6OtYUPnDVwk3tSunvF4SBMlDC0whjw1ZTNBnURkC5BK2YSXli8c4LV_-Ww_CaTbxU4_Dw-KeRV2FJvccmQAUEXicz1VvTxtkDyBUTmd-R85K_lUSU4lwzW3dF0w"  # NOQA
+    grumpy_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NjJjODEyNi1kZDJlLTQ1NDEtODQyOC0yZDYxYjEwZmU0M2YiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzIyMzEzMywidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzIyMzEzMywiaWRlbnRpdHkiOiJncnVtcHkifQ.K1YYcUp2jfpBhVd7ggBJ_mpnQT_ZAGRjfgrReoz9no6zZ_5Hlgq2YLUNFtFfr2PrqsaO5fKWUfKrR8bjMijtlRlAEmyCJvalqXDWvriMf2QowyR6IjKxSNZcVCMkJXEk7cRlEM9f815YABc3RsG1F75n2dV5NSuvcQ4dQoItvNYpsuHZ3c-xYQuaQt7_Ch50Ez-H2fJatXQYdnHruyZOJQKPIssxU_yyeCnlOGklCmDn8mIolQEChrvW9HhpvgXsaAWEHjtNRK4T_ZH37Dq44fIB9ax6GGRZHDjWmjOicrGolfu73BuI8fOpLLpW5af6SKP-UhZA4AcW_TYG4PnOpQ"  # NOQA
 
-    sleepy_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNsZWVweSJ9.N1BVpDBmxkmI0ONZisYgO-VsQNa3n3-7n3POYGY-mQTEYr-N3SIPI1_qjiOrc-y2GT8VIvs4mxVWwRPesW24F7_W5_vhwHwD_YlnloBGpk03GL84qX06GK12uo8Ajyclt4OzVE4XCwxUzPtgH6PhVIo5VdwKZfxbt3eBJyAYtX6s6Bu-C61kI33TnBi-sLeZawWTibvOGZmBuLeldlJoek5npjoM2Ck4-FR4MLPbwQS8cIJzKjYbpgJh2DMbHV_Yqa4jl89nuzG8a-1I2PmXognNdzwP2RKNDnZwd2oMEl7HJ7WkgqOyyPBz3X4ZAEwEpzo7hESNgdrByF_igMA67Q"  # NOQA
+    sleepy_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhNzBhNmQ1ZS0xMTU4LTQ5YzAtOGM0OS02MmU1MzYzZWM3NDQiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzIyMzIyNCwidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzIyMzIyNCwiaWRlbnRpdHkiOiJzbGVlcHkifQ.o15vGkZVsP_RaCIwXljFrkmFTef7ToPo_ssg7DPzRc33LhZh352gn6kY90JGMD1eyvrw69u6RwKW_5RkBmkDweCExiSDx7EuEofgadEegkM9qfbRfPGRpihobmQmwDADc6qspROUDi__gjrALLFZvg8cAteBVOBhKrItwHADym4RCHzDTyP0dd-k8PzvKUqBxryK5yutpc5Tkju3Bg33bFIyjJTr9kzZbjnzoYSjl1Nb7YtCO6ijsJasIPfLK8OOB2kza9NrAOAhWKqWtynzkyCCVckicfGZI5ywzNlsUqGcQwb7fNMUR-1JErM0wGViKOmotcQ08ut69KM5p8XZmg"  # NOQA
 
-    dopey_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvcGV5In0.apbGUn4u8v4nnHr3jw2ggnBfZf1Gc2tgK4hFYQ_tLK9sFozHgP6vjmBBzXTlYpZcnco8TWjIWSSU3PfoF5cXUvjh9ZY19FjiT0AQXQgHiVylNn2Ou1G0t1M71Y6nA_t8mKsyA4YbQ-OCM8I04JXPyGvN3xnK_d3JF-j8RHCS2i3_w9iPuBsns92NSxvkxkWSWIa00BsYTHaVWFWY9gCPaNP5I6VGR-o0TDlAtOrGmzMkBhTsgmeUpg2alLJ4CHX8c4Y0iefayM2UcBwW2dm8oUQf8pKAVM0iFF1ztivh-hocMYM5kb7UuhqB35x0uLaf24nm1d11kYbi0FizjAAG-w"  # NOQA
+    dopey_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTIxZDhhYi1iYjg5LTRlYTgtOTg3Zi0zYjgyOTc2ODkwZjEiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzIyMzM0MCwidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzIyMzM0MCwiaWRlbnRpdHkiOiJkb3BleSJ9.K8MeDodbdwDN2ErspmWgQJCra3EXdpIrsyWQVqCNZNKsjUZsYLNAetzqJe71NhiVFuoaqDm0ta9jNnQE5NpehQSFv0SveMPu4wIaVpcCDQXHOYGGljbhHa18v0dEZibZFEYnMwY_b0VWtpzXZXZSYiLVMD2kcnUqXouV7fPXlSp5SuFCEh5Y6rw0nZqxMTVdbDvZLm2rxjJI_4GHMj1KMpsGKYGTxniA1iWvR9WionJOdDxn5gc8roDERGuSQpm4LCQxz_WJk8pNX4IdQgPuz6TVNsXnUnD2LiGe9Dz8q-FstcTwRy2u97l76OgCGSf7vkhELHTqRj32cEdxnPNpTA"  # NOQA
 
-    r = tmp_app_with_data.post(
+
+    headers=dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data.get(
         "/dataset/list",
-        data=json.dumps(dict(token=grumpy_token)),
-        content_type="application/json"
+        headers=headers
     )
     assert r.status_code == 200
 
@@ -32,17 +33,15 @@ def test_dataset_list_route(tmp_app_with_data):  # NOQA
         })
     assert json.loads(r.data) == expected_content
 
-    r = tmp_app_with_data.post(
+    r = tmp_app_with_data.get(
         "/dataset/list",
-        data=json.dumps(dict(token=sleepy_token)),
-        content_type="application/json"
+        headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 200
     assert json.loads(r.data) == []
 
-    r = tmp_app_with_data.post(
+    r = tmp_app_with_data.get(
         "/dataset/list",
-        data=json.dumps(dict(token=dopey_token)),
-        content_type="application/json"
+        headers=dict(Authorization="Bearer " + dopey_token)
     )
     assert r.status_code == 401

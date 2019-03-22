@@ -15,7 +15,6 @@ setup(
         ],
     },
     install_requires=[
-        "cryptography",
         "flask",
         "flask-sqlalchemy",
         "flask-migrate",
@@ -23,7 +22,7 @@ setup(
         "dtoolcore",
         "dtool_irods",
         "dtool_s3",
-        "pyjwt",
+        "flask-jwt-extended[asymmetric_crypto]",
         "pyyaml",
     ],
 )

@@ -71,7 +71,11 @@ def tmp_app_with_data(request):
         "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "SECRET_KEY": "dev",
-        "JWT_PUBLIC_KEY": jwt_public_key
+        "JWT_ALGORITHM": "RS256",
+        "JWT_PUBLIC_KEY": jwt_public_key,
+        "JWT_TOKEN_LOCATION": "headers",
+        "JWT_HEADER_NAME": "Authorization",
+        "JWT_HEADER_TYPE": "Bearer",
     }
 
     app = create_app(config)

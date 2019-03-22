@@ -1,10 +1,11 @@
 """Command line utility functions."""
 
+import os
 import sys
 
 import click
 from flask import Flask
-import jwt
+from flask_jwt_extended import create_access_token
 
 from dtool_lookup_server.utils import (
     _get_user_obj,
@@ -128,12 +129,9 @@ def give_register_permission(base_uri, username):
 
 
 @app.cli.command()
-@click.argument(
-    'private-key-file',
-    type=click.Path(exists=True, dir_okay=False)
-)
 @click.argument('username')
-def generate_token(private_key_file, username):
+@click.option("--last-forever", is_flag=True)
+def generate_token(username, last_forever):
     """Generate a token for a user in the dtool lookup server."""
 
     if _get_user_obj(username) is None:
@@ -144,10 +142,8 @@ def generate_token(private_key_file, username):
         )
         sys.exit(1)
 
-    private_key = open(private_key_file, "r").read()
-
-    token = jwt.encode(
-        {'username': username},
-        private_key,
-        algorithm='RS256')
+    if last_forever:
+        token = create_access_token(identity=username, expires_delta=False)
+    else:
+        token = create_access_token(identity=username)
     click.secho(token.decode("utf-8"))

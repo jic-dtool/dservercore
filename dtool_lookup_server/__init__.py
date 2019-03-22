@@ -2,6 +2,7 @@ from flask import Flask
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 from dtool_lookup_server.config import Config
 
@@ -9,6 +10,7 @@ __version__ = "0.4.0"
 
 mongo = PyMongo()
 sql_db = SQLAlchemy()
+jwt = JWTManager()
 
 
 def create_app(test_config=None):
@@ -25,6 +27,8 @@ def create_app(test_config=None):
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
+
+    jwt.init_app(app)
 
     from dtool_lookup_server import routes, dataset_routes
     app.register_blueprint(routes.bp)
