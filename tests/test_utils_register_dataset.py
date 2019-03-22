@@ -11,6 +11,7 @@ def test_register_dataset(tmp_app):   # NOQA
         register_base_uri,
         register_dataset,
         get_admin_metadata_from_uri,
+        get_readme_from_uri,
     )
 
     base_uri = "s3://snow-white"

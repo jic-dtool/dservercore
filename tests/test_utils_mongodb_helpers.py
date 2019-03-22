@@ -7,7 +7,7 @@ from operator import itemgetter
 def test_mongodb_utilities_functional():
 
     from dtool_lookup_server.utils import (
-        register_dataset_descriptive_metadata,
+        _register_dataset_descriptive_metadata,
         lookup_datasets,
         search_for_datasets,
     )
@@ -31,7 +31,7 @@ def test_mongodb_utilities_functional():
             u"readme": "readme content",
             u"base_uri": u"file:///tmp",
         }
-        uuid = register_dataset_descriptive_metadata(collection, info)
+        uuid = _register_dataset_descriptive_metadata(collection, info)
         assert "_id" not in info
         assert uuid == info["uuid"]
         assert collection.count() == 1
@@ -39,13 +39,13 @@ def test_mongodb_utilities_functional():
         # Trying to register the same dataset information twice results
         # in the function returning the uuid, but without adding another
         # entry to the mongo database.
-        uuid = register_dataset_descriptive_metadata(collection, info)
+        uuid = _register_dataset_descriptive_metadata(collection, info)
         assert uuid == info["uuid"]
         assert collection.count() == 1
 
         # Trying to register a dataset using invalid information results
         # in the function returning None.
-        assert register_dataset_descriptive_metadata(collection, {"not": "valid"}) is None  # NOQA
+        assert _register_dataset_descriptive_metadata(collection, {"not": "valid"}) is None  # NOQA
 
         # Register a second dataset.
         info_2 = {
@@ -56,7 +56,7 @@ def test_mongodb_utilities_functional():
             u"readme": "readme content",
             u"base_uri": u"file:///tmp",
         }
-        uuid_2 = register_dataset_descriptive_metadata(collection, info_2)
+        uuid_2 = _register_dataset_descriptive_metadata(collection, info_2)
         assert collection.count() == 2
 
         # The same dataset can be registered in more than one location.
@@ -69,7 +69,7 @@ def test_mongodb_utilities_functional():
             u"readme": "readme content",
             u"base_uri": u"s3://dtool-demo",
         }
-        assert register_dataset_descriptive_metadata(collection, info_2_alt) == uuid_2  # NOQA
+        assert _register_dataset_descriptive_metadata(collection, info_2_alt) == uuid_2  # NOQA
         assert collection.count() == 3
 
         # One can lookup dataset information using the UUID. This returns
@@ -98,7 +98,7 @@ def test_mongodb_utilities_functional():
             u"uri": u"s3://test-dtool/d5c0d959-4d0d-4c51-a1da-57d5b750c24f",
             u"base_uri": u"s3://test-dtool"
         }
-        register_dataset_descriptive_metadata(collection, info_3)
+        _register_dataset_descriptive_metadata(collection, info_3)
 
         search_result = search_for_datasets(
             collection,

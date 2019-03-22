@@ -10,7 +10,7 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
 
     from dtool_lookup_server import mongo
     from dtool_lookup_server.utils import (
-        register_dataset_descriptive_metadata,
+        _register_dataset_descriptive_metadata,
     )
 
     # Get the collection out of the tmp_app.
@@ -38,7 +38,7 @@ def test_search_for_datasets_route(tmp_app):  # NOQA
         }
     ]
     for ds_info in datasets_to_register:
-        r = register_dataset_descriptive_metadata(collection, ds_info)
+        r = _register_dataset_descriptive_metadata(collection, ds_info)
     assert collection.count() == 2
 
     # Do some search tests.

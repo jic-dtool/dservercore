@@ -9,7 +9,7 @@ def test_lookup_datasets_route(tmp_app):  # NOQA
 
     # Register a dataset to look up.
     from dtool_lookup_server import mongo
-    from dtool_lookup_server.utils import register_dataset_descriptive_metadata
+    from dtool_lookup_server.utils import _register_dataset_descriptive_metadata
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     data = {
@@ -22,7 +22,7 @@ def test_lookup_datasets_route(tmp_app):  # NOQA
     }
 
     collection = mongo.db.datasets
-    register_dataset_descriptive_metadata(collection, data)
+    _register_dataset_descriptive_metadata(collection, data)
 
     lookup_url = "/lookup_datasets/{}".format(uuid)
     r = tmp_app.get(lookup_url)

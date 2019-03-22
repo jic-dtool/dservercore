@@ -2,7 +2,7 @@
 
 from sqlalchemy.sql import exists
 
-from dtool_lookup_server import sql_db, ValidationError
+from dtool_lookup_server import mongo, sql_db, ValidationError
 from dtool_lookup_server.sql_models import (
     User,
     BaseURI,
@@ -40,8 +40,9 @@ def dataset_info_is_valid(dataset_info):
 def register_dataset(dataset_info):
     """Register a dataset in the lookup server."""
     if not dataset_info_is_valid(dataset_info):
-        raise(ValueError("Dataset info not valid: {}".format(dataset_info)))
+        raise(ValidationError("Dataset info not valid: {}".format(dataset_info)))
     register_dataset_admin_metadata(dataset_info)
+    register_dataset_descriptive_metadata(dataset_info)
 
 
 #############################################################################
@@ -153,7 +154,12 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 #############################################################################
 
 def _get_base_uri_obj(base_uri_str):
-    return BaseURI.query.filter_by(base_uri=base_uri_str).first()
+    base_uri =  BaseURI.query.filter_by(base_uri=base_uri_str).first()
+    if base_uri is None:
+        raise(ValidationError(
+            "Base URI {} not registered".format(base_uri)
+        ))
+    return base_uri
 
 
 def register_base_uri(base_uri):
@@ -202,10 +208,7 @@ def show_permissions(base_uri_str):
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = _get_base_uri_obj(admin_metadata["base_uri"])
-    if base_uri is None:
-        raise(ValidationError(
-            "Base URI {} not registered".format(admin_metadata["base_uri"])
-        ))
+
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
@@ -241,8 +244,13 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 # Dataset NoSQL helper functions
 #############################################################################
 
+def register_dataset_descriptive_metadata(dataset_info):
+    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
 
-def register_dataset_descriptive_metadata(collection, dataset_info):
+    collection = mongo.db["datasets"]
+    _register_dataset_descriptive_metadata(collection, dataset_info)
+
+def _register_dataset_descriptive_metadata(collection, dataset_info):
     """Register dataset info in the collection.
 
     If the "uuid" and "uri" are the same as another record in
@@ -275,6 +283,13 @@ def register_dataset_descriptive_metadata(collection, dataset_info):
         del dataset_info["_id"]
 
     return dataset_info["uuid"]
+
+
+def get_readme_from_uri(uri):
+    """Return the readme information."""
+    collection = mongo.db["datasets"]
+    item = collection.find_one({"uri": uri})
+    return item["readme"]
 
 
 def lookup_datasets(collection, uuid):

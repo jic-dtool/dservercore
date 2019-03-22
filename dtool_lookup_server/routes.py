@@ -23,7 +23,7 @@ def lookup_datasets(uuid):
 @bp.route("/register_dataset", methods=["POST"])
 def register_dataset():
     dataset_info = request.get_json()
-    uuid = utils.register_dataset_descriptive_metadata(
+    uuid = utils._register_dataset_descriptive_metadata(
         mongo.db.datasets,
         dataset_info
     )
