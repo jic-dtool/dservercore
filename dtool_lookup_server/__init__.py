@@ -8,6 +8,9 @@ from dtool_lookup_server.config import Config
 
 __version__ = "0.4.0"
 
+class ValidationError(ValueError):
+    pass
+
 mongo = PyMongo()
 sql_db = SQLAlchemy()
 jwt = JWTManager()

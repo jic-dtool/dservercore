@@ -6,6 +6,7 @@ from . import tmp_app  # NOQA
 
 
 def test_register_dataset(tmp_app):   # NOQA
+    from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (
         register_base_uri,
         register_dataset,
@@ -36,5 +37,5 @@ def test_register_dataset(tmp_app):   # NOQA
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         register_dataset({"name": "not-all-required-metadata"})
