@@ -68,10 +68,9 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 401
 
-
     # Search for apples.
     headers = dict(Authorization="Bearer " + grumpy_token)
-    query = '{"$text": {"$search": "apple"}}'
+    query = {"$text": {"$search": "apple"}}
     r = tmp_app_with_data.post(
         "/dataset/search",
         headers=headers,

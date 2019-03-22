@@ -2,7 +2,12 @@
 
 from sqlalchemy.sql import exists
 
-from dtool_lookup_server import mongo, sql_db, ValidationError
+from dtool_lookup_server import (
+    mongo,
+    sql_db,
+    ValidationError,
+    MONGO_COLLECTION,
+)
 from dtool_lookup_server.sql_models import (
     User,
     BaseURI,
@@ -124,6 +129,28 @@ def list_datasets_by_user(username):
     for base_uri in user.search_base_uris:
         for ds in base_uri.datasets:
             datasets.append(ds.as_dict())
+    return datasets
+
+
+def search_datasets_by_user(username, query):
+    """Search the datasets the user has access to.
+
+    Returns list of dicts if user is valid and has access to datasets.
+    Returns empty list if user is valid but has not got access to any datasets.
+    Returns None if user is invalid.
+    """
+    user = _get_user_obj(username)
+    if user is None:
+        return None
+
+    datasets = []
+    for base_uri in user.search_base_uris:
+        base_uri_query = query.copy()
+        base_uri_query["base_uri"] = base_uri.base_uri
+        cx = mongo.db[MONGO_COLLECTION].find(base_uri_query, {"_id": False})
+        for ds in cx:
+            datasets.append(ds)
+
     return datasets
 
 
@@ -251,7 +278,7 @@ def register_dataset_descriptive_metadata(dataset_info):
     # Validate that the base URI exists.
     _get_base_uri_obj(dataset_info["base_uri"])
 
-    collection = mongo.db["datasets"]
+    collection = mongo.db[MONGO_COLLECTION]
     _register_dataset_descriptive_metadata(collection, dataset_info)
 
 
@@ -292,7 +319,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
 
 def get_readme_from_uri(uri):
     """Return the readme information."""
-    collection = mongo.db["datasets"]
+    collection = mongo.db[MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     return item["readme"]
 
