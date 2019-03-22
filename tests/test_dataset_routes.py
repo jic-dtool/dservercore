@@ -155,3 +155,18 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
     assert get_readme_from_uri(uri) == dataset_info["readme"]
     assert get_admin_metadata_from_uri(uri) == expected_content
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+
+    # Try to post invalid data.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+    }
+    r = tmp_app_with_users.post(
+        "/dataset/register",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400

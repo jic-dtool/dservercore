@@ -6,7 +6,7 @@ from flask import (
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from dtool_lookup_server import AuthorizationError
+from dtool_lookup_server import AuthorizationError, ValidationError
 from dtool_lookup_server.utils import (
     list_datasets_by_user,
     search_datasets_by_user,
@@ -50,4 +50,6 @@ def register():
         register_dataset(username, dataset_info)
     except AuthorizationError:
         abort(401)
+    except ValidationError:
+        abort(400)
     return "", 201
