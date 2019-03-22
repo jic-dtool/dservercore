@@ -6,6 +6,7 @@ import click
 from flask import Flask
 from flask_jwt_extended import create_access_token
 
+from dtool_lookup_server import ValidationError
 from dtool_lookup_server.utils import (
     _get_user_obj,
     _get_base_uri_obj,
@@ -44,15 +45,17 @@ def register_user(username, is_admin):
 def add_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
 
-    if _get_base_uri_obj(base_uri) is not None:
+    try:
+        _get_base_uri_obj(base_uri)
+    except ValidationError:
+        register_base_uri(base_uri)
+    else:
         click.secho(
             "Base URI '{}' already registered".format(base_uri),
             fg="red",
             err=True
         )
         sys.exit(1)
-
-    register_base_uri(base_uri)
 
 
 @app.cli.command()
@@ -61,7 +64,9 @@ def add_base_uri(base_uri):
 def give_search_permission(base_uri, username):
     """Give a user search permission on a base URI."""
 
-    if _get_base_uri_obj(base_uri) is None:
+    try:
+        _get_base_uri_obj(base_uri)
+    except ValidationError:
         click.secho(
             "Base URI '{}' not registered".format(base_uri),
             fg="red",
@@ -97,7 +102,9 @@ def give_search_permission(base_uri, username):
 def give_register_permission(base_uri, username):
     """Give a user register permission on a base URI."""
 
-    if _get_base_uri_obj(base_uri) is None:
+    try:
+        _get_base_uri_obj(base_uri)
+    except ValidationError:
         click.secho(
             "Base URI '{}' not registered".format(base_uri),
             fg="red",

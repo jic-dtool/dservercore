@@ -1,5 +1,7 @@
 """Test command line utilities."""
 
+import pytest
+
 from . import tmp_cli_runner  # NOQA
 
 
@@ -38,10 +40,12 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
 
 
 def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
+    from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import _get_base_uri_obj
 
     b_uri = "s3://snow-white"
-    assert _get_base_uri_obj(b_uri) is None
+    with pytest.raises(ValidationError):
+        _get_base_uri_obj(b_uri)
 
     from dtool_lookup_server.cli import add_base_uri
 
