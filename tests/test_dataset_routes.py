@@ -166,7 +166,6 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
     assert get_admin_metadata_from_uri(uri) == expected_content
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
 
-
     # Try to post invalid data.
     dataset_info = {
         "base_uri": base_uri,
