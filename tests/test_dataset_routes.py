@@ -20,17 +20,7 @@ def test_dataset_list_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 200
 
-    expected_content = []
-    for base_uri in ["s3://snow-white", "s3://mr-men"]:
-        uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
-        uri = "{}/{}".format(base_uri, uuid)
-        expected_content.append({
-            "base_uri": base_uri,
-            "uuid": uuid,
-            "uri": uri,
-            "name": "bad-apples"
-        })
-    assert json.loads(r.data) == expected_content
+    assert len(json.loads(r.data)) == 3
 
     r = tmp_app_with_data.get(
         "/dataset/list",

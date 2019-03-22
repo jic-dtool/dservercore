@@ -57,7 +57,7 @@ def tmp_app_with_data(request):
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
-        register_dataset_admin_metadata,
+        register_dataset,
         update_permissions,
     )
 
@@ -96,13 +96,15 @@ def tmp_app_with_data(request):
 
         uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
         uri = "{}/{}".format(base_uri, uuid)
-        admin_metadata = {
+        dataset_info = {
             "base_uri": base_uri,
+            "type": "dataset",
             "uuid": uuid,
             "uri": uri,
-            "name": "bad-apples"
+            "name": "bad-apples",
+            "readme": {"descripton": "apples from queen"},
         }
-        register_dataset_admin_metadata(admin_metadata)
+        register_dataset(dataset_info)
 
         permissions = {
             "base_uri": base_uri,
@@ -110,6 +112,19 @@ def tmp_app_with_data(request):
             "users_with_register_permissions": []
         }
         update_permissions(permissions)
+
+    base_uri = "s3://snow-white"
+    uuid = "a2218059-5bd0-4690-b090-062faf08e046"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "type": "dataset",
+        "uuid": uuid,
+        "uri": uri,
+        "name": "oranges",
+        "readme": {"descripton": "oranges from queen"},
+    }
+    register_dataset(dataset_info)
 
     @request.addfinalizer
     def teardown():
