@@ -40,7 +40,9 @@ def dataset_info_is_valid(dataset_info):
 def register_dataset(dataset_info):
     """Register a dataset in the lookup server."""
     if not dataset_info_is_valid(dataset_info):
-        raise(ValidationError("Dataset info not valid: {}".format(dataset_info)))
+        raise(ValidationError(
+            "Dataset info not valid: {}".format(dataset_info)
+        ))
     register_dataset_admin_metadata(dataset_info)
     register_dataset_descriptive_metadata(dataset_info)
 
@@ -154,7 +156,7 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 #############################################################################
 
 def _get_base_uri_obj(base_uri_str):
-    base_uri =  BaseURI.query.filter_by(base_uri=base_uri_str).first()
+    base_uri = BaseURI.query.filter_by(base_uri=base_uri_str).first()
     if base_uri is None:
         raise(ValidationError(
             "Base URI {} not registered".format(base_uri)
@@ -245,10 +247,13 @@ def list_admin_metadata_in_base_uri(base_uri_str):
 #############################################################################
 
 def register_dataset_descriptive_metadata(dataset_info):
-    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
+
+    # Validate that the base URI exists.
+    _get_base_uri_obj(dataset_info["base_uri"])
 
     collection = mongo.db["datasets"]
     _register_dataset_descriptive_metadata(collection, dataset_info)
+
 
 def _register_dataset_descriptive_metadata(collection, dataset_info):
     """Register dataset info in the collection.
