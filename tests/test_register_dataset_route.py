@@ -16,6 +16,7 @@ def test_register_dataset_route(tmp_app):  # NOQA
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
         "name": "a-dataset",
+        "readme": {"description": "a dataset"},
         "base_uri": "file:///tmp",
     }
     r = tmp_app.post(
@@ -38,6 +39,7 @@ def test_register_dataset_route_returns_bad_request_when_dataset_info_is_invalid
         "type": "protodataset",
         "uri": "file:///tmp/a_dataset",
         "name": "a-dataset",
+        "readme": {"description": "a dataset"},
         "base_uri": "file:///tmp",
     }
 

@@ -28,6 +28,7 @@ def test_mongodb_utilities_functional():
             u"type": u"dataset",
             u"uri": u"file:///tmp/a_dataset",
             u"name": u"a-dataset",
+            u"readme": "readme content",
             u"base_uri": u"file:///tmp",
         }
         uuid = register_dataset_descriptive_metadata(collection, info)
@@ -52,6 +53,7 @@ def test_mongodb_utilities_functional():
             u"type": u"dataset",
             u"uri": u"file:///tmp/another_dataset",
             u"name": u"another-dataset",
+            u"readme": "readme content",
             u"base_uri": u"file:///tmp",
         }
         uuid_2 = register_dataset_descriptive_metadata(collection, info_2)
@@ -64,6 +66,7 @@ def test_mongodb_utilities_functional():
             u"type": u"dataset",
             u"uri": u"s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f",
             u"name": u"another-dataset",
+            u"readme": "readme content",
             u"base_uri": u"s3://dtool-demo",
         }
         assert register_dataset_descriptive_metadata(collection, info_2_alt) == uuid_2  # NOQA
@@ -91,6 +94,7 @@ def test_mongodb_utilities_functional():
             u"creator_username": u"olssont",
             u"type": u"dataset",
             u"name": u"chrX-rna-seq",
+            u"readme": "readme content",
             u"uri": u"s3://test-dtool/d5c0d959-4d0d-4c51-a1da-57d5b750c24f",
             u"base_uri": u"s3://test-dtool"
         }

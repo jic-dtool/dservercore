@@ -26,6 +26,8 @@ def dataset_info_is_valid(dataset_info):
         return False
     if "base_uri" not in dataset_info:
         return False
+    if "readme" not in dataset_info:
+        return False
     if dataset_info["type"] != "dataset":
         return False
     if len(dataset_info["uuid"]) != 36:

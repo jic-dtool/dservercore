@@ -22,6 +22,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "uri": uri,
         "name": "my-dataset",
         "type": "dataset",
+        "readme": {"description": "test dataset"},
     }
 
     register_base_uri(base_uri)

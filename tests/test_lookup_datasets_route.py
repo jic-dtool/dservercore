@@ -17,6 +17,7 @@ def test_lookup_datasets_route(tmp_app):  # NOQA
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
         "name": "a-dataset",
+        "readme": {"description": "a dataset"},
         "base_uri": "file:///tmp"
     }
 

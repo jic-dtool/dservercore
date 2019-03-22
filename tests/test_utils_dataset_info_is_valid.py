@@ -10,6 +10,7 @@ def test_dataset_info_is_valid_returns_true_on_valid_info():
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
         "name": "my-dataset",
+        "readme": {"description": "test dataset"},
         "base_uri": "file:///tmp"
     }
     assert dataset_info_is_valid(info)
@@ -22,6 +23,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
         "name": "my-dataset",
+        "readme": {"description": "test dataset"},
         "base_uri": "file:///tmp"
     }
     assert not dataset_info_is_valid(info)
@@ -30,6 +32,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "uri": "file:///tmp/a_dataset",
         "name": "my-dataset",
+        "readme": {"description": "test dataset"},
         "base_uri": "file:///tmp"
     }
     assert not dataset_info_is_valid(info)
@@ -38,6 +41,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
         "name": "my-dataset",
+        "readme": {"description": "test dataset"},
         "base_uri": "file:///tmp"
     }
     assert not dataset_info_is_valid(info)
@@ -46,15 +50,25 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
+        "readme": {"description": "test dataset"},
         "base_uri": "file:///tmp"
     }
     assert not dataset_info_is_valid(info)
 
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
+        "type": "dataset",
+        "uri": "file:///tmp/a_dataset",
+        "readme": {"description": "test dataset"},
+        "name": "my-dataset",
+    }
+    assert not dataset_info_is_valid(info)
+
+    info = {
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
         "name": "my-dataset",
+        "base_uri": "file:///tmp"
     }
     assert not dataset_info_is_valid(info)
 
