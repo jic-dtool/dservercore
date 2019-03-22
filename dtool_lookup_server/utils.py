@@ -2,7 +2,7 @@
 
 from sqlalchemy.sql import exists
 
-from dtool_lookup_server import sql_db
+from dtool_lookup_server import sql_db, ValidationError
 from dtool_lookup_server.sql_models import (
     User,
     BaseURI,
@@ -202,6 +202,10 @@ def show_permissions(base_uri_str):
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = _get_base_uri_obj(admin_metadata["base_uri"])
+    if base_uri is None:
+        raise(ValidationError(
+            "Base URI {} not registered".format(admin_metadata["base_uri"])
+        ))
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,

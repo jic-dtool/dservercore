@@ -36,6 +36,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "name": "my-dataset",
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
+    assert get_readme_from_uri(uri) == dataset_metadata["readme"]
 
     with pytest.raises(ValidationError):
         register_dataset({"name": "not-all-required-metadata"})
