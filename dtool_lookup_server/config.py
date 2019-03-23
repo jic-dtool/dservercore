@@ -1,32 +1,31 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+_HERE = os.path.abspath(os.path.dirname(__file__))
 
-_DEFAULT_SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(
-    os.path.join(basedir, "..", 'app.db')
-)
-_DEFAULT_MONGO_URI = 'mongodb://localhost:27017/dtool_info'
 
-if os.path.isfile(os.environ.get('JWT_PUBLIC_KEY_FILE', "")):
-    _JWT_PUBLIC_KEY = open(os.environ.get('JWT_PUBLIC_KEY_FILE')).read()
-else:
-    _JWT_PUBLIC_KEY = ""
-
-if os.path.isfile(os.environ.get('JWT_PRIVATE_KEY_FILE', "")):
-    _JWT_PRIVATE_KEY = open(os.environ.get('JWT_PRIVATE_KEY_FILE')).read()
-else:
-    _JWT_PRIVATE_KEY = ""
+def _get_file_content(key, default=""):
+    file_path = os.environ.get(key, "")
+    if os.path.isfile(file_path):
+        content = open(file_path).read()
+    else:
+        content = ""
+    return content
 
 
 class Config(object):
-    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')  \
-        or _DEFAULT_SQLALCHEMY_DATABASE_URI
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'you-will-never-guess')
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'SQLALCHEMY_DATABASE_URI',
+        'sqlite:///{}'.format(os.path.join(_HERE, "..", 'app.db'))
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MONGO_URI = os.environ.get('MONGO_URI') or _DEFAULT_MONGO_URI
+    MONGO_URI = os.environ.get(
+        'MONGO_URI',
+        'mongodb://localhost:27017/dtool_info'
+    )
     JWT_ALGORITHM = "RS256"
     JWT_TOKEN_LOCATION = "headers"
     JWT_HEADER_NAME = "Authorization"
     JWT_HEADER_TYPE = "Bearer"
-    JWT_PRIVATE_KEY = _JWT_PRIVATE_KEY
-    JWT_PUBLIC_KEY = _JWT_PUBLIC_KEY
+    JWT_PRIVATE_KEY = _get_file_content("JWT_PRIVATE_KEY_FILE")
+    JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
