@@ -1,7 +1,5 @@
 """Test command line utilities."""
 
-import pytest
-
 from . import tmp_cli_runner  # NOQA
 
 
@@ -40,19 +38,17 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
 
 
 def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import _get_base_uri_obj
+    from dtool_lookup_server.utils import get_base_uri_obj, base_uri_exists
 
     b_uri = "s3://snow-white"
-    with pytest.raises(ValidationError):
-        _get_base_uri_obj(b_uri)
+    assert not base_uri_exists(b_uri)
 
     from dtool_lookup_server.cli import add_base_uri
 
     result = tmp_cli_runner.invoke(add_base_uri, [b_uri])
     assert result.exit_code == 0
 
-    new_base_uri = _get_base_uri_obj(b_uri)
+    new_base_uri = get_base_uri_obj(b_uri)
     expected_content = {
         "base_uri": b_uri,
         "users_with_search_permissions": [],
@@ -64,7 +60,7 @@ def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
 def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
     from dtool_lookup_server.utils import (
-        _get_base_uri_obj,
+        get_base_uri_obj,
         register_users,
         register_base_uri,
     )
@@ -82,7 +78,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
         [base_uri_str, username1])
     assert result.exit_code == 0
 
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
     expected_content = {
         "base_uri": base_uri_str,
         "users_with_search_permissions": [username1],
@@ -95,7 +91,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
         [base_uri_str, username2])
     assert result.exit_code == 0
 
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
     expected_content = {
         "base_uri": base_uri_str,
         "users_with_search_permissions": [username1, username2],
@@ -125,7 +121,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
     from dtool_lookup_server.utils import (
-        _get_base_uri_obj,
+        get_base_uri_obj,
         register_users,
         register_base_uri,
     )
@@ -143,7 +139,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
         [base_uri_str, username1])
     assert result.exit_code == 0
 
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
     expected_content = {
         "base_uri": base_uri_str,
         "users_with_search_permissions": [],
@@ -156,7 +152,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
         [base_uri_str, username2])
     assert result.exit_code == 0
 
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
     expected_content = {
         "base_uri": base_uri_str,
         "users_with_search_permissions": [],

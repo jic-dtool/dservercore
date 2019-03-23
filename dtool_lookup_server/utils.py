@@ -34,13 +34,8 @@ def _get_user_obj(username):
     return User.query.filter_by(username=username).first()
 
 
-def _get_base_uri_obj(base_uri_str):
-    base_uri = BaseURI.query.filter_by(base_uri=base_uri_str).first()
-    if base_uri is None:
-        raise(ValidationError(
-            "Base URI {} not registered".format(base_uri)
-        ))
-    return base_uri
+def _get_base_uri_obj(base_uri):
+    return BaseURI.query.filter_by(base_uri=base_uri).first()
 
 
 #############################################################################
@@ -180,6 +175,23 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 # Base URI helper functions
 #############################################################################
 
+def base_uri_exists(base_uri):
+    """Return True if the base URI has been registered."""
+    if _get_base_uri_obj(base_uri) is None:
+        return False
+    return True
+
+
+def get_base_uri_obj(base_uri):
+    """Return SQLAlchemy BaseURI object."""
+    base_uri_obj = _get_base_uri_obj(base_uri)
+    if base_uri_obj is None:
+        raise(ValidationError(
+            "Base URI {} not registered".format(base_uri)
+        ))
+    return base_uri_obj
+
+
 def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
     base_uri = BaseURI(base_uri=base_uri)
@@ -201,13 +213,13 @@ def list_base_uris():
 
 def show_permissions(base_uri_str):
     """Return the permissions of on a base URI as a dictionary."""
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
     return base_uri.as_dict()
 
 
 def update_permissions(permissions):
     """Rewrite permissions."""
-    base_uri = _get_base_uri_obj(permissions["base_uri"])
+    base_uri = get_base_uri_obj(permissions["base_uri"])
     for username in permissions["users_with_search_permissions"]:
         if user_exists(username):
             user = get_user_obj(username)
@@ -248,7 +260,7 @@ def dataset_info_is_valid(dataset_info):
 
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
-    base_uri = _get_base_uri_obj(admin_metadata["base_uri"])
+    base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
     dataset = Dataset(
         uri=admin_metadata["uri"],
@@ -263,7 +275,7 @@ def register_dataset_admin_metadata(admin_metadata):
 def register_dataset_descriptive_metadata(dataset_info):
 
     # Validate that the base URI exists.
-    _get_base_uri_obj(dataset_info["base_uri"])
+    get_base_uri_obj(dataset_info["base_uri"])
 
     collection = mongo.db[MONGO_COLLECTION]
     _register_dataset_descriptive_metadata(collection, dataset_info)
@@ -312,7 +324,7 @@ def register_dataset(username, dataset_info):
         ))
 
     user = get_user_obj(username)
-    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
+    base_uri = get_base_uri_obj(dataset_info["base_uri"])
 
     if base_uri not in user.register_base_uris:
         raise(AuthorizationError())
@@ -346,7 +358,7 @@ def get_readme_from_uri(uri):
 def list_admin_metadata_in_base_uri(base_uri_str):
     """Return list of dictionaries with admin metadata from dataset SQL table.
     """
-    base_uri = _get_base_uri_obj(base_uri_str)
+    base_uri = get_base_uri_obj(base_uri_str)
 
     if base_uri is None:
         return None
