@@ -16,59 +16,36 @@ from dtool_lookup_server.sql_models import (
     Dataset,
 )
 
-
-#############################################################################
-# Generic helper functions
-#############################################################################
-
-def dataset_info_is_valid(dataset_info):
-    """Return True if the dataset info is valid."""
-    if "uuid" not in dataset_info:
-        return False
-    if "type" not in dataset_info:
-        return False
-    if "uri" not in dataset_info:
-        return False
-    if "name" not in dataset_info:
-        return False
-    if "base_uri" not in dataset_info:
-        return False
-    if "readme" not in dataset_info:
-        return False
-    if dataset_info["type"] != "dataset":
-        return False
-    if len(dataset_info["uuid"]) != 36:
-        return False
-    if dataset_info["base_uri"].endswith("/"):
-        return False
-    return True
-
-
-def register_dataset(username, dataset_info):
-    """Register a dataset in the lookup server."""
-    if not dataset_info_is_valid(dataset_info):
-        raise(ValidationError(
-            "Dataset info not valid: {}".format(dataset_info)
-        ))
-
-    user = get_user_obj(username)
-    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
-
-    if base_uri not in user.register_base_uris:
-        raise(AuthorizationError())
-
-    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
-        register_dataset_admin_metadata(dataset_info)
-    register_dataset_descriptive_metadata(dataset_info)
+DATASET_INFO_REQUIRED_KEYS = (
+    "uuid",
+    "base_uri",
+    "uri",
+    "name",
+    "type",
+    "readme",
+)
 
 
 #############################################################################
-# User helper functions
+# Private helper functions.
 #############################################################################
 
 def _get_user_obj(username):
     return User.query.filter_by(username=username).first()
 
+
+def _get_base_uri_obj(base_uri_str):
+    base_uri = BaseURI.query.filter_by(base_uri=base_uri_str).first()
+    if base_uri is None:
+        raise(ValidationError(
+            "Base URI {} not registered".format(base_uri)
+        ))
+    return base_uri
+
+
+#############################################################################
+# User helper functions
+#############################################################################
 
 def user_exists(username):
     if _get_user_obj(username) is None:
@@ -137,6 +114,10 @@ def get_user_info(username):
     return user.as_dict()
 
 
+#############################################################################
+# Dataset list/search/lookup helper functions.
+#############################################################################
+
 def list_datasets_by_user(username):
     """List the datasets the user has access to.
 
@@ -199,15 +180,6 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 # Base URI helper functions
 #############################################################################
 
-def _get_base_uri_obj(base_uri_str):
-    base_uri = BaseURI.query.filter_by(base_uri=base_uri_str).first()
-    if base_uri is None:
-        raise(ValidationError(
-            "Base URI {} not registered".format(base_uri)
-        ))
-    return base_uri
-
-
 def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
     base_uri = BaseURI(base_uri=base_uri)
@@ -227,6 +199,12 @@ def list_base_uris():
 # Permission helper functions
 #############################################################################
 
+def show_permissions(base_uri_str):
+    """Return the permissions of on a base URI as a dictionary."""
+    base_uri = _get_base_uri_obj(base_uri_str)
+    return base_uri.as_dict()
+
+
 def update_permissions(permissions):
     """Rewrite permissions."""
     base_uri = _get_base_uri_obj(permissions["base_uri"])
@@ -241,15 +219,32 @@ def update_permissions(permissions):
     sql_db.session.commit()
 
 
-def show_permissions(base_uri_str):
-    """Return the permissions of on a base URI as a dictionary."""
-    base_uri = _get_base_uri_obj(base_uri_str)
-    return base_uri.as_dict()
-
-
 #############################################################################
-# Dataset SQL helper functions
+# Register dataset helper functions
 #############################################################################
+
+def dataset_info_is_valid(dataset_info):
+    """Return True if the dataset info is valid."""
+
+    # Ensure that all the required keys are present.
+    for key in DATASET_INFO_REQUIRED_KEYS:
+        if key not in dataset_info:
+            return False
+
+    # Ensure that it is a "dataset" and not a "protodataset".
+    if dataset_info["type"] != "dataset":
+        return False
+
+    # Ensure that the UUID has the correct number of characters.
+    if len(dataset_info["uuid"]) != 36:
+        return False
+
+    # Ensure that the base URI has had any trailing slash removed.
+    if dataset_info["base_uri"].endswith("/"):
+        return False
+
+    return True
+
 
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
@@ -264,31 +259,6 @@ def register_dataset_admin_metadata(admin_metadata):
     sql_db.session.add(dataset)
     sql_db.session.commit()
 
-
-def get_admin_metadata_from_uri(uri):
-    """Return the dataset SQL table row as dictionary."""
-    dataset = Dataset.query.filter_by(uri=uri).first()
-
-    if dataset is None:
-        return None
-
-    return dataset.as_dict()
-
-
-def list_admin_metadata_in_base_uri(base_uri_str):
-    """Return list of dictionaries with admin metadata from dataset SQL table.
-    """
-    base_uri = _get_base_uri_obj(base_uri_str)
-
-    if base_uri is None:
-        return None
-
-    return [ds.as_dict() for ds in base_uri.datasets]
-
-
-#############################################################################
-# Dataset NoSQL helper functions
-#############################################################################
 
 def register_dataset_descriptive_metadata(dataset_info):
 
@@ -334,6 +304,38 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     return dataset_info["uuid"]
 
 
+def register_dataset(username, dataset_info):
+    """Register a dataset in the lookup server."""
+    if not dataset_info_is_valid(dataset_info):
+        raise(ValidationError(
+            "Dataset info not valid: {}".format(dataset_info)
+        ))
+
+    user = get_user_obj(username)
+    base_uri = _get_base_uri_obj(dataset_info["base_uri"])
+
+    if base_uri not in user.register_base_uris:
+        raise(AuthorizationError())
+
+    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
+        register_dataset_admin_metadata(dataset_info)
+    register_dataset_descriptive_metadata(dataset_info)
+
+
+#############################################################################
+# Dataset information retrieval helper functions.
+#############################################################################
+
+def get_admin_metadata_from_uri(uri):
+    """Return the dataset SQL table row as dictionary."""
+    dataset = Dataset.query.filter_by(uri=uri).first()
+
+    if dataset is None:
+        return None
+
+    return dataset.as_dict()
+
+
 def get_readme_from_uri(uri):
     """Return the readme information."""
     collection = mongo.db[MONGO_COLLECTION]
@@ -341,11 +343,12 @@ def get_readme_from_uri(uri):
     return item["readme"]
 
 
-def lookup_datasets(collection, uuid):
-    """Return list of dataset info dictionaries with matching uuid."""
-    return [i for i in collection.find({"uuid": uuid}, {"_id": False})]
+def list_admin_metadata_in_base_uri(base_uri_str):
+    """Return list of dictionaries with admin metadata from dataset SQL table.
+    """
+    base_uri = _get_base_uri_obj(base_uri_str)
 
+    if base_uri is None:
+        return None
 
-def search_for_datasets(collection, query):
-    """Return list of dataset info dictionaries matching the query."""
-    return [i for i in collection.find(query, {"_id": False})]
+    return [ds.as_dict() for ds in base_uri.datasets]
