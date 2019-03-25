@@ -50,7 +50,11 @@ def create_app(test_config=None):
 
     jwt.init_app(app)
 
-    from dtool_lookup_server import dataset_routes
+    from dtool_lookup_server import (
+        dataset_routes,
+        base_uri_routes,
+    )
     app.register_blueprint(dataset_routes.bp)
+    app.register_blueprint(base_uri_routes.bp)
 
     return app
