@@ -197,3 +197,29 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 401
+
+
+def test_dataset_lookup_route(tmp_app_with_data):  # NOQA
+
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data.get(
+        "/dataset/lookup/{}".format(uuid),
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data)) == 2
+
+    r = tmp_app_with_data.get(
+        "/dataset/lookup/{}".format(uuid),
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 200
+    assert json.loads(r.data) == []
+
+    r = tmp_app_with_data.get(
+        "/dataset/lookup/{}".format(uuid),
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401

@@ -16,6 +16,7 @@ from dtool_lookup_server import (
 )
 from dtool_lookup_server.utils import (
     list_datasets_by_user,
+    lookup_datasets_by_user_and_uuid,
     search_datasets_by_user,
     register_dataset,
 )
@@ -30,6 +31,18 @@ def list_datasets():
     username = get_jwt_identity()
     try:
         datasets = list_datasets_by_user(username)
+    except AuthenticationError:
+        abort(401)
+    return jsonify(datasets)
+
+
+@bp.route("/lookup/<uuid>", methods=["GET"])
+@jwt_required
+def lookup_datasets(uuid):
+    """List the dataset a user has access to."""
+    username = get_jwt_identity()
+    try:
+        datasets = lookup_datasets_by_user_and_uuid(username, uuid)
     except AuthenticationError:
         abort(401)
     return jsonify(datasets)
