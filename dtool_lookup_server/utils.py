@@ -333,6 +333,8 @@ def register_dataset(username, dataset_info):
         register_dataset_admin_metadata(dataset_info)
     register_dataset_descriptive_metadata(dataset_info)
 
+    return dataset_info["uri"]
+
 
 #############################################################################
 # Dataset information retrieval helper functions.

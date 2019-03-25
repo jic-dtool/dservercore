@@ -1,10 +1,15 @@
 """Command line utility functions."""
 
+from datetime import date, datetime
+import json
 import sys
 
 import click
+import dtoolcore
+from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 from flask import Flask
 from flask_jwt_extended import create_access_token
+import yaml
 
 from dtool_lookup_server.utils import (
     base_uri_exists,
@@ -13,6 +18,7 @@ from dtool_lookup_server.utils import (
     register_base_uri,
     show_permissions,
     update_permissions,
+    register_dataset,
 )
 
 app = Flask(__name__)
@@ -145,3 +151,45 @@ def generate_token(username, last_forever):
     else:
         token = create_access_token(identity=username)
     click.secho(token.decode("utf-8"))
+
+
+def _json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type {} not serializable".format(type(obj)))
+
+
+@app.cli.command()
+@click.argument('username')
+@click.argument('base_uri')
+def index_base_uri(username, base_uri):
+    """Register all the datasets in a base URI."""
+    if not base_uri_exists(base_uri):
+        click.secho(
+            "Base URI '{}' not registered".format(base_uri),
+            fg="red",
+            err=True
+        )
+        sys.exit(1)
+
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+    StorageBroker = dtoolcore._get_storage_broker(base_uri, CONFIG_PATH)
+    for uri in StorageBroker.list_dataset_uris(base_uri, CONFIG_PATH):
+        try:
+            dataset = dtoolcore.DataSet.from_uri(uri)
+        except dtoolcore.DtoolCoreTypeError:
+            pass
+        dataset_info = dataset._admin_metadata
+        dataset_info["uri"] = dataset.uri
+        dataset_info["base_uri"] = base_uri
+
+        # Add the readme info.
+        readme_info = yaml.load(dataset.get_readme_content())
+        dataset_info["readme"] = readme_info
+
+        # Clean up datetime.data.
+        dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
+        dataset_info = json.loads(dataset_info_json_str)
+
+        r = register_dataset(username, dataset_info)
+        click.secho("Registered: {}".format(r))

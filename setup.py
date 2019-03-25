@@ -12,6 +12,7 @@ setup(
             'give_search_permission=dtool_lookup_server.cli:give_search_permission',  # NOQA
             'give_register_permission=dtool_lookup_server.cli:give_register_permission',  # NOQA
             'generate_token=dtool_lookup_server.cli:generate_token',
+            'index_base_uri=dtool_lookup_server.cli:index_base_uri',
         ],
     },
     install_requires=[
@@ -22,6 +23,7 @@ setup(
         "dtoolcore",
         "dtool_irods",
         "dtool_s3",
+        "dtool_ecs",
         "flask-jwt-extended[asymmetric_crypto]",
         "pyyaml",
     ],
