@@ -1,6 +1,7 @@
 from flask import (
     abort,
     Blueprint,
+    jsonify,
     request,
 )
 from flask_jwt_extended import (
@@ -14,6 +15,7 @@ from dtool_lookup_server.utils import (
     base_uri_exists,
     get_user_obj,
     register_base_uri,
+    list_base_uris,
 )
 
 bp = Blueprint("base_uri", __name__, url_prefix="/base_uri")
@@ -48,3 +50,23 @@ def register():
     register_base_uri("s3://snow-white-again")
 
     return "", 201
+
+
+@bp.route("/list", methods=["GET"])
+@jwt_required
+def base_uri_list():
+    """Register a base URI.
+
+    The user needs to be admin. Returns 404 for non-admins.
+    """
+    username = get_jwt_identity()
+    try:
+        user = get_user_obj(username)
+    except AuthenticationError:
+        # Unregistered users should see 404.
+        abort(404)
+    # Non admin users should see 404.
+    if not user.is_admin:
+        abort(404)
+
+    return jsonify(list_base_uris())

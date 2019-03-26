@@ -150,7 +150,11 @@ def tmp_app_with_data(request):
 
     # Register some users.
     username = "grumpy"
-    register_users([dict(username=username), dict(username="sleepy")])
+    register_users([
+        dict(username=username),
+        dict(username="sleepy"),
+        dict(username="snow-white", is_admin=True)
+    ])
 
     # Add base URIs and update permissions
     for base_uri in ["s3://snow-white", "s3://mr-men"]:
