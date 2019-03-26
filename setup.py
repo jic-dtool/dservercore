@@ -7,12 +7,8 @@ setup(
     package_data={"dtool_lookup_server": ["templates/*"]},
     entry_points={
         'flask.commands': [
-            'register_user=dtool_lookup_server.cli:register_user',
-            'register_base_uri=dtool_lookup_server.cli:add_base_uri',
-            'give_search_permission=dtool_lookup_server.cli:give_search_permission',  # NOQA
-            'give_register_permission=dtool_lookup_server.cli:give_register_permission',  # NOQA
-            'generate_token=dtool_lookup_server.cli:generate_token',
-            'index_base_uri=dtool_lookup_server.cli:index_base_uri',
+            'base_uri=dtool_lookup_server.cli:base_uri_cli',
+            'user=dtool_lookup_server.cli:user_cli',
         ],
     },
     install_requires=[

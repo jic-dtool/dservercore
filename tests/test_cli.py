@@ -75,7 +75,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
-        [base_uri_str, username1])
+        [username1, base_uri_str])
     assert result.exit_code == 0
 
     base_uri = get_base_uri_obj(base_uri_str)
@@ -88,7 +88,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
-        [base_uri_str, username2])
+        [username2, base_uri_str])
     assert result.exit_code == 0
 
     base_uri = get_base_uri_obj(base_uri_str)
@@ -101,19 +101,19 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
-        [base_uri_str, username2])
+        [username2, base_uri_str])
     assert result.exit_code != 0
     assert "User '{}' already has search permissions".format(username2) in result.output  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
-        ["s3://no-uri", "dopey"])
+        ["dopey", "s3://no-uri"])
     assert result.exit_code != 0
     assert "Base URI 's3://no-uri' not registered" in result.output
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
-        [base_uri_str, "noone"])
+        ["noone", base_uri_str])
     assert result.exit_code != 0
     assert "User 'noone' not registered" in result.output
 
@@ -136,7 +136,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
-        [base_uri_str, username1])
+        [username1, base_uri_str])
     assert result.exit_code == 0
 
     base_uri = get_base_uri_obj(base_uri_str)
@@ -149,7 +149,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
-        [base_uri_str, username2])
+        [username2, base_uri_str])
     assert result.exit_code == 0
 
     base_uri = get_base_uri_obj(base_uri_str)
@@ -162,18 +162,18 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
-        [base_uri_str, username2])
+        [username2, base_uri_str])
     assert result.exit_code != 0
     assert "User '{}' already has register permissions".format(username2) in result.output  # NOQA
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
-        ["s3://no-uri", "dopey"])
+        ["dopey", "s3://no-uri"])
     assert result.exit_code != 0
     assert "Base URI 's3://no-uri' not registered" in result.output
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
-        [base_uri_str, "noone"])
+        ["noone", base_uri_str])
     assert result.exit_code != 0
     assert "User 'noone' not registered" in result.output

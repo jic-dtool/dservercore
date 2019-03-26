@@ -8,6 +8,7 @@ import click
 import dtoolcore
 from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 from flask import Flask
+from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 import yaml
 
@@ -23,8 +24,11 @@ from dtool_lookup_server.utils import (
 
 app = Flask(__name__)
 
+user_cli = AppGroup('user', help="User management commands.")
+base_uri_cli = AppGroup('base_uri', help="Base URI management commands.")
 
-@app.cli.command()
+
+@user_cli.command(name="register")
 @click.argument('username')
 @click.option('-a', '--is_admin', is_flag=True)
 def register_user(username, is_admin):
@@ -45,7 +49,7 @@ def register_user(username, is_admin):
     register_users(users)
 
 
-@app.cli.command()
+@base_uri_cli.command(name="register")
 @click.argument('base_uri')
 def add_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
@@ -60,10 +64,10 @@ def add_base_uri(base_uri):
     register_base_uri(base_uri)
 
 
-@app.cli.command()
-@click.argument('base_uri')
+@user_cli.command(name="search_permission")
 @click.argument('username')
-def give_search_permission(base_uri, username):
+@click.argument('base_uri')
+def give_search_permission(username, base_uri):
     """Give a user search permission on a base URI."""
 
     if not base_uri_exists(base_uri):
@@ -96,10 +100,10 @@ def give_search_permission(base_uri, username):
     update_permissions(permissions)
 
 
-@app.cli.command()
-@click.argument('base_uri')
+@user_cli.command(name="register_permission")
 @click.argument('username')
-def give_register_permission(base_uri, username):
+@click.argument('base_uri')
+def give_register_permission(username, base_uri):
     """Give a user register permission on a base URI."""
 
     if not base_uri_exists(base_uri):
@@ -132,7 +136,7 @@ def give_register_permission(base_uri, username):
     update_permissions(permissions)
 
 
-@app.cli.command()
+@user_cli.command(name="token")
 @click.argument('username')
 @click.option("--last-forever", is_flag=True)
 def generate_token(username, last_forever):
@@ -159,7 +163,7 @@ def _json_serial(obj):
     raise TypeError("Type {} not serializable".format(type(obj)))
 
 
-@app.cli.command()
+@base_uri_cli.command(name="index")
 @click.argument('base_uri')
 def index_base_uri(base_uri):
     """Register all the datasets in a base URI."""
@@ -192,3 +196,6 @@ def index_base_uri(base_uri):
 
         r = register_dataset(dataset_info)
         click.secho("Registered: {}".format(r))
+
+app.cli.add_command(user_cli)
+app.cli.add_command(base_uri_cli)
