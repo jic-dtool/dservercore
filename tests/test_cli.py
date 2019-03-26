@@ -48,7 +48,7 @@ def test_cli_list_users(tmp_cli_runner):  # NOQA
         {"username": "grumpy"}
     ])
 
-    result = tmp_cli_runner.invoke(list_users, ["--is_admin", "admin"])
+    result = tmp_cli_runner.invoke(list_users, [])
     assert result.exit_code == 0
 
     expected_content = [
