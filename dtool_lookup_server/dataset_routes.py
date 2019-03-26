@@ -10,10 +10,11 @@ from flask_jwt_extended import (
 )
 from dtool_lookup_server import (
     AuthenticationError,
-    AuthorizationError,
-    ValidationError,
 )
 from dtool_lookup_server.utils import (
+    dataset_info_is_valid,
+    get_base_uri_obj,
+    get_user_obj,
     list_datasets_by_user,
     lookup_datasets_by_user_and_uuid,
     search_datasets_by_user,
@@ -68,11 +69,18 @@ def register():
     dataset_info = request.get_json()
 
     try:
-        register_dataset(username, dataset_info)
+        user = get_user_obj(username)
     except AuthenticationError:
+        # User not registered in system.
         abort(401)
-    except AuthorizationError:
+
+    if not dataset_info_is_valid(dataset_info):
+        abort(409)
+
+    base_uri = get_base_uri_obj(dataset_info["base_uri"])
+
+    if base_uri not in user.register_base_uris:
         abort(401)
-    except ValidationError:
-        abort(400)
-    return "", 201
+
+    dataset_uri = register_dataset(dataset_info)
+    return dataset_uri, 201

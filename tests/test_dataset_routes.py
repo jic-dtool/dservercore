@@ -178,7 +178,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         data=json.dumps(dataset_info),
         content_type="application/json"
     )
-    assert r.status_code == 400
+    assert r.status_code == 409
 
     # Try to post data from user that does not exist in the system.
     headers = dict(Authorization="Bearer " + noone_token)

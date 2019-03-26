@@ -6,7 +6,6 @@ from dtool_lookup_server import (
     mongo,
     sql_db,
     AuthenticationError,
-    AuthorizationError,
     ValidationError,
     MONGO_COLLECTION,
 )
@@ -316,18 +315,18 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     return dataset_info["uuid"]
 
 
-def register_dataset(username, dataset_info):
+def register_dataset(dataset_info):
     """Register a dataset in the lookup server."""
     if not dataset_info_is_valid(dataset_info):
         raise(ValidationError(
             "Dataset info not valid: {}".format(dataset_info)
         ))
 
-    user = get_user_obj(username)
-    base_uri = get_base_uri_obj(dataset_info["base_uri"])
-
-    if base_uri not in user.register_base_uris:
-        raise(AuthorizationError())
+    base_uri = dataset_info["base_uri"]
+    if not base_uri_exists(base_uri):
+        raise(ValidationError(
+            "Base URI is not registered: {}".format(base_uri)
+        ))
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)

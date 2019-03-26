@@ -178,7 +178,7 @@ def tmp_app_with_data(request):
             "name": "bad-apples",
             "readme": {"descripton": "apples from queen"},
         }
-        register_dataset(username, dataset_info)
+        register_dataset(dataset_info)
 
     base_uri = "s3://snow-white"
     uuid = "a2218059-5bd0-4690-b090-062faf08e046"
@@ -191,7 +191,7 @@ def tmp_app_with_data(request):
         "name": "oranges",
         "readme": {"descripton": "oranges from queen"},
     }
-    register_dataset(username, dataset_info)
+    register_dataset(dataset_info)
 
     @request.addfinalizer
     def teardown():

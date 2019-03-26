@@ -6,7 +6,7 @@ from . import tmp_app  # NOQA
 
 
 def test_register_dataset(tmp_app):   # NOQA
-    from dtool_lookup_server import ValidationError, AuthorizationError
+    from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
@@ -42,7 +42,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "readme": {"description": "test dataset"},
     }
 
-    register_dataset("grumpy", dataset_info)
+    register_dataset(dataset_info)
 
     expected_content = {
         "base_uri": base_uri,
@@ -54,7 +54,4 @@ def test_register_dataset(tmp_app):   # NOQA
     assert get_readme_from_uri(uri) == dataset_info["readme"]
 
     with pytest.raises(ValidationError):
-        register_dataset("grumpy", {"name": "not-all-required-metadata"})
-
-    with pytest.raises(AuthorizationError):
-        register_dataset("sleepy", dataset_info)
+        register_dataset({"name": "not-all-required-metadata"})

@@ -160,9 +160,8 @@ def _json_serial(obj):
 
 
 @app.cli.command()
-@click.argument('username')
 @click.argument('base_uri')
-def index_base_uri(username, base_uri):
+def index_base_uri(base_uri):
     """Register all the datasets in a base URI."""
     if not base_uri_exists(base_uri):
         click.secho(
@@ -191,5 +190,5 @@ def index_base_uri(username, base_uri):
         dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
         dataset_info = json.loads(dataset_info_json_str)
 
-        r = register_dataset(username, dataset_info)
+        r = register_dataset(dataset_info)
         click.secho("Registered: {}".format(r))
