@@ -1,5 +1,7 @@
 """Test command line utilities."""
 
+import json
+
 from . import tmp_cli_runner  # NOQA
 
 
@@ -35,6 +37,35 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
     result = tmp_cli_runner.invoke(register_user, ["dopey"])
     assert result.exit_code != 0
     assert "User 'dopey' already registered" in result.output
+
+
+def test_cli_list_users(tmp_cli_runner):  # NOQA
+    from dtool_lookup_server.utils import register_users
+    from dtool_lookup_server.cli import list_users
+
+    register_users([
+        {"username": "admin", "is_admin": True},
+        {"username": "grumpy"}
+    ])
+
+    result = tmp_cli_runner.invoke(list_users, ["--is_admin", "admin"])
+    assert result.exit_code == 0
+
+    expected_content = [
+        {
+            "username": "admin",
+            "is_admin": True,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": "grumpy",
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+    ]
+    assert json.loads(result.output) == expected_content
 
 
 def test_cli_register_base_uri(tmp_cli_runner):  # NOQA

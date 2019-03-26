@@ -12,6 +12,7 @@ from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 import yaml
 
+import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
     base_uri_exists,
     user_exists,
@@ -47,6 +48,14 @@ def register_user(username, is_admin):
         "is_admin": is_admin
     }]
     register_users(users)
+
+
+@user_cli.command(name="list")
+def list_users():
+    """List the users in the dtool lookup server."""
+    click.secho(
+        json.dumps(dtool_lookup_server.utils.list_users(), indent=2)
+    )
 
 
 @base_uri_cli.command(name="register")
