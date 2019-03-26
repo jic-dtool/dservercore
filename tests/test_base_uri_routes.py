@@ -21,7 +21,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     data = {"base_uri": base_uri}
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users.post(
-        "/base_uri/register",
+        "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
         content_type="application/json"
@@ -32,7 +32,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     # Ensure idempotent.
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users.post(
-        "/base_uri/register",
+        "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
         content_type="application/json"
@@ -44,7 +44,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     # non-admins.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users.post(
-        "/base_uri/register",
+        "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
         content_type="application/json"
@@ -53,7 +53,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
 
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users.post(
-        "/base_uri/register",
+        "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
         content_type="application/json"
@@ -65,7 +65,7 @@ def test_base_uri_list_route(tmp_app_with_data):  # NOQA
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_data.get(
-        "/base_uri/list",
+        "/admin/base_uri/list",
         headers=headers,
     )
     assert r.status_code == 200
@@ -73,14 +73,14 @@ def test_base_uri_list_route(tmp_app_with_data):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_data.get(
-        "/base_uri/list",
+        "/admin/base_uri/list",
         headers=headers,
     )
     assert r.status_code == 404
 
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_data.get(
-        "/base_uri/list",
+        "/admin/base_uri/list",
         headers=headers,
     )
     assert r.status_code == 404

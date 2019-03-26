@@ -18,7 +18,7 @@ from dtool_lookup_server.utils import (
     list_base_uris,
 )
 
-bp = Blueprint("base_uri", __name__, url_prefix="/base_uri")
+bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
