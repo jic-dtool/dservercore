@@ -29,7 +29,7 @@ user_cli = AppGroup('user', help="User management commands.")
 base_uri_cli = AppGroup('base_uri', help="Base URI management commands.")
 
 
-@user_cli.command(name="register")
+@user_cli.command(name="add")
 @click.argument('username')
 @click.option('-a', '--is_admin', is_flag=True)
 def register_user(username, is_admin):
@@ -58,7 +58,7 @@ def list_users():
     )
 
 
-@base_uri_cli.command(name="register")
+@base_uri_cli.command(name="add")
 @click.argument('base_uri')
 def add_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
