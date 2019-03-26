@@ -88,6 +88,28 @@ def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
     assert new_base_uri.as_dict() == expected_content
 
 
+def test_cli_list_base_uri(tmp_cli_runner):  # NOQA
+    from dtool_lookup_server.utils import register_base_uri
+
+    base_uris = ["s3://snow-white", "s3://mr-men"]
+    for uri in base_uris:
+        register_base_uri(uri)
+
+    from dtool_lookup_server.cli import list_base_uris
+
+    result = tmp_cli_runner.invoke(list_base_uris, [])
+    assert result.exit_code == 0
+
+    expected_content = [
+        {
+            "base_uri": uri,
+            "users_with_search_permissions": [],
+            "users_with_register_permissions": []
+        } for uri in base_uris
+    ]
+    assert json.loads(result.output) == expected_content
+
+
 def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
     from dtool_lookup_server.utils import (

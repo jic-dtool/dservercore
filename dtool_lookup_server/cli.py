@@ -73,6 +73,14 @@ def add_base_uri(base_uri):
     register_base_uri(base_uri)
 
 
+@base_uri_cli.command(name="list")
+def list_base_uris():
+    """List the base URIs in the dtool lookup server."""
+    click.secho(
+        json.dumps(dtool_lookup_server.utils.list_base_uris(), indent=2)
+    )
+
+
 @user_cli.command(name="search_permission")
 @click.argument('username')
 @click.argument('base_uri')
