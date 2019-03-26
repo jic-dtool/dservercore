@@ -53,8 +53,10 @@ def create_app(test_config=None):
     from dtool_lookup_server import (
         dataset_routes,
         base_uri_routes,
+        user_admin_routes,
     )
     app.register_blueprint(dataset_routes.bp)
     app.register_blueprint(base_uri_routes.bp)
+    app.register_blueprint(user_admin_routes.bp)
 
     return app
