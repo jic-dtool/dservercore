@@ -6,6 +6,7 @@ import sys
 
 import click
 import dtoolcore
+import dtoolcore.utils
 from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 from flask import Flask
 from flask.cli import AppGroup
@@ -62,6 +63,7 @@ def list_users():
 @click.argument('base_uri')
 def add_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     if base_uri_exists(base_uri):
         click.secho(
             "Base URI '{}' already registered".format(base_uri),

@@ -2,6 +2,8 @@
 
 from sqlalchemy.sql import exists
 
+import dtoolcore.utils
+
 from dtool_lookup_server import (
     mongo,
     sql_db,
@@ -193,6 +195,7 @@ def get_base_uri_obj(base_uri):
 
 def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     base_uri = BaseURI(base_uri=base_uri)
     sql_db.session.add(base_uri)
     sql_db.session.commit()
