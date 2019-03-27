@@ -63,3 +63,29 @@ def test_register_user_route(tmp_app_with_users):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 404
+
+
+def test_list_user_route(tmp_app_with_users):  # NOQA
+
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users.get(
+        "/admin/user/list",
+        headers=headers,
+    )
+    assert r.status_code == 200
+
+    # Only admins allowed. However, don't give away that URL exists to
+    # non-admins.
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users.get(
+        "/admin/user/list",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+    headers = dict(Authorization="Bearer " + noone_token)
+    r = tmp_app_with_users.get(
+        "/admin/user/list",
+        headers=headers
+    )
+    assert r.status_code == 404

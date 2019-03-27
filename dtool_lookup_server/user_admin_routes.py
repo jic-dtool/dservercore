@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 from dtool_lookup_server import (
     AuthenticationError,
 )
+import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
     get_user_obj,
     register_users,
@@ -49,3 +50,26 @@ def register():
     register_users(data)
 
     return "", 201
+
+
+@bp.route("/list", methods=["GET"])
+@jwt_required
+def list_users():
+    """List the users in the dtool lookup server.
+
+    The user in the Authorization token needs to be admin. Returns 404 for
+    non-admins.
+    """
+    username = get_jwt_identity()
+
+    try:
+        user = get_user_obj(username)
+    except AuthenticationError:
+        # Unregistered users should see 404.
+        abort(404)
+
+    # Non admin users should see 404.
+    if not user.is_admin:
+        abort(404)
+
+    return jsonify(dtool_lookup_server.utils.list_users())
