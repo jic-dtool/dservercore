@@ -186,6 +186,8 @@ def _json_serial(obj):
 @click.argument('base_uri')
 def index_base_uri(base_uri):
     """Register all the datasets in a base URI."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+
     if not base_uri_exists(base_uri):
         click.secho(
             "Base URI '{}' not registered".format(base_uri),
