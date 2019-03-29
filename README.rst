@@ -71,7 +71,7 @@ If one has access to the private key as well one can use the ``flask user
 token`` command line utility to generate a token for the user. To enable this
 one has to set the ``JWT_PRIVATE_KEY_FILE`` environment variable::
 
-    export JWT_PRIVATE_KEY_FILE=~/.ssh/id_rsa 
+    export JWT_PRIVATE_KEY_FILE=~/.ssh/id_rsa
 
 Mac users be warned that the Mac's implementation ``ssh-keygen`` may result in
 files that do not adhere to the RFC standard. As such you may get a warning
@@ -82,8 +82,10 @@ along the lines of::
 In this case you need to find a version of ``ssh-keygen`` that generates files
 that adhere to the RFC standard, the easiest is probably to generate them in Linux.
 
-Start the flask app
-^^^^^^^^^^^^^^^^^^^
+Starting the flask app
+^^^^^^^^^^^^^^^^^^^^^^
+
+The Flask web app can be started using the command below::
 
     $ flask run
 
@@ -94,15 +96,114 @@ Populating the dtool lookup server using the CLI
 Indexing a base URI
 ^^^^^^^^^^^^^^^^^^^
 
+Datasets can be stored on filesystem and in object storage such as AWS S3.  In
+an AWS S3 bucket datasets are stored in a flat structure and the bucket itself
+is the base URI. To index all the datasets in the S3 bucket, the base URI, one
+first needs to register it in the dtool lookup server::
+
+    flask base_uri add s3://dtool-demo
+
+One can then index it using the command::
+
+    $ flask base_uri index s3://dtool-demo
+    Registered: s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e
+    Registered: s3://dtool-demo/907e1b52-d649-476a-b0bc-643ef769a7d9
+    Registered: s3://dtool-demo/af6727bf-29c7-43dd-b42f-a5d7ede28337
+    Registered: s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+    Registered: s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f
+    Registered: s3://dtool-demo/faa44606-cb86-4877-b9ea-643a3777e021
+
+It is possible to list all the base URIs registered in the dtool lookup server::
+
+    $ flask base_uri list
+    [
+      {
+        "base_uri": "s3://dtool-demo",
+        "users_with_search_permissions": [],
+        "users_with_register_permissions": []
+      }
+    ]
+
+In the output above it is worth noting that there are two types of permissions
+associated with a base URI. "Search" permissions allow a user to search for
+datasets in a base URI. "Register" permissions allow a user to register a
+dataset in the dtool lookup server if it is stored in the specific base URI.
+
+
 Adding a user and managing permissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The command below adds the user ``olssont`` to the dtool lookup server::
+
+    $ flask user add olssont
+
+The command below gives the user ``olssont`` search permissions on the
+``s3://dtool-demo`` base URI::
+
+    $ flask user search_permission olssont s3://dtool-demo
+
+The command below gives the user ``olssont`` register permissions on the
+``s3://dtool-demo`` base URI::
+
+    $ flask user register_permission olssont s3://dtool-demo
+
 
 Creating an admin user
 ^^^^^^^^^^^^^^^^^^^^^^
 
+The command below adds the user ``overlord``, with admin privileges, to the
+dtool lookup server::
+
+    $ flask user add --is_admin overlord
+
+
+Generating a JSON Web Token for a registered user
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The command below can be used to generate a token for a user to authenticate
+with when using the web API.
+
+    $ flask user token olssont
+    eyJhbGciOiJSUzI1NiIsInR5... (truncated)
+
+
+Listing the registered users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The command below lists the users registered in the dtool lookup server::
+
+    $ flask user list
+    [
+      {
+        "username": "olssont",
+        "is_admin": false,
+        "register_permissions_on_base_uris": [
+          "s3://dtool-demo"
+        ],
+        "search_permissions_on_base_uris": [
+          "s3://dtool-demo"
+        ]
+      },
+      {
+        "username": "overlord",
+        "is_admin": true,
+        "register_permissions_on_base_uris": [],
+        "search_permissions_on_base_uris": []
+      }
+    ]
+
+
 
 The dtool lookup server API
 ---------------------------
+
+The dtool lookup server makes use of the Authrized header to pass through the
+JSON web token for authrization. Below we create environment variables for the
+token and the header used in the ``curl`` commands::
+
+    $ TOKEN=$(flask user token olssont)
+    $ HEADER="Authorization: Bearer $TOKEN"
+
 
 Standard user usage
 ^^^^^^^^^^^^^^^^^^^
@@ -110,16 +211,111 @@ Standard user usage
 Looking up URIs based on a dataset's UUID
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+A dataset can be uniquely identified by it's UUID (Universally Unique
+Identifier). Below we create an environment variable with the UUID of a dataset
+in the s3://dtool-demo bucket::
+
+    $ UUID=8ecd8e05-558a-48e2-b563-0c9ea273e71e
+
+It is possible to list all the location a dataset is located in using the
+command below::
+
+    $ curl -H $HEADER http://localhost:5000/dataset/lookup/$UUID
+    [
+      {
+        "base_uri": "s3://dtool-demo",
+        "name": "Escherichia-coli-ref-genome",
+        "uri": "s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e",
+        "uuid": "8ecd8e05-558a-48e2-b563-0c9ea273e71e"
+      }
+    ]
+
+Note that it is possible for a dataset to be registered in more than one base
+URI. As such looking up a dataset by UUID can result in multiple hits.
+
+
 Listing all datasets
 ~~~~~~~~~~~~~~~~~~~~
+
+All the dataset's that a user has permissions to search for can be listed using
+the request below::
+
+    $ curl -H $HEADER http://localhost:5000/dataset/list
+
+Some of the output of the command above is displayed below::
+
+    [
+      {
+        "base_uri": "s3://dtool-demo",
+        "name": "Escherichia-coli-ref-genome",
+        "uri": "s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e",
+        "uuid": "8ecd8e05-558a-48e2-b563-0c9ea273e71e"
+      },
+      ... (truncated)
+      {
+        "base_uri": "s3://dtool-demo",
+        "name": "Escherichia-coli-reads-ERR022075",
+        "uri": "s3://dtool-demo/faa44606-cb86-4877-b9ea-643a3777e021",
+        "uuid": "faa44606-cb86-4877-b9ea-643a3777e021"
+      }
+    ]
+
 
 
 Searching for specific datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The command below does a full text search for the word "microscopy" in the descriptive metadata::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '{"$text": {"$search": "microscopy"}}'  \
+        http://localhost:5000/dataset/search
+
+Below is the result of this search::
+
+    [
+      {
+        "base_uri": "s3://dtool-demo",
+        "created_at": "1530803916.74",
+        "creator_username": "olssont",
+        "dtoolcore_version": "3.3.0",
+        "frozen_at": "1536749825.85",
+        "name": "hypocotyl3",
+        "readme": {
+          "DataDOI": "https://doi.org/10.6084/m9.figshare.3438743.v1",
+          "Device": "Zeiss LSM780",
+          "Experiment Commentary": "Confocal microscopy image of hypocotyl.\nCell walls stained using FM4-64 [5ug/ml].\nNucelus marked using 35s::GFP:eIF3a (see reference for more detail).\n",
+          "Experiment Date": "28 Jan 2016",
+          "Imaging probes": "FM4-64 + GFP-nucleus",
+          "Notes": "Orignal file unpacked using bfconvert 5.0.2",
+          "Objective Lens": "x40/1.2 water",
+          "Organ/tissue type": "Hypocotyl",
+          "ReferenceDOI": "http://dx.doi.org/10.1105/tpc.108.060434",
+          "Species": "Arabidopsis thaliana (Thale cress)"
+        },
+        "type": "dataset",
+        "uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db",
+        "uuid": "ba92a5fa-d3b4-4f10-bcb9-947f62e652db"
+      }
+    ]
+
 
 Getting information about one's own permissions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A user can find out about his/her own permissions using the command below::
+
+    $ curl -H $HEADER http://localhost:5000/user/info/olssont
+    {
+      "is_admin": false,
+      "register_permissions_on_base_uris": [
+        "s3://dtool-demo"
+      ],
+      "search_permissions_on_base_uris": [
+        "s3://dtool-demo"
+      ],
+      "username": "olssont"
+    }
 
 
 Data champion user usage
