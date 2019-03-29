@@ -213,7 +213,7 @@ def list_base_uris():
 # Permission helper functions
 #############################################################################
 
-def show_permissions(base_uri_str):
+def get_permission_info(base_uri_str):
     """Return the permissions of on a base URI as a dictionary."""
     base_uri = get_base_uri_obj(base_uri_str)
     return base_uri.as_dict()

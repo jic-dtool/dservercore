@@ -19,7 +19,7 @@ from dtool_lookup_server.utils import (
     user_exists,
     register_users,
     register_base_uri,
-    show_permissions,
+    get_permission_info,
     update_permissions,
     register_dataset,
 )
@@ -105,7 +105,7 @@ def give_search_permission(username, base_uri):
         )
         sys.exit(1)
 
-    permissions = show_permissions(base_uri)
+    permissions = get_permission_info(base_uri)
 
     if username in permissions["users_with_search_permissions"]:
         click.secho(
@@ -141,7 +141,7 @@ def give_register_permission(username, base_uri):
         )
         sys.exit(1)
 
-    permissions = show_permissions(base_uri)
+    permissions = get_permission_info(base_uri)
 
     if username in permissions["users_with_register_permissions"]:
         click.secho(
