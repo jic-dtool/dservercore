@@ -54,9 +54,11 @@ def create_app(test_config=None):
         dataset_routes,
         base_uri_routes,
         user_admin_routes,
+        permission_routes,
     )
     app.register_blueprint(dataset_routes.bp)
     app.register_blueprint(base_uri_routes.bp)
     app.register_blueprint(user_admin_routes.bp)
+    app.register_blueprint(permission_routes.bp)
 
     return app
