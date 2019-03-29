@@ -47,7 +47,7 @@ def register():
     if base_uri_exists(base_uri):
         return "", 201
 
-    register_base_uri("s3://snow-white-again")
+    register_base_uri(base_uri)
 
     return "", 201
 
