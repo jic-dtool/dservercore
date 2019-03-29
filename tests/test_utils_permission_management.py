@@ -59,3 +59,41 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         "users_with_register_permissions": ["snow-white"]
     }]
     assert list_base_uris() == expected_content
+
+    # Wipe the permissions again.
+    permissions = {
+        "base_uri": base_uri,
+        "users_with_search_permissions": [],
+        "users_with_register_permissions": [],
+    }
+    update_permissions(permissions)
+    assert get_permission_info(base_uri) == permissions
+
+    expected_content = [
+        {
+            "username": "snow-white",
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": "dopey",
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": "sleepy",
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        }
+    ]
+    assert list_users() == expected_content
+
+    expected_content = [{
+        "base_uri": base_uri,
+        "users_with_search_permissions": [],
+        "users_with_register_permissions": []
+    }]
+    assert list_base_uris() == expected_content

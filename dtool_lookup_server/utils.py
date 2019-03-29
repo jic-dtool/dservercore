@@ -222,14 +222,21 @@ def get_permission_info(base_uri_str):
 def update_permissions(permissions):
     """Rewrite permissions."""
     base_uri = get_base_uri_obj(permissions["base_uri"])
+
+    # Clear all the existing permissions.
+    base_uri.search_users = []
+    base_uri.register_users = []
+
     for username in permissions["users_with_search_permissions"]:
         if user_exists(username):
             user = get_user_obj(username)
-            user.search_base_uris.append(base_uri)
+            base_uri.search_users.append(user)
+
     for username in permissions["users_with_register_permissions"]:
         if user_exists(username):
             user = get_user_obj(username)
-            user.register_base_uris.append(base_uri)
+            base_uri.register_users.append(user)
+
     sql_db.session.commit()
 
 
