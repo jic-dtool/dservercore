@@ -29,3 +29,4 @@ class Config(object):
     JWT_HEADER_TYPE = "Bearer"
     JWT_PRIVATE_KEY = _get_file_content("JWT_PRIVATE_KEY_FILE")
     JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
+    JSONIFY_PRETTYPRINT_REGULAR = True
