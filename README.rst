@@ -321,27 +321,95 @@ A user can find out about his/her own permissions using the command below::
 Data champion user usage
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+A data champion is different from a regular user in that he/she has
+"register" permissions on a base URI. This means that a data champion
+can register metadata about a data to the dtool lookup server.
+
 Registering a dataset
 ~~~~~~~~~~~~~~~~~~~~~
+
+Below is an example of how to register a dataset::
+
+    $ DATASET_INFO='{
+      "base_uri": "s3://dtool-demo",
+      "created_at": "1537802877.62",
+      "creator_username": "olssont",
+      "dtoolcore_version": "3.7.0",
+      "frozen_at": "1537916653.7",
+      "name": "Escherichia-coli-ref-genome",
+      "readme": {
+        "accession_id": "U00096.3",
+        "description": "U00096.3 genome with Bowtie2 indices",
+        "index_build_cmd": "bowtie2-build U00096.3.fasta reference",
+        "index_builder": "bowtie2-build version 2.3.3",
+        "link": "https://www.ebi.ac.uk/ena/data/view/U00096.3",
+        "organism": "Escherichia coli str. K-12 substr. MG1655"
+      },
+      "type": "dataset",
+      "uri": "s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e",
+      "uuid": "8ecd8e05-558a-48e2-b563-0c9ea273e71e"
+    }'
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d $DATASET_INFO  \
+        http://localhost:5000/dataset/register
+
+Not all of the metadata above is required.
+The required keys are defined in the variable
+``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
 
 
 Admin user usage
 ^^^^^^^^^^^^^^^^
 
-Registering a base URI
-~~~~~~~~~~~~~~~~~~~~~~
+The administrative user can register new users, base URIs and manage who has
+permissions to search for and register datasets. Below we update the header
+to use the token from the ``overlord`` admin user::
 
-Listing registered base URIs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    $ TOKEN=$(flask user token overlord)
+    $ HEADER="Authorization: Bearer $TOKEN"
 
-Registering users
-~~~~~~~~~~~~~~~~~
 
 Listing registered users
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+To list all the registered users an admin user can use the below::
+
+    $ curl -H $HEADER http://localhost:5000/admin/user/list
+    [
+      {
+        "is_admin": false,
+        "register_permissions_on_base_uris": [
+          "s3://dtool-demo"
+        ],
+        "search_permissions_on_base_uris": [
+          "s3://dtool-demo"
+        ],
+        "username": "olssont"
+      },
+      {
+        "is_admin": true,
+        "register_permissions_on_base_uris": [],
+        "search_permissions_on_base_uris": [],
+        "username": "overlord"
+      }
+    ]
+
+
+Registering users
+~~~~~~~~~~~~~~~~~
+
+
+Registering a base URI
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Listing registered base URIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Updating the permissions on a base URI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Getting informations about the permissions on a base URI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
