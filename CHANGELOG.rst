@@ -31,6 +31,65 @@ Security
 ^^^^^^^^
  
 
+[Unreleased]
+------------
+
+Added
+^^^^^
+
+New and replacement routes.
+
+- /admin/base_uri/list
+- /admin/base_uri/register
+- /dataset/list
+- /dataset/lookup/<uuid>
+- /dataset/register
+- /dataset/search
+- /admin/permission/info
+- /admin/permission/update_on_base_uri
+- /user/info/<username>
+- /admin/user/list
+- /admin/user/register
+
+Flask CLI utilities for managing the dtool lookup server.
+
+- ``flask base_uri add``
+- ``flask base_uri index``
+- ``flask base_uri list``
+- ``flask user add``
+- ``flask user list``
+- ``flask user register_permission``
+- ``flask user search_permission``
+- ``flask user token``
+
+
+Changed
+^^^^^^^
+
+
+Deprecated
+^^^^^^^^^^
+
+
+Removed
+^^^^^^^
+
+All previous routes.
+
+- /register_dataset route
+- /lookup_datasets route
+- /search_for_datasets route
+
+
+Fixed
+^^^^^
+
+
+Security
+^^^^^^^^
+ 
+
+
 [0.4.0] - 2018-08-09
 --------------------
 
