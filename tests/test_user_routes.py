@@ -44,7 +44,7 @@ def test_list_user_route(tmp_app_with_users):  # NOQA
         u"search_permissions_on_base_uris": [base_uri],
         u"register_permissions_on_base_uris": [base_uri]
     }
-    assert json.loads(r.data) == expected_content
+    assert json.loads(r.data.decode("utf-8")) == expected_content
 
     # Snow-white admin retrieve Grumpy's info.
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -61,7 +61,7 @@ def test_list_user_route(tmp_app_with_users):  # NOQA
         u"search_permissions_on_base_uris": [base_uri],
         u"register_permissions_on_base_uris": [base_uri]
     }
-    assert json.loads(r.data) == expected_content
+    assert json.loads(r.data.decode("utf-8")) == expected_content
 
     # Noone tries to retrieve Grumpy's info. 404.
     headers = dict(Authorization="Bearer " + noone_token)

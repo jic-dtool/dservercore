@@ -32,7 +32,7 @@ def test_dataset_list_route(tmp_app_with_data):  # NOQA
         headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 200
-    assert json.loads(r.data) == []
+    assert json.loads(r.data.decode("utf-8")) == []
 
     r = tmp_app_with_data.get(
         "/dataset/list",
@@ -62,7 +62,7 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
         content_type="application/json"
     )
     assert r.status_code == 200
-    assert len(json.loads(r.data)) == 0
+    assert len(json.loads(r.data.decode("utf-8"))) == 0
 
     r = tmp_app_with_data.post(
         "/dataset/search",
@@ -91,7 +91,7 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 200
 
-    assert len(json.loads(r.data)) == 2
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
 
 
 def test_dataset_register_route(tmp_app_with_users):  # NOQA
@@ -216,7 +216,7 @@ def test_dataset_lookup_route(tmp_app_with_data):  # NOQA
         headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 200
-    assert json.loads(r.data) == []
+    assert json.loads(r.data.decode("utf-8")) == []
 
     r = tmp_app_with_data.get(
         "/dataset/lookup/{}".format(uuid),
