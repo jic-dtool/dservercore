@@ -1,10 +1,18 @@
 from setuptools import setup
 
+url = "https://github.com/jic-dtool/dtool-lookup-server"
+version = "0.5.0"
+readme = open('README.rst').read()
+
 setup(
     name="dtool-lookup-server",
     packages=["dtool_lookup_server"],
-    include_package_data=True,
     package_data={"dtool_lookup_server": ["templates/*"]},
+    include_package_data=True,
+    author="Tjelvar Olsson",
+    author_email="tjelvar.olsson@jic.ac.uk",
+    version=version,
+    url=url,
     entry_points={
         'flask.commands': [
             'base_uri=dtool_lookup_server.cli:base_uri_cli',
@@ -23,4 +31,6 @@ setup(
         "flask-jwt-extended[asymmetric_crypto]",
         "pyyaml",
     ],
+    download_url="{}/tarball/{}".format(url, version),
+    license="MIT"
 )
