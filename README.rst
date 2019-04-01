@@ -193,7 +193,6 @@ The command below lists the users registered in the dtool lookup server::
     ]
 
 
-
 The dtool lookup server API
 ---------------------------
 
@@ -221,6 +220,9 @@ It is possible to list all the location a dataset is located in using the
 command below::
 
     $ curl -H $HEADER http://localhost:5000/dataset/lookup/$UUID
+
+Response content::
+
     [
       {
         "base_uri": "s3://dtool-demo",
@@ -306,6 +308,9 @@ Getting information about one's own permissions
 A user can find out about his/her own permissions using the command below::
 
     $ curl -H $HEADER http://localhost:5000/user/info/olssont
+
+Response content::
+
     {
       "is_admin": false,
       "register_permissions_on_base_uris": [
@@ -375,6 +380,9 @@ Listing registered users
 To list all the registered users an admin user can use the below::
 
     $ curl -H $HEADER http://localhost:5000/admin/user/list
+
+Response content::
+
     [
       {
         "is_admin": false,
@@ -398,18 +406,93 @@ To list all the registered users an admin user can use the below::
 Registering users
 ~~~~~~~~~~~~~~~~~
 
+An admin user can register other users in batch::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '[{"username": "admin", "is_admin": true}, {"username": "joe"}]'  \
+        http://localhost:5000/admin/user/register
+
+
+
 
 Registering a base URI
 ~~~~~~~~~~~~~~~~~~~~~~
+
+An admin user can register a new base URI::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
+        http://localhost:5000/admin/base_uri/register
 
 
 Listing registered base URIs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An admin user can list all registered base URIs::
+
+    $ curl -H $HEADER http://localhost:5000/admin/base_uri/list
+
+Response content::
+
+    [
+      {
+        "base_uri": "s3://dtool-demo",
+        "users_with_register_permissions": [
+          "olssont"
+        ],
+        "users_with_search_permissions": [
+          "olssont"
+        ]
+      },
+      {
+        "base_uri": "s3://another-bucket",
+        "users_with_register_permissions": [],
+        "users_with_search_permissions": []
+      }
+    ]
+
 
 Updating the permissions on a base URI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An admin user can update the permissions on a base URI::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '{
+          "base_uri": "s3://another-bucket",
+          "users_with_register_permissions": [
+            "olssont"
+          ],
+          "users_with_search_permissions": [
+            "olssont"
+          ]
+        }'  \
+        http://localhost:5000/admin/permission/update_on_base_uri
+
+Note that the request below can be used to clear all existing permissions::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '{
+          "base_uri": "s3://another-bucket",
+          "users_with_register_permissions": [],
+          "users_with_search_permissions": []}'  \
+        http://localhost:5000/admin/permission/update_on_base_uri
+
 
 Getting informations about the permissions on a base URI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An admin user can get information about the permissions on a base URI::
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
+        http://localhost:5000/admin/permission/info
+
+Response content::
+
+    {
+      "base_uri": "s3://another-bucket",
+      "users_with_register_permissions": [],
+      "users_with_search_permissions": []
+    }
+
