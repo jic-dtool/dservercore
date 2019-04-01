@@ -29,7 +29,7 @@ def test_permission_info_route(tmp_app_with_users):  # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"]
     }
-    assert json.loads(r.data) == expected_content
+    assert json.loads(r.data.decode("utf-8")) == expected_content
 
     # Unregistered user should see 404.
     headers = dict(Authorization="Bearer " + noone_token)

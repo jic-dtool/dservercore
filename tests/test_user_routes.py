@@ -27,7 +27,7 @@ def test_list_user_route(tmp_app_with_users):  # NOQA
         u"search_permissions_on_base_uris": [],
         u"register_permissions_on_base_uris": []
     }
-    assert json.loads(r.data) == expected_content
+    assert json.loads(r.data.decode("utf-8")) == expected_content
 
     # Grumpy non-admin retrieve's his own info.
     headers = dict(Authorization="Bearer " + grumpy_token)
