@@ -1,8 +1,33 @@
 Dtool Lookup Server
 ===================
 
-Dtool Lookup Server is an application that given a dataset UUID returns a URI
-to where the dataset is stored.
+.. image:: https://badge.fury.io/py/dtool-lookup-server.svg
+   :target: http://badge.fury.io/py/dtool-lookup-server
+   :alt: PyPi package
+
+.. image:: https://travis-ci.org/jic-dtool/dtool-lookup-server.svg?branch=master
+   :target: https://travis-ci.org/jic-dtool/dtool-lookup-server
+   :alt: Travis CI build status (Linux)
+
+.. image:: https://codecov.io/github/jic-dtool/dtool-lookup-server/coverage.svg?branch=master
+   :target: https://codecov.io/github/jic-dtool/dtool-lookup-server?branch=master
+   :alt: Code Coverage
+
+- GitHub: https://github.com/jic-dtool/dtool-lookup-server
+- PyPI: https://pypi.python.org/pypi/dtool-lookup-server
+- Free software: MIT License
+
+
+Features
+--------
+
+- Lookup URIs of a dataset based on the datasets UUID
+- Search for datasets of interest using free text search
+- Built in support to manage users
+- Built in support to manage base URIs
+- Build in support to manage a user permissions on base URIs
+- Built in support for authentication using JSON web tokens
+
 
 Installation
 ------------
