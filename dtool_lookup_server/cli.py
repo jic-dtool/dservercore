@@ -218,5 +218,6 @@ def index_base_uri(base_uri):
         r = register_dataset(dataset_info)
         click.secho("Registered: {}".format(r))
 
+
 app.cli.add_command(user_cli)
 app.cli.add_command(base_uri_cli)
