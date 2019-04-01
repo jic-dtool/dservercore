@@ -44,9 +44,12 @@ The dtool-lookup-server provides a web API for registering datasets' metadata
 and provides functionality to lookup, list and search for datasets.
 
 When managing many groups data it can be useful to ensure that users can only
-access metadata associated with datasets stored base URI's that they have been
-given access to. The dtool-lookup-server therefore provides means to manage
-users, base URIs and users' permissions on those base URIs.
+access metadata associated with datasets stored in base URI's that they have
+been given access to. The dtool-lookup-server therefore provides means to
+manage users, base URIs and users' permissions on those base URIs.
+
+The dtool-lookup-server is consumed by the `dtool-lookup-client
+<https://github.com/jic-dtool/dtool-lookup-client>`_.
 
 
 Installation
