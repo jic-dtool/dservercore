@@ -31,8 +31,10 @@ Security
 ^^^^^^^^
  
 
-[Unreleased]
-------------
+[0.5.0] - 2019-04-01
+--------------------
+
+Added authentication and authorization!
 
 Added
 ^^^^^
@@ -62,15 +64,6 @@ Flask CLI utilities for managing the dtool lookup server.
 - ``flask user search_permission``
 - ``flask user token``
 
-
-Changed
-^^^^^^^
-
-
-Deprecated
-^^^^^^^^^^
-
-
 Removed
 ^^^^^^^
 
@@ -79,15 +72,6 @@ All previous routes.
 - /register_dataset route
 - /lookup_datasets route
 - /search_for_datasets route
-
-
-Fixed
-^^^^^
-
-
-Security
-^^^^^^^^
- 
 
 
 [0.4.0] - 2018-08-09
