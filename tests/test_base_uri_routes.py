@@ -69,7 +69,7 @@ def test_base_uri_list_route(tmp_app_with_data):  # NOQA
         headers=headers,
     )
     assert r.status_code == 200
-    assert len(json.loads(r.data)) == 2
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
 
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_data.get(
