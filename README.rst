@@ -21,12 +21,32 @@ Dtool Lookup Server
 Features
 --------
 
-- Lookup URIs of a dataset based on the datasets UUID
+- Use a dataset UUID to lookup one more URIs where the dataset is stored
 - Search for datasets of interest using free text search
 - Built in support to manage users
 - Built in support to manage base URIs
 - Build in support to manage a user permissions on base URIs
 - Built in support for authentication using JSON web tokens
+
+
+Introduction
+------------
+
+`dtool <https://dtool.readthedocs.io>`_ is a command line tool for packaging
+data and metadata into a dataset. A dtool dataset manages data and metadata
+without the need for a central database.
+
+However, if one has to manage more than a hundred datasets it can be helpful
+to have the datasets' metadata stored in a central server to enable one to
+quickly find datasets of interest.
+
+The dtool-lookup-server provides a web API for registering datasets' metadata
+and provides functionality to lookup, list and search for datasets.
+
+When managing many groups data it can be useful to ensure that users can only
+access metadata associated with datasets stored base URI's that they have been
+given access to. The dtool-lookup-server therefore provides means to manage
+users, base URIs and users' permissions on those base URIs.
 
 
 Installation
