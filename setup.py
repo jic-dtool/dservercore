@@ -7,6 +7,8 @@ readme = open('README.rst').read()
 setup(
     name="dtool-lookup-server",
     packages=["dtool_lookup_server"],
+    description="Web API to register/lookup/search for dtool dataset metadata",
+    long_description=readme,
     package_data={"dtool_lookup_server": ["templates/*"]},
     include_package_data=True,
     author="Tjelvar Olsson",
