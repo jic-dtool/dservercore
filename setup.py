@@ -26,6 +26,7 @@ setup(
         "flask-sqlalchemy",
         "flask-migrate",
         "flask-pymongo",
+        "flask-cors",
         "dtoolcore",
         "dtool_irods",
         "dtool_s3",

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
@@ -32,6 +33,7 @@ jwt = JWTManager()
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    CORS(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

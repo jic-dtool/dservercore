@@ -10,6 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added support for Cross Origin Resource Sharing (CORS), making cross-origin
+  AJAX possible
+
 
 Changed
 ^^^^^^^
