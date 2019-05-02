@@ -141,6 +141,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "uuid": uuid,
         "uri": uri,
         "name": "my-dataset",
+        "creator_username": "olssont",
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 

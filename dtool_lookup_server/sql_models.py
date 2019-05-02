@@ -106,6 +106,7 @@ class Dataset(db.Model):
     uuid = db.Column(db.String(36), index=True, nullable=False)
     name = db.Column(db.String(80), index=True, nullable=False)
     base_uri = db.relationship("BaseURI", back_populates="datasets")
+    creator_username = db.Column(db.String(255), index=True, nullable=False)
 
     def __repr__(self):
         return '<Dataset {}>'.format(self.uri)
@@ -117,4 +118,5 @@ class Dataset(db.Model):
             "uri": self.uri,
             "uuid": self.uuid,
             "name": self.name,
+            "creator_username": self.creator_username,
         }

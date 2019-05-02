@@ -276,7 +276,8 @@ def register_dataset_admin_metadata(admin_metadata):
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
         uuid=admin_metadata["uuid"],
-        name=admin_metadata["name"]
+        name=admin_metadata["name"],
+        creator_username=admin_metadata["creator_username"]
     )
     sql_db.session.add(dataset)
     sql_db.session.commit()

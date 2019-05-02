@@ -12,6 +12,7 @@ Added
 
 - Added support for Cross Origin Resource Sharing (CORS), making cross-origin
   AJAX possible
+- Added ``creator_username`` column to admin metadata stored in SQL table
 
 
 Changed

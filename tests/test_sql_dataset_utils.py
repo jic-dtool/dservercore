@@ -22,7 +22,8 @@ def test_sql_dataset_helper_functions(tmp_app):  # NOQA
         "base_uri": base_uri,
         "uuid": uuid,
         "uri": uri,
-        "name": "my-dataset"
+        "name": "my-dataset",
+        "creator_username": "olssont",
     }
 
     # BaseURI not registered yet.

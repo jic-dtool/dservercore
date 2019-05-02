@@ -50,6 +50,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "uuid": uuid,
         "uri": uri,
         "name": "my-dataset",
+        "creator_username": "olssont",
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
     assert get_readme_from_uri(uri) == dataset_info["readme"]
