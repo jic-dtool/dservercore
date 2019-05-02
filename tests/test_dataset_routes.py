@@ -112,6 +112,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "test dataset"},
+        "creator_username": "olssont",
     }
 
     for token in [dopey_token, sleepy_token]:
@@ -153,6 +154,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "new metadata"},
+        "creator_username": "olssont",
     }
     r = tmp_app_with_users.post(
         "/dataset/register",
@@ -189,6 +191,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "new metadata"},
+        "creator_username": "olssont",
     }
     r = tmp_app_with_users.post(
         "/dataset/register",

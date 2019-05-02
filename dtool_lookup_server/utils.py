@@ -24,6 +24,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "name",
     "type",
     "readme",
+    "creator_username",
 )
 
 

@@ -40,6 +40,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "test dataset"},
+        "creator_username": "olssont",
     }
 
     register_dataset(dataset_info)

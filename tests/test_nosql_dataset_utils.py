@@ -25,6 +25,7 @@ def test_get_readme_from_uri(tmp_app):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "test dataset"},
+        "creator_username": "olssont",
     }
 
     with pytest.raises(ValidationError):

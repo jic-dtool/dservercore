@@ -177,6 +177,7 @@ def tmp_app_with_data(request):
             "uri": uri,
             "name": "bad-apples",
             "readme": {"descripton": "apples from queen"},
+            "creator_username": "queen",
         }
         register_dataset(dataset_info)
 
@@ -190,6 +191,7 @@ def tmp_app_with_data(request):
         "uri": uri,
         "name": "oranges",
         "readme": {"descripton": "oranges from queen"},
+        "creator_username": "queen",
     }
     register_dataset(dataset_info)
 
