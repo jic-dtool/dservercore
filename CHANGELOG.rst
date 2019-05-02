@@ -10,16 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added support for Cross Origin Resource Sharing (CORS), making cross-origin
-  AJAX possible
-- Added ``creator_username`` column to admin metadata stored in SQL table
-
 
 Changed
 ^^^^^^^
-
-- ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
-  return s false if "creator_username" is missing.
 
 
 Deprecated
@@ -36,6 +29,24 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.6.0] - 2019-05-02
+--------------------
+
+Added
+^^^^^
+
+- Added support for Cross Origin Resource Sharing (CORS), making cross-origin
+  AJAX possible
+- Added ``creator_username`` column to admin metadata stored in SQL table
+
+
+Changed
+^^^^^^^
+
+- ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
+  return s false if "creator_username" is missing.
  
 
 [0.5.0] - 2019-04-01
