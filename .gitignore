@@ -1,11 +1,19 @@
+app.db
 TODO.rst
+.coverage
 
 *.swp
 *.pyc
 *.egg-info
+*.pdf
 
 data/*
 env/*
 env3/*
 .cache/*
 .pytest_cache/*
+.tox/*
+dist/*
+venv/*
+old-provision/*
+jwt-spike/*
