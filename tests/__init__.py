@@ -178,6 +178,7 @@ def tmp_app_with_data(request):
             "name": "bad-apples",
             "readme": {"descripton": "apples from queen"},
             "creator_username": "queen",
+            "frozen_at": 1536238185.881941,
         }
         register_dataset(dataset_info)
 
@@ -192,6 +193,7 @@ def tmp_app_with_data(request):
         "name": "oranges",
         "readme": {"descripton": "oranges from queen"},
         "creator_username": "queen",
+        "frozen_at": 1536238185.881941,
     }
     register_dataset(dataset_info)
 

@@ -1,3 +1,5 @@
+import dtoolcore.utils
+
 from dtool_lookup_server import sql_db as db
 
 search_permissions = db.Table(
@@ -107,6 +109,8 @@ class Dataset(db.Model):
     name = db.Column(db.String(80), index=True, nullable=False)
     base_uri = db.relationship("BaseURI", back_populates="datasets")
     creator_username = db.Column(db.String(255), index=True, nullable=False)
+    frozen_at = db.Column(db.DateTime(), nullable=False)
+    created_at = db.Column(db.DateTime(), nullable=False)
 
     def __repr__(self):
         return '<Dataset {}>'.format(self.uri)
@@ -119,4 +123,6 @@ class Dataset(db.Model):
             "uuid": self.uuid,
             "name": self.name,
             "creator_username": self.creator_username,
+            "frozen_at": dtoolcore.utils.timestamp(self.frozen_at),
+            "created_at": dtoolcore.utils.timestamp(self.created_at),
         }

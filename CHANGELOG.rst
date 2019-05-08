@@ -10,9 +10,15 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added ``frozen_at`` column to admin metadata stored in SQL table
+- Added ``created_at`` column to admin metadata stored in SQL table
+
 
 Changed
 ^^^^^^^
+
+- ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
+  return s false if "frozen_at" is missing.
 
 
 Deprecated

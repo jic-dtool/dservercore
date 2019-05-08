@@ -113,6 +113,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "type": "dataset",
         "readme": {"description": "test dataset"},
         "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
     }
 
     for token in [dopey_token, sleepy_token]:
@@ -142,6 +143,8 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "uri": uri,
         "name": "my-dataset",
         "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 
@@ -156,6 +159,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "type": "dataset",
         "readme": {"description": "new metadata"},
         "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
     }
     r = tmp_app_with_users.post(
         "/dataset/register",
@@ -193,6 +197,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "type": "dataset",
         "readme": {"description": "new metadata"},
         "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
     }
     r = tmp_app_with_users.post(
         "/dataset/register",

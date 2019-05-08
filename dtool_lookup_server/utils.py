@@ -1,5 +1,7 @@
 """Utility functions."""
 
+from datetime import datetime
+
 from sqlalchemy.sql import exists
 
 import dtoolcore.utils
@@ -25,6 +27,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "type",
     "readme",
     "creator_username",
+    "frozen_at",
 )
 
 
@@ -272,12 +275,20 @@ def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
+    frozen_at = datetime.utcfromtimestamp(admin_metadata["frozen_at"])
+    if "created_at" not in admin_metadata:
+        created_at = frozen_at
+    else:
+        created_at = datetime.utcfromtimestamp(admin_metadata["created_at"])
+
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
         uuid=admin_metadata["uuid"],
         name=admin_metadata["name"],
-        creator_username=admin_metadata["creator_username"]
+        creator_username=admin_metadata["creator_username"],
+        frozen_at=frozen_at,
+        created_at=created_at
     )
     sql_db.session.add(dataset)
     sql_db.session.commit()
@@ -304,6 +315,15 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     """
     if not dataset_info_is_valid(dataset_info):
         return None
+
+    frozen_at = datetime.utcfromtimestamp(dataset_info["frozen_at"])
+    if "created_at" not in dataset_info:
+        created_at = frozen_at
+    else:
+        created_at = datetime.utcfromtimestamp(dataset_info["created_at"])
+
+    dataset_info["frozen_at"] = frozen_at
+    dataset_info["created_at"] = created_at
 
     query = {
         "uuid": dataset_info["uuid"],
