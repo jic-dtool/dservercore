@@ -5,4 +5,8 @@
 
   roles:
 
+    - epel
     - mongodb
+    - pip
+    - nginx 
+    - dtool_lookup_server
