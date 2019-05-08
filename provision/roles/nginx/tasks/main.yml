@@ -1,0 +1,24 @@
+---
+
+- name: install Nginx
+  yum:
+    name: nginx
+    state: present
+
+- name: start nginx and enable at boot
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: copy over the reverse proxy nginx config file
+  copy:
+    src: dtool_lookup_server.conf
+    dest: /etc/nginx/conf.d/dtool_lookup_server.conf
+  notify: restart nginx
+
+- name: copy over nginx.conf with default site commented out
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
