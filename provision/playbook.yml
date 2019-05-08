@@ -1,0 +1,8 @@
+---
+
+- name: provision dtool-lookup-server
+  hosts: all
+
+  roles:
+
+    - mongodb
