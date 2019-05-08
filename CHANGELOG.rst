@@ -18,7 +18,7 @@ Changed
 ^^^^^^^
 
 - ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
-  return s false if "frozen_at" is missing.
+  returns false if "frozen_at" is missing.
 
 
 Deprecated
