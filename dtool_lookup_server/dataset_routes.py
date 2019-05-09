@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 )
 from dtool_lookup_server import (
     AuthenticationError,
+    ValidationError,
 )
 from dtool_lookup_server.utils import (
     dataset_info_is_valid,
@@ -77,7 +78,10 @@ def register():
     if not dataset_info_is_valid(dataset_info):
         abort(409)
 
-    base_uri = get_base_uri_obj(dataset_info["base_uri"])
+    try:
+        base_uri = get_base_uri_obj(dataset_info["base_uri"])
+    except ValidationError:
+        abort(409)
 
     if base_uri not in user.register_base_uris:
         abort(401)

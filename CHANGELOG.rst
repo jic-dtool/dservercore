@@ -32,6 +32,8 @@ Removed
 Fixed
 ^^^^^
 
+- Made /dataset/register route more robust if base URI has not been registered
+
 
 Security
 ^^^^^^^^
