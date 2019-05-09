@@ -10,15 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added ``frozen_at`` column to admin metadata stored in SQL table
-- Added ``created_at`` column to admin metadata stored in SQL table
-
 
 Changed
 ^^^^^^^
-
-- ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
-  returns false if "frozen_at" is missing.
 
 
 Deprecated
@@ -32,11 +26,34 @@ Removed
 Fixed
 ^^^^^
 
-- Made /dataset/register route more robust if base URI has not been registered
-
 
 Security
 ^^^^^^^^
+
+
+[0.7.0] - 2019-05-09
+--------------------
+
+Added
+^^^^^
+
+- Added ``frozen_at`` column to admin metadata stored in SQL table
+- Added ``created_at`` column to admin metadata stored in SQL table
+- Added Ansible provisioning script to git repository
+
+
+Changed
+^^^^^^^
+
+- ``dtool_lookup_server.utils.dataset_info_is_valid()`` helper function now
+  returns false if "frozen_at" is missing.
+
+
+Fixed
+^^^^^
+
+- Made /dataset/register route more robust if base URI has not been registered
+
 
 
 [0.6.0] - 2019-05-02
