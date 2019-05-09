@@ -25,3 +25,15 @@
   copy:
     src: load_env.sh
     dest: /home/dtool/load_env.sh
+
+- name: copy over start_gunicorn.sh script
+  copy:
+    src: start_gunicorn.sh
+    dest: /home/dtool/start_gunicorn.sh
+
+- name: create logs directory
+  file:
+    path: /home/dtool/logs
+    owner: dtool
+    group: dtool
+    state: directory
