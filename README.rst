@@ -385,10 +385,10 @@ Below is an example of how to register a dataset::
 
     $ DATASET_INFO='{
       "base_uri": "s3://dtool-demo",
-      "created_at": "1537802877.62",
+      "created_at": 1537802877.62,
       "creator_username": "olssont",
       "dtoolcore_version": "3.7.0",
-      "frozen_at": "1537916653.7",
+      "frozen_at": 1537916653.7,
       "name": "Escherichia-coli-ref-genome",
       "readme": {
         "accession_id": "U00096.3",
