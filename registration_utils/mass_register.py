@@ -30,7 +30,11 @@ def register_all_datasets(uri_list_file, token, lookup_server_url):
     with open(uri_list_file) as fh:
         for line in fh:
             base_uri = line.strip()
-            register_all_datasets_in_base_uri(base_uri, token, lookup_server_url)
+            register_all_datasets_in_base_uri(
+                base_uri,
+                token,
+                lookup_server_url
+            )
 
 
 if __name__ == "__main__":
@@ -39,4 +43,8 @@ if __name__ == "__main__":
     parser.add_argument("token")
     parser.add_argument("lookup_server_url")
     args = parser.parse_args()
-    register_all_datasets(args.base_uris_file, args.token, args.lookup_server_url)
+    register_all_datasets(
+        args.base_uris_file,
+        args.token,
+        args.lookup_server_url
+    )
