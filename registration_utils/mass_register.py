@@ -8,7 +8,7 @@ from dtool_lookup_server.utils import (
 )
 
 
-def register_all_datasets(base_uri, token, lookup_server_url):
+def register_all_datasets_in_base_uri(base_uri, token, lookup_server_url):
     """Register all datasets in a base URI."""
     register_url = "/".join([lookup_server_url, "dataset", "register"])
     headers = {
@@ -26,10 +26,17 @@ def register_all_datasets(base_uri, token, lookup_server_url):
         print(response.status_code, response.reason)
 
 
+def register_all_datasets(uri_list_file, token, lookup_server_url):
+    with open(uri_list_file) as fh:
+        for line in fh:
+            base_uri = line.strip()
+            register_all_datasets_in_base_uri(base_uri, token, lookup_server_url)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("base_uri")
+    parser.add_argument("base_uris_file")
     parser.add_argument("token")
     parser.add_argument("lookup_server_url")
     args = parser.parse_args()
-    register_all_datasets(args.base_uri, args.token, args.lookup_server_url)
+    register_all_datasets(args.base_uris_file, args.token, args.lookup_server_url)
