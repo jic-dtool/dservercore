@@ -1,9 +1,12 @@
 """Utility functions."""
 
-from datetime import datetime
+from datetime import datetime, date
+import json
 
+import yaml
 from sqlalchemy.sql import exists
 
+from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 import dtoolcore.utils
 
 from dtool_lookup_server import (
@@ -35,12 +38,55 @@ DATASET_INFO_REQUIRED_KEYS = (
 # Private helper functions.
 #############################################################################
 
+def _json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type {} not serializable".format(type(obj)))
+
+
 def _get_user_obj(username):
     return User.query.filter_by(username=username).first()
 
 
 def _get_base_uri_obj(base_uri):
     return BaseURI.query.filter_by(base_uri=base_uri).first()
+
+
+#############################################################################
+# Generally useful dtool helper functions.
+#############################################################################
+
+# TODO: this function should probably live in  dtoolcore along with a test.
+def iter_datasets_in_base_uri(base_uri):
+    """Yield frozen datasets in a base URI."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+    StorageBroker = dtoolcore._get_storage_broker(base_uri, CONFIG_PATH)
+    for uri in StorageBroker.list_dataset_uris(base_uri, CONFIG_PATH):
+        try:
+            dataset = dtoolcore.DataSet.from_uri(uri)
+            yield dataset
+        except dtoolcore.DtoolCoreTypeError:
+            pass
+
+
+def generate_dataset_info(dataset, base_uri):
+    """Return dictionary with dataset info."""
+    dataset_info = dataset._admin_metadata
+    dataset_info["uri"] = dataset.uri
+    dataset_info["base_uri"] = base_uri
+
+    # Add the readme info.
+    readme_info = yaml.load(
+        dataset.get_readme_content(),
+        Loader=yaml.FullLoader
+    )
+    dataset_info["readme"] = readme_info
+
+    # Clean up datetime.data.
+    dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
+    dataset_info = json.loads(dataset_info_json_str)
+
+    return dataset_info
 
 
 #############################################################################
