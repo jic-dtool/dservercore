@@ -208,6 +208,52 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
     assert r.status_code == 401
 
 
+def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  # NOQA
+
+    from dtool_lookup_server.utils import (
+        get_admin_metadata_from_uri,
+        get_readme_from_uri,
+        lookup_datasets_by_user_and_uuid,
+    )
+
+    base_uri = "s3://snow-white"
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": {"description": "test dataset"},
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": "1536238185.881941",
+    }
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users.post(
+        "/dataset/register",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+    }
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+
 def test_dataset_lookup_route(tmp_app_with_data):  # NOQA
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
