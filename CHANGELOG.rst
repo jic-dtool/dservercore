@@ -26,12 +26,16 @@ Removed
 Fixed
 ^^^^^
 
-- Made register_dataset_admin_metadata.py more robust when "created_at" is a
-  string as opposed to a floating point value
-
 
 Security
 ^^^^^^^^
+
+
+[0.7.1] - 2019-05-09
+--------------------
+
+- Made "/dataset/register" route more robust when "created_at" is a
+  string as opposed to a floating point value
 
 
 [0.7.0] - 2019-05-09

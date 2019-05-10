@@ -317,17 +317,25 @@ def dataset_info_is_valid(dataset_info):
     return True
 
 
+def _extract_created_at_as_datetime(admin_metadata):
+    """Return created_at as datetime
+    Use frozen_at if created_at is missing.
+    Deal with some created_at values being strings.
+    """
+    try:
+        created_at = admin_metadata["created_at"]
+    except KeyError:
+        created_at = admin_metadata["frozen_at"]
+    created_at = float(created_at)
+    return datetime.utcfromtimestamp(created_at)
+
+
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
     frozen_at = datetime.utcfromtimestamp(admin_metadata["frozen_at"])
-    if "created_at" not in admin_metadata:
-        created_at = frozen_at
-    else:
-        created_at = datetime.utcfromtimestamp(
-            float(admin_metadata["created_at"])
-        )
+    created_at = _extract_created_at_as_datetime(admin_metadata)
 
     dataset = Dataset(
         uri=admin_metadata["uri"],
@@ -365,10 +373,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
         return None
 
     frozen_at = datetime.utcfromtimestamp(dataset_info["frozen_at"])
-    if "created_at" not in dataset_info:
-        created_at = frozen_at
-    else:
-        created_at = datetime.utcfromtimestamp(dataset_info["created_at"])
+    created_at = _extract_created_at_as_datetime(dataset_info)
 
     dataset_info["frozen_at"] = frozen_at
     dataset_info["created_at"] = created_at
