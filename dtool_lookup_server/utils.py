@@ -325,7 +325,9 @@ def register_dataset_admin_metadata(admin_metadata):
     if "created_at" not in admin_metadata:
         created_at = frozen_at
     else:
-        created_at = datetime.utcfromtimestamp(admin_metadata["created_at"])
+        created_at = datetime.utcfromtimestamp(
+            float(admin_metadata["created_at"])
+        )
 
     dataset = Dataset(
         uri=admin_metadata["uri"],

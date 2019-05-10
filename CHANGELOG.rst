@@ -26,6 +26,9 @@ Removed
 Fixed
 ^^^^^
 
+- Made register_dataset_admin_metadata.py more robust when "created_at" is a
+  string as opposed to a floating point value
+
 
 Security
 ^^^^^^^^
