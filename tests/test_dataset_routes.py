@@ -212,7 +212,6 @@ def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  
 
     from dtool_lookup_server.utils import (
         get_admin_metadata_from_uri,
-        get_readme_from_uri,
         lookup_datasets_by_user_and_uuid,
     )
 
