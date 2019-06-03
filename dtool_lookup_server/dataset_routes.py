@@ -16,6 +16,7 @@ from dtool_lookup_server.utils import (
     dataset_info_is_valid,
     get_base_uri_obj,
     get_user_obj,
+    summary_of_datasets_by_user,
     list_datasets_by_user,
     lookup_datasets_by_user_and_uuid,
     search_datasets_by_user,
@@ -23,6 +24,18 @@ from dtool_lookup_server.utils import (
 )
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
+
+
+@bp.route("/summary", methods=["GET"])
+@jwt_required
+def summary_of_datasets():
+    """List the dataset a user has access to."""
+    username = get_jwt_identity()
+    try:
+        summary = summary_of_datasets_by_user(username)
+    except AuthenticationError:
+        abort(401)
+    return jsonify(summary)
 
 
 @bp.route("/list", methods=["GET"])

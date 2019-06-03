@@ -16,6 +16,51 @@ dopey_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTIxZDhhYi1iYjg5
 noone_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhMzUwY2MwZS1jMzAyLTQ1MGItYTE0NC01YTQzZjE3MDc4NDkiLCJmcmVzaCI6ZmFsc2UsImlhdCI6MTU1MzI3NzA1MCwidHlwZSI6ImFjY2VzcyIsIm5iZiI6MTU1MzI3NzA1MCwiaWRlbnRpdHkiOiJub29uZSJ9.VCRRsfLM5mwYz_viMVAJzfLf3_IF7MDTyzeWv3Ae_YYumu3UQVXUqWqJnvwyAY7KAqEIWkoFUET_bp-48WrvGaGr8q355IXiqspURpMMCLQ4G7Jwm3EnN6I61e_C6XpoyliZnd06qiVZR5VuaHxk41XclwRwgPCsEflj30SKWgVQOGbOYFfcSEdMKUvu8fyGbRwo47ynHvHrmxMAuURWjnN3g8gD-shBHCt1_4GVDSp1LSipSysDcn3-SdFa0PLGZqQ4Xj7QzM7AMmZ20J0uSHVA5U6RBzLU8d_neDdAg-Y2sjAC_G2P7jj0RdIU-QlDx2B25nyr4rOO9oSOI_q54Q"  # NOQA
 
 
+def test_dataset_summary_route(tmp_app_with_data):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data.get(
+        "/dataset/summary",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    expected_content = {
+        "number_of_datasets": 3,
+        "creator_usernames": ["queen"],
+        "base_uris": ["s3://mr-men", "s3://snow-white"],
+        "datasets_per_creator": {"queen": 3},
+        "datasets_per_base_uri": {"s3://mr-men": 1, "s3://snow-white": 2}
+    }
+    assert expected_content == json.loads(r.data.decode("utf-8"))
+
+    r = tmp_app_with_data.get(
+        "/dataset/summary",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 200
+    expected_content = {
+        "number_of_datasets": 0,
+        "creator_usernames": [],
+        "base_uris": [],
+        "datasets_per_creator": {},
+        "datasets_per_base_uri": {}
+    }
+    assert expected_content == json.loads(r.data.decode("utf-8"))
+
+    r = tmp_app_with_data.get(
+        "/dataset/summary",
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401
+
+    r = tmp_app_with_data.get(
+        "/dataset/summary",
+        headers=dict(Authorization="Bearer " + noone_token)
+    )
+    assert r.status_code == 401
+
+
 def test_dataset_list_route(tmp_app_with_data):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)

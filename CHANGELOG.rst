@@ -10,6 +10,8 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added "/dataset/summary" route with summary information about the datasets
+  accessible to a user
 - Added the manifest structural metadata to the MongoDB
 
 
