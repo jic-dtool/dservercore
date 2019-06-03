@@ -112,6 +112,18 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "test dataset"},
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
     }
@@ -158,6 +170,18 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "new metadata"},
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
     }
@@ -225,6 +249,18 @@ def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  
         "name": "my-dataset",
         "type": "dataset",
         "readme": {"description": "test dataset"},
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": "1536238185.881941",

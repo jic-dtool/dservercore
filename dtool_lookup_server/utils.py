@@ -29,6 +29,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "name",
     "type",
     "readme",
+    "manifest",
     "creator_username",
     "frozen_at",
 )
