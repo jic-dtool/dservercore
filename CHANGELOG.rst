@@ -10,10 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added "/dataset/summary" route with summary information about the datasets
-  accessible to a user
-- Added the manifest structural metadata to the MongoDB
-
 
 Changed
 ^^^^^^^
@@ -33,6 +29,17 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.8.0] - 2019-06-03
+--------------------
+
+Added
+^^^^^
+
+- Added "/dataset/summary" route with summary information about the datasets
+  accessible to a user
+- Added the manifest structural metadata to the MongoDB
 
 
 [0.7.1] - 2019-05-09
