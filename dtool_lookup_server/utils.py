@@ -189,7 +189,7 @@ def search_datasets_by_user(username, query):
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
-    Returns None if user is invalid.
+    Raises AuthenticationError if user is invalid.
     """
     user = get_user_obj(username)
 
@@ -204,12 +204,43 @@ def search_datasets_by_user(username, query):
     return datasets
 
 
+def summary_of_datasets_by_user(username):
+    """Return summary information of datasets the user has access to.
+
+    Return dictionary of summary information.
+    Raises AuthenticationError if user is invalid.
+    """
+    def _unique(l):
+        return list(set(l))
+
+    # Get all the datasets the user has access to.
+    datasets = search_datasets_by_user(username, query={})
+    datasets_per_creator = {}
+    datasets_per_base_uri = {}
+
+    for ds in datasets:
+        user = ds["creator_username"]
+        uri = ds["base_uri"]
+        datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
+        datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
+
+    summary = {
+        "number_of_datasets": len(datasets),
+        "creator_usernames": sorted(datasets_per_creator.keys()),
+        "base_uris": sorted(datasets_per_base_uri.keys()),
+        "datasets_per_creator": datasets_per_creator,
+        "datasets_per_base_uri": datasets_per_base_uri,
+    }
+
+    return summary
+
+
 def lookup_datasets_by_user_and_uuid(username, uuid):
     """Return list of dataset with matching uuid.
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
-    Returns AuthenticationError if user is invalid.
+    Raises AuthenticationError if user is invalid.
     """
     user = get_user_obj(username)
 

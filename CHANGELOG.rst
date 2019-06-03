@@ -10,6 +10,8 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added the manifest structural metadata to the MongoDB
+
 
 Changed
 ^^^^^^^
