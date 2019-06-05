@@ -53,6 +53,53 @@ def _get_base_uri_obj(base_uri):
     return BaseURI.query.filter_by(base_uri=base_uri).first()
 
 
+def _dict_to_mongo_query(query_dict):
+    valid_keys = ["free_text", "creator_usernames", "base_uris"]
+    list_keys = ["creator_usernames", "base_uris"]
+
+    def _sanitise(query_dict):
+        for key in query_dict.keys():
+            if key not in valid_keys:
+                del query_dict[key]
+        for lk in list_keys:
+            if lk in query_dict:
+                if len(query_dict[lk]) == 0:
+                    del query_dict[lk]
+
+    def _deal_with_possible_or_statment(l, key):
+        if len(l) == 1:
+            return {key: l[0]}
+        else:
+            return {"$or": [{key: v} for v in l]}
+
+    _sanitise(query_dict)
+
+    sub_queries = []
+    if "free_text" in query_dict:
+        sub_queries.append({"$text": {"$search": query_dict["free_text"]}})
+    if "creator_usernames" in query_dict:
+        sub_queries.append(
+            _deal_with_possible_or_statment(
+                query_dict["creator_usernames"],
+                "creator_username"
+            )
+        )
+    if "base_uris" in query_dict:
+        sub_queries.append(
+            _deal_with_possible_or_statment(
+                query_dict["base_uris"],
+                "base_uri"
+            )
+        )
+
+    if len(sub_queries) == 0:
+        return {}
+    elif len(sub_queries) == 1:
+        return sub_queries[0]
+    else:
+        return {"$and": [q for q in sub_queries]}
+
+
 #############################################################################
 # Generally useful dtool helper functions.
 #############################################################################
