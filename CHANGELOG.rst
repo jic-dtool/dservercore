@@ -14,9 +14,6 @@ Added
 Changed
 ^^^^^^^
 
-- Improved the JSON query format when sending POST requests to the
-  /dataset/search route
-
 
 Deprecated
 ^^^^^^^^^^
@@ -32,6 +29,16 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.9.0] - 2019-06-06
+--------------------
+
+Changed
+^^^^^^^
+
+- Improved the JSON query format when sending POST requests to the
+  /dataset/search route
 
 
 [0.8.0] - 2019-06-03
