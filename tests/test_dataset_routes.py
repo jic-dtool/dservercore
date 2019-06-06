@@ -127,7 +127,7 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
 
     # Search for apples.
     headers = dict(Authorization="Bearer " + grumpy_token)
-    query = {"$text": {"$search": "apple"}}
+    query = {"free_text": "apple"}
     r = tmp_app_with_data.post(
         "/dataset/search",
         headers=headers,

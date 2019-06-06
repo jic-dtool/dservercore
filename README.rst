@@ -336,7 +336,7 @@ Searching for specific datasets
 The command below does a full text search for the word "microscopy" in the descriptive metadata::
 
     $ curl -H $HEADER -H "Content-Type: application/json"  \
-        -X POST -d '{"$text": {"$search": "microscopy"}}'  \
+        -X POST -d '{"free_text": "microscopy"}'  \
         http://localhost:5000/dataset/search
 
 Below is the result of this search::
@@ -366,6 +366,16 @@ Below is the result of this search::
         "uuid": "ba92a5fa-d3b4-4f10-bcb9-947f62e652db"
       }
     ]
+
+Below is a JSON string specifying a more complex query that will search for
+datasets with "aples" in the "s3://snow-white" bucket created by either
+"grumpy" or "dopey"::
+
+    {
+        "base_uris": ["s3://snow-white"],
+        "creator_usernames": ["grumpy", "dopey"],
+        "free_text": "apples"
+    }
 
 
 Getting information about one's own permissions

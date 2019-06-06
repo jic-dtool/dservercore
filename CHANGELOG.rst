@@ -14,6 +14,9 @@ Added
 Changed
 ^^^^^^^
 
+- Improved the JSON query format when sending POST requests to the
+  /dataset/search route
+
 
 Deprecated
 ^^^^^^^^^^

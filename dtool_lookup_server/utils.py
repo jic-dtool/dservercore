@@ -58,7 +58,7 @@ def _dict_to_mongo_query(query_dict):
     list_keys = ["creator_usernames", "base_uris"]
 
     def _sanitise(query_dict):
-        for key in query_dict.keys():
+        for key in list(query_dict.keys()):
             if key not in valid_keys:
                 del query_dict[key]
         for lk in list_keys:
@@ -234,20 +234,42 @@ def list_datasets_by_user(username):
 def search_datasets_by_user(username, query):
     """Search the datasets the user has access to.
 
-    Returns list of dicts if user is valid and has access to datasets.
-    Returns empty list if user is valid but has not got access to any datasets.
-    Raises AuthenticationError if user is invalid.
+    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
+    the query dictionary is empty all datasets, that a user has access to, are
+    returned.
+
+    :param username: username
+    :param query: dictionary specifying query
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
     """
     user = get_user_obj(username)
 
-    datasets = []
-    for base_uri in user.search_base_uris:
-        base_uri_query = query.copy()
-        base_uri_query["base_uri"] = base_uri.base_uri
-        cx = mongo.db[MONGO_COLLECTION].find(base_uri_query, {"_id": False})
-        for ds in cx:
-            datasets.append(ds)
+    # Deal with base URIs. If not specified on the query add the ones that the
+    # user has search privileges on. If specified filter out any that the user
+    # does not have search privileges on.
+    allowed_uris = [bu.base_uri for bu in user.search_base_uris]
+    if "base_uris" not in query:
+        query["base_uris"] = allowed_uris
+    else:
+        selected_uris = [
+            str(bu) for bu in query["base_uris"]
+            if bu in allowed_uris
+        ]
+        query["base_uris"] = selected_uris
 
+    # If there are no base URIs at this point it means that the user has not
+    # got privileges to search for anything.
+    if len(query["base_uris"]) == 0:
+        return []
+
+    datasets = []
+    mongo_query = _dict_to_mongo_query(query)
+    cx = mongo.db[MONGO_COLLECTION].find(mongo_query, {"_id": False})
+    for ds in cx:
+        datasets.append(ds)
     return datasets
 
 
