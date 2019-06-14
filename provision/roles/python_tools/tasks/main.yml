@@ -1,0 +1,6 @@
+---
+
+- name: install python2-pip and python-virtualenv
+  yum:
+    name: ['python2-pip', 'python-virtualenv']
+    state: present
