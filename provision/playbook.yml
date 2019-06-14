@@ -3,6 +3,9 @@
 - name: provision dtool-lookup-server
   hosts: all
 
+  vars_files:
+    - vars.yml
+
   roles:
 
     - epel
