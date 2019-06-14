@@ -1,5 +1,6 @@
 ---
 
 - name: add the epel repository
-  yum: name=epel-release
-       state=present
+  yum:
+    name: epel-release
+    state: present
