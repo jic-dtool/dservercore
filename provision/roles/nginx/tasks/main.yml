@@ -12,7 +12,7 @@
     state: started
 
 - name: copy over the reverse proxy nginx config file
-  copy:
+  template:
     src: dtool_lookup_server.conf
     dest: /etc/nginx/conf.d/dtool_lookup_server.conf
   notify: restart nginx
