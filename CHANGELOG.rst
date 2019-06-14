@@ -31,6 +31,19 @@ Security
 ^^^^^^^^
 
 
+[0.10.0] - 2019-06-14
+---------------------
+
+Changed
+^^^^^^^
+
+- Added logic to config.Config that ignores ``JWT_PRIVATE_KEY_FILE`` and
+  ``JWT_PUBLIC_KEY_FILE`` if ``JWT_PUBLIC_KEY`` is set in the environment.
+  This makes it easier to configure the ``dtool-lookup-server`` to make use
+  of tokens generated from another server. In other words where the private
+  key file is maintained in a different service.
+
+
 [0.9.0] - 2019-06-06
 --------------------
 
