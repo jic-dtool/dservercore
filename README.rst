@@ -130,6 +130,15 @@ along the lines of::
 In this case you need to find a version of ``ssh-keygen`` that generates files
 that adhere to the RFC standard, the easiest is probably to generate them in Linux.
 
+Making use of JSON Web Tokens from a different server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When making use of JSON Web Tokens from a different server it may be easier to
+use configure the server using the pubic key directly rather than the public key
+file::
+
+    export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
+
 Starting the flask app
 ^^^^^^^^^^^^^^^^^^^^^^
 
