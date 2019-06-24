@@ -7,8 +7,12 @@ from dtool_lookup_server.utils import (
     generate_dataset_info,
 )
 
-with open("projects.yml") as fh:
-    PROJECTS = yaml.load(fh, Loader=yaml.FullLoader)
+
+def get_projects(fpath):
+    """Return projects dictionary."""
+    with open("projects.yml") as fh:
+        projects = yaml.load(fh, Loader=yaml.FullLoader)
+    return projects
 
 
 def get_header(token):
@@ -19,9 +23,10 @@ def get_header(token):
     }
 
 
-def register_base_uris(token, lookup_server_url):
+def register_base_uris(projects_fpath, token, lookup_server_url):
     "Register base URIs."
-    for b_uri in PROJECTS.keys():
+    projects = get_projects(projects_fpath)
+    for b_uri in projects.keys():
         data = {"base_uri": b_uri}
         response = requests.post(
             lookup_server_url + "/admin/base_uri/register",
@@ -32,10 +37,11 @@ def register_base_uris(token, lookup_server_url):
         print(response.status_code, response.reason)
 
 
-def register_users(token, lookup_server_url):
+def register_users(projects_fpath, token, lookup_server_url):
     "Register users."
+    projects = get_projects(projects_fpath)
     users = set()
-    for base_uri, permissions in PROJECTS.items():
+    for base_uri, permissions in projects.items():
         for p in ["register", "search"]:
             for u in permissions[p]:
                 users.add(u)
@@ -52,9 +58,10 @@ def register_users(token, lookup_server_url):
     print(response.status_code, response.reason)
 
 
-def register_permissions(token, lookup_server_url):
+def register_permissions(projects_fpath, token, lookup_server_url):
     "Register permissions."
-    for b_uri, permissions in PROJECTS.items():
+    projects = get_projects(projects_fpath)
+    for b_uri, permissions in projects.items():
         data = {"base_uri": b_uri}
 
         register_permissions = []
@@ -76,9 +83,10 @@ def register_permissions(token, lookup_server_url):
         print(response.status_code, response.reason)
 
 
-def register_data(token, lookup_server_url):
+def register_data(projects_fpath, token, lookup_server_url):
     "Register data."
-    for b_uri in PROJECTS.keys():
+    projects = get_projects(projects_fpath)
+    for b_uri in projects.keys():
         for dataset in iter_datasets_in_base_uri(b_uri):
             print(dataset.uri)
             dataset_info = generate_dataset_info(dataset, b_uri)
@@ -96,55 +104,51 @@ def register():
 
 
 @register.command()
+@click.argument("projects_file", type=click.Path(exists=True, dir_okay=False))
 @click.argument("token")
 @click.argument("lookup_server_url")
-def base_uris(token, lookup_server_url):
+def base_uris(projects_file, token, lookup_server_url):
     "Register base URIs."
-    register_base_uris(token, lookup_server_url)
+    register_base_uris(projects_file, token, lookup_server_url)
 
 
 @register.command()
+@click.argument("projects_file", type=click.Path(exists=True, dir_okay=False))
 @click.argument("token")
 @click.argument("lookup_server_url")
-def users(token, lookup_server_url):
+def users(projects_file, token, lookup_server_url):
     "Register users."
-    register_users(token, lookup_server_url)
+    register_users(projects_file, token, lookup_server_url)
 
 
 @register.command()
+@click.argument("projects_file", type=click.Path(exists=True, dir_okay=False))
 @click.argument("token")
 @click.argument("lookup_server_url")
-def permissions(token, lookup_server_url):
+def permissions(projects_file, token, lookup_server_url):
     "Register permissions."
-    register_permissions(token, lookup_server_url)
+    register_permissions(projects_file, token, lookup_server_url)
 
 
 @register.command()
+@click.argument("projects_file", type=click.Path(exists=True, dir_okay=False))
 @click.argument("token")
 @click.argument("lookup_server_url")
-def data(token, lookup_server_url):
+def data(projects_file, token, lookup_server_url):
     "Register data."
-    for b_uri in PROJECTS.keys():
-        for dataset in iter_datasets_in_base_uri(b_uri):
-            print(dataset.uri)
-            dataset_info = generate_dataset_info(dataset, b_uri)
-            response = requests.post(
-                lookup_server_url + "/dataset/register",
-                headers=get_header(token),
-                json=dataset_info
-            )
-            print(response.status_code, response.reason)
+    register_data(projects_file, token, lookup_server_url)
 
 
 @register.command()
+@click.argument("projects_file", type=click.Path(exists=True, dir_okay=False))
 @click.argument("token")
 @click.argument("lookup_server_url")
-def all(token, lookup_server_url):
+def all(projects_file, token, lookup_server_url):
     "Register base URI, users, permissions and data."
-    register_base_uris(token, lookup_server_url)
-    register_users(token, lookup_server_url)
-    register_permissions(token, lookup_server_url)
-    register_data(token, lookup_server_url)
+    register_base_uris(projects_file, token, lookup_server_url)
+    register_users(projects_file, token, lookup_server_url)
+    register_permissions(projects_file, token, lookup_server_url)
+    register_data(projects_file, token, lookup_server_url)
 
 
 if __name__ == "__main__":
