@@ -10,7 +10,7 @@ from dtool_lookup_server.utils import (
 
 def get_projects(fpath):
     """Return projects dictionary."""
-    with open("projects.yml") as fh:
+    with open(fpath) as fh:
         projects = yaml.load(fh, Loader=yaml.FullLoader)
     return projects
 
@@ -89,7 +89,11 @@ def register_data(projects_fpath, token, lookup_server_url):
     for b_uri in projects.keys():
         for dataset in iter_datasets_in_base_uri(b_uri):
             print(dataset.uri)
-            dataset_info = generate_dataset_info(dataset, b_uri)
+            try:
+                dataset_info = generate_dataset_info(dataset, b_uri)
+            except:
+                print("Failed to generate dataset info")
+                continue
             response = requests.post(
                 lookup_server_url + "/dataset/register",
                 headers=get_header(token),
