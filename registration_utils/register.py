@@ -31,7 +31,8 @@ def register_base_uris(projects_fpath, token, lookup_server_url):
         response = requests.post(
             lookup_server_url + "/admin/base_uri/register",
             headers=get_header(token),
-            json=data
+            json=data,
+            verify=False
         )
         print(data)
         print(response.status_code, response.reason)
@@ -52,7 +53,8 @@ def register_users(projects_fpath, token, lookup_server_url):
     response = requests.post(
         lookup_server_url + "/admin/user/register",
         headers=get_header(token),
-        json=data
+        json=data,
+        verify=False
     )
     print(data)
     print(response.status_code, response.reason)
@@ -77,7 +79,8 @@ def register_permissions(projects_fpath, token, lookup_server_url):
         response = requests.post(
             lookup_server_url + "/admin/permission/update_on_base_uri",
             headers=get_header(token),
-            json=data
+            json=data,
+            verify=False
         )
         print(data)
         print(response.status_code, response.reason)
@@ -97,7 +100,8 @@ def register_data(projects_fpath, token, lookup_server_url):
             response = requests.post(
                 lookup_server_url + "/dataset/register",
                 headers=get_header(token),
-                json=dataset_info
+                json=dataset_info,
+                verify=False
             )
             print(response.status_code, response.reason)
 
