@@ -1,0 +1,28 @@
+---
+
+- name: install firewalld
+  yum:
+    name: firewalld
+    state: present
+
+- name: start firewalld and enable at boot
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
+
+- name: enable and persist firewalld allowed services
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ FIREWALLD_ALLOWED_SERVICES }}"
+
+- name: enable and persist extra ports
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ FIREWALLD_ALLOWED_PORTS }}"

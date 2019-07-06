@@ -12,4 +12,5 @@
     - mongodb
     - python_tools
     - nginx 
+    - firewalld
     - dtool_lookup_server
