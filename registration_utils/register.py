@@ -94,7 +94,7 @@ def register_data(projects_fpath, token, lookup_server_url):
             print(dataset.uri)
             try:
                 dataset_info = generate_dataset_info(dataset, b_uri)
-            except:
+            except:  # NOQA
                 print("Failed to generate dataset info")
                 continue
             response = requests.post(
