@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -64,5 +64,11 @@ def create_app(test_config=None):
     app.register_blueprint(base_uri_routes.bp)
     app.register_blueprint(user_admin_routes.bp)
     app.register_blueprint(permission_routes.bp)
+
+    @app.before_request
+    def log_request():
+        """Log the request header in debug mode."""
+        app.logger.debug("Request Headers {}".format(request.headers))
+        return None
 
     return app
