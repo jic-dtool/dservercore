@@ -3,6 +3,7 @@
 
 USERNAME=$1
 TOKEN_SERVER=$2
+CURL_OPTS=${@:3}
 
 if [ -z "$USERNAME" ]
 then
@@ -19,8 +20,8 @@ fi
 read -s -p "Password: " PASSWORD
 echo ""
 
-
-TOKEN=$(curl -H "Content-Type: application/json"  -X POST -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\" }"  $TOKEN_SERVER/token | cut -d\" -f8)
+echo $CURL_OPTS
+TOKEN=$(curl $CURL_OPTS -H "Content-Type: application/json"  -X POST -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\" }"  $TOKEN_SERVER/token | cut -d\" -f8)
 
 if [ -z "$TOKEN" ]
 then
