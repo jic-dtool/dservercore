@@ -20,7 +20,6 @@ fi
 read -s -p "Password: " PASSWORD
 echo ""
 
-echo $CURL_OPTS
 TOKEN=$(curl $CURL_OPTS -H "Content-Type: application/json"  -X POST -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\" }"  $TOKEN_SERVER/token | cut -d\" -f8)
 
 if [ -z "$TOKEN" ]
