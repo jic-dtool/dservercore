@@ -9,6 +9,7 @@
   roles:
 
     - epel
+    - ntp
     - mongodb
     - python_tools
     - nginx 
