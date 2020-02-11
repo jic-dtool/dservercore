@@ -198,7 +198,8 @@ def index_base_uri(base_uri):
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as message:
             click.secho(
                 "Failed to register: {} {}".format(dataset.name, dataset.uri),
-            fg="red")
+                fg="red"
+            )
             click.secho("README YAML parsing issue", fg="red")
             click.echo(message)
             continue
