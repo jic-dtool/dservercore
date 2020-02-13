@@ -25,6 +25,12 @@ class AuthenticationError(ValueError):
 class AuthorizationError(ValueError):
     pass
 
+class UnknownBaseURIError(KeyError):
+    pass
+
+class UnknownURIError(KeyError):
+    pass
+
 
 mongo = PyMongo()
 sql_db = SQLAlchemy()
