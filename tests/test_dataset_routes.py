@@ -358,3 +358,70 @@ def test_dataset_lookup_route(tmp_app_with_data):  # NOQA
         headers=dict(Authorization="Bearer " + dopey_token)
     )
     assert r.status_code == 401
+
+
+def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
+    r = tmp_app_with_data.post(
+        "/dataset/manifest",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    expected_manifest = {
+        "dtoolcore_version": "3.7.0",
+        "hash_function": "md5sum_hexdigest",
+        "items": {
+            "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                "hash": "d89117c9da2cc34586e183017cb14851",
+                "relpath": "U00096.3.rev.1.bt2",
+                "size_in_bytes": 5741810,
+                "utc_timestamp": 1536832115.0
+            }
+        }
+    },
+    actual_manifest = json.loads(r.data.decode("utf-8"))
+
+    assert expected_manifest == actual_manifest
+
+#   r = tmp_app_with_data.post(
+#       "/dataset/search",
+#       headers=dict(Authorization="Bearer " + sleepy_token),
+#       data=json.dumps(query),
+#       content_type="application/json"
+#   )
+#   assert r.status_code == 200
+#   assert len(json.loads(r.data.decode("utf-8"))) == 0
+
+#   r = tmp_app_with_data.post(
+#       "/dataset/search",
+#       headers=dict(Authorization="Bearer " + dopey_token),
+#       data=json.dumps(query),
+#       content_type="application/json"
+#   )
+#   assert r.status_code == 401
+
+#   r = tmp_app_with_data.post(
+#       "/dataset/search",
+#       headers=dict(Authorization="Bearer " + noone_token),
+#       data=json.dumps(query),
+#       content_type="application/json"
+#   )
+#   assert r.status_code == 401
+
+#   # Search for apples.
+#   headers = dict(Authorization="Bearer " + grumpy_token)
+#   query = {"free_text": "apple"}
+#   r = tmp_app_with_data.post(
+#       "/dataset/search",
+#       headers=headers,
+#       data=json.dumps(query),
+#       content_type="application/json"
+#   )
+#   assert r.status_code == 200
+
+#   assert len(json.loads(r.data.decode("utf-8"))) == 2

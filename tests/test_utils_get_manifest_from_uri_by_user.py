@@ -6,15 +6,12 @@ from . import tmp_app_with_data  # NOQA
 def test_get_manifest_from_uri_by_user(tmp_app_with_data):  # NOQA
 
     from dtool_lookup_server import (
-        ValidationError,
         AuthenticationError,
         AuthorizationError,
         UnknownBaseURIError,
         UnknownURIError,
     )
     from dtool_lookup_server.utils import (
-        register_base_uri,
-        register_dataset_descriptive_metadata,
         get_manifest_from_uri_by_user,
     )
 
