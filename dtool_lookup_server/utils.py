@@ -558,6 +558,7 @@ def get_manifest_from_uri_by_user(username, uri):
              AuthorizationError if the user has not got permissions to read
              content in the base URI
              UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
     """
     user = get_user_obj(username)
 

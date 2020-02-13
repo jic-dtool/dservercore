@@ -10,6 +10,9 @@ from flask_jwt_extended import (
 )
 from dtool_lookup_server import (
     AuthenticationError,
+    AuthorizationError,
+    UnknownBaseURIError,
+    UnknownURIError,
     ValidationError,
 )
 from dtool_lookup_server.utils import (
@@ -21,6 +24,7 @@ from dtool_lookup_server.utils import (
     lookup_datasets_by_user_and_uuid,
     search_datasets_by_user,
     register_dataset,
+    get_manifest_from_uri_by_user,
 )
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
@@ -101,3 +105,23 @@ def register():
 
     dataset_uri = register_dataset(dataset_info)
     return dataset_uri, 201
+
+
+@bp.route("/manifest", methods=["POST"])
+@jwt_required
+def manifest():
+    """List the dataset a user has access to."""
+    username = get_jwt_identity()
+    query = request.get_json()
+    if "uri" not in query:
+        abort(400)
+    uri = query["uri"]
+
+    try:
+        manifest = get_manifest_from_uri_by_user(username, uri)
+    except AuthenticationError:
+        abort(401)
+    except (AuthorizationError, UnknownBaseURIError, UnknownURIError):
+        abort(400)
+
+    return jsonify(manifest)

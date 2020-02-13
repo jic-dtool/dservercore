@@ -383,45 +383,64 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
                 "utc_timestamp": 1536832115.0
             }
         }
-    },
+    }
     actual_manifest = json.loads(r.data.decode("utf-8"))
 
     assert expected_manifest == actual_manifest
 
-#   r = tmp_app_with_data.post(
-#       "/dataset/search",
-#       headers=dict(Authorization="Bearer " + sleepy_token),
-#       data=json.dumps(query),
-#       content_type="application/json"
-#   )
-#   assert r.status_code == 200
-#   assert len(json.loads(r.data.decode("utf-8"))) == 0
+    # Not authenticated, but in system.
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + dopey_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
 
-#   r = tmp_app_with_data.post(
-#       "/dataset/search",
-#       headers=dict(Authorization="Bearer " + dopey_token),
-#       data=json.dumps(query),
-#       content_type="application/json"
-#   )
-#   assert r.status_code == 401
+    # Not authenticated, not in system.
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + noone_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
 
-#   r = tmp_app_with_data.post(
-#       "/dataset/search",
-#       headers=dict(Authorization="Bearer " + noone_token),
-#       data=json.dumps(query),
-#       content_type="application/json"
-#   )
-#   assert r.status_code == 401
+    # Not authorized.
+    r = tmp_app_with_data.post(
+        "/dataset/manifest",
+        headers=dict(Authorization="Bearer " + sleepy_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
 
-#   # Search for apples.
-#   headers = dict(Authorization="Bearer " + grumpy_token)
-#   query = {"free_text": "apple"}
-#   r = tmp_app_with_data.post(
-#       "/dataset/search",
-#       headers=headers,
-#       data=json.dumps(query),
-#       content_type="application/json"
-#   )
-#   assert r.status_code == 200
+    # Base URI does not exist.
+    query = {"uri": "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
+    r = tmp_app_with_data.post(
+        "/dataset/manifest",
+        headers=dict(Authorization="Bearer " + sleepy_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
 
-#   assert len(json.loads(r.data.decode("utf-8"))) == 2
+    # URI does not exist.
+    query = {"uri": "s3://snow-white/dontexist"}
+    r = tmp_app_with_data.post(
+        "/dataset/manifest",
+        headers=dict(Authorization="Bearer " + sleepy_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
+
+    # Broken query (no "uri").
+    query = {"broken": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
+    r = tmp_app_with_data.post(
+        "/dataset/manifest",
+        headers=dict(Authorization="Bearer " + sleepy_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
