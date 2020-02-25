@@ -12,6 +12,8 @@ Added
 
 - Added /dataset/manifest route to which one can POST a URI and get back the
   associated dataset manifest
+- Added /dataset/readme route to which one can POST a URI and get back the
+  associated dataset readme
 
 
 Changed

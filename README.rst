@@ -387,8 +387,8 @@ datasets with "aples" in the "s3://snow-white" bucket created by either
     }
 
 
-Accessing a dataset's manifest
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Accessing a dataset's manifest and readme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The command below retrieves the manifest for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``
@@ -398,6 +398,14 @@ URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``
         '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
         http://localhost:5000/dataset/manifest
 
+
+The command below retrieves the readme for the dataset with the
+URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``
+
+    $ curl -H $HEADER -H "Content-Type: application/json"  \
+        -X POST -d  \
+        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
+        http://localhost:5000/dataset/readme
 
 
 

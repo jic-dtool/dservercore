@@ -25,6 +25,7 @@ from dtool_lookup_server.utils import (
     search_datasets_by_user,
     register_dataset,
     get_manifest_from_uri_by_user,
+    get_readme_from_uri_by_user,
 )
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
@@ -110,7 +111,7 @@ def register():
 @bp.route("/manifest", methods=["POST"])
 @jwt_required
 def manifest():
-    """List the dataset a user has access to."""
+    """Request the dataset manifest."""
     username = get_jwt_identity()
     query = request.get_json()
     if "uri" not in query:
@@ -125,3 +126,23 @@ def manifest():
         abort(400)
 
     return jsonify(manifest)
+
+
+@bp.route("/readme", methods=["POST"])
+@jwt_required
+def readme():
+    """Request the dataset readme."""
+    username = get_jwt_identity()
+    query = request.get_json()
+    if "uri" not in query:
+        abort(400)
+    uri = query["uri"]
+
+    try:
+        readme = get_readme_from_uri_by_user(username, uri)
+    except AuthenticationError:
+        abort(401)
+    except (AuthorizationError, UnknownBaseURIError, UnknownURIError):
+        abort(400)
+
+    return jsonify(readme)
