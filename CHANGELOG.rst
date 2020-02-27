@@ -10,11 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added /dataset/manifest route to which one can POST a URI and get back the
-  associated dataset manifest
-- Added /dataset/readme route to which one can POST a URI and get back the
-  associated dataset readme
-
 
 Changed
 ^^^^^^^
@@ -34,6 +29,18 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.12.0] - 2020-02-27
+---------------------
+
+Added
+^^^^^
+
+- Added /dataset/manifest route to which one can POST a URI and get back the
+  associated dataset manifest
+- Added /dataset/readme route to which one can POST a URI and get back the
+  associated dataset readme
 
 
 [0.11.0] - 2019-07-08
