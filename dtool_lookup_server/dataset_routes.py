@@ -3,6 +3,7 @@ from flask import (
     Blueprint,
     jsonify,
     request,
+    current_app,
 )
 from flask_jwt_extended import (
     jwt_required,
@@ -27,6 +28,7 @@ from dtool_lookup_server.utils import (
     get_manifest_from_uri_by_user,
     get_readme_from_uri_by_user,
 )
+
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 
@@ -121,8 +123,16 @@ def manifest():
     try:
         manifest = get_manifest_from_uri_by_user(username, uri)
     except AuthenticationError:
+        current_app.logger.info("AuthenticaitonError")
         abort(401)
-    except (AuthorizationError, UnknownBaseURIError, UnknownURIError):
+    except AuthorizationError:
+        current_app.logger.info("AuthorizationError")
+        abort(400)
+    except UnknownBaseURIError:
+        current_app.logger.info("UnknownBaseURIError")
+        abort(400)
+    except UnknownURIError:
+        current_app.logger.info("UnknownURIError")
         abort(400)
 
     return jsonify(manifest)
@@ -141,8 +151,16 @@ def readme():
     try:
         readme = get_readme_from_uri_by_user(username, uri)
     except AuthenticationError:
+        current_app.logger.info("AuthenticaitonError")
         abort(401)
-    except (AuthorizationError, UnknownBaseURIError, UnknownURIError):
+    except AuthorizationError:
+        current_app.logger.info("AuthorizationError")
+        abort(400)
+    except UnknownBaseURIError:
+        current_app.logger.info("UnknownBaseURIError")
+        abort(400)
+    except UnknownURIError:
+        current_app.logger.info("UnknownURIError")
         abort(400)
 
     return jsonify(readme)
