@@ -1,7 +1,7 @@
 from setuptools import setup
 
 url = "https://github.com/jic-dtool/dtool-lookup-server"
-version = "0.11.0"
+version = "0.12.0"
 readme = open('README.rst').read()
 
 setup(
