@@ -137,6 +137,12 @@ def generate_dataset_info(dataset, base_uri):
     # Add the manifest.
     dataset_info["manifest"] = dataset._manifest
 
+    # Add the annotations.
+    annotations = {}
+    for annotations_name in dataset.list_annotation_names():
+        annotations[annotation_name] = dataset.get_annotation(annotation_name)
+    dataset_info["annotations"] = annotations
+
     # Clean up datetime.data.
     dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
     dataset_info = json.loads(dataset_info_json_str)
