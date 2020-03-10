@@ -151,6 +151,19 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
 
     assert len(json.loads(r.data.decode("utf-8"))) == 2
 
+    # Search for crazystuff (in annotaitons).
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"free_text": "crazystuff"}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
 
 def test_dataset_register_route(tmp_app_with_users):  # NOQA
 

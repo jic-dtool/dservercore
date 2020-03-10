@@ -212,7 +212,7 @@ def tmp_app_with_data(request):
         },
         "creator_username": "queen",
         "frozen_at": 1536238185.881941,
-        "annotations": {"type": "fruit"},
+        "annotations": {"type": "fruit", "only_here": "crazystuff"},
     }
     register_dataset(dataset_info)
 

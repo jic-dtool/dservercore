@@ -279,7 +279,7 @@ def search_datasets_by_user(username, query):
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(
         mongo_query,
-        {"_id": False, "readme": False, "manifest": False}
+        {"_id": False, "readme": False, "manifest": False, "annotations": False}
     )
     for ds in cx:
         datasets.append(ds)
