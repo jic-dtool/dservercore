@@ -10,6 +10,33 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+
+Changed
+^^^^^^^
+
+
+Deprecated
+^^^^^^^^^^
+
+
+Removed
+^^^^^^^
+
+
+Fixed
+^^^^^
+
+
+Security
+^^^^^^^^
+
+
+[0.13.0] - 2020-03-10
+---------------------
+
+Added
+^^^^^
+
 - Added /dataset/annotations route to which one can POST a URI and get back the
   associated dataset annotations
 
@@ -25,25 +52,11 @@ Changed
   implemented to overcome the slow response time when accessing many (>1000)
   datasets using the /dataset/search route. 
 
-
-
-Deprecated
-^^^^^^^^^^
-
-
-Removed
-^^^^^^^
-
-
 Fixed
 ^^^^^
 
 - Made registration of datasets more tolerant to type of frozen_at in
   admin_metadata, now accepts value as a string
-
-
-Security
-^^^^^^^^
 
 
 [0.12.0] - 2020-02-27
