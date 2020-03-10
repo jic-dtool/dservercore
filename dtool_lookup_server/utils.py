@@ -139,7 +139,7 @@ def generate_dataset_info(dataset, base_uri):
 
     # Add the annotations.
     annotations = {}
-    for annotations_name in dataset.list_annotation_names():
+    for annotation_name in dataset.list_annotation_names():
         annotations[annotation_name] = dataset.get_annotation(annotation_name)
     dataset_info["annotations"] = annotations
 
