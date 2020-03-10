@@ -7,9 +7,10 @@ TODO.rst
 *.egg-info
 *.pdf
 
+test_rsa*
+migrations/*
 data/*
-env/*
-env3/*
+env*
 .cache/*
 .pytest_cache/*
 .tox/*
