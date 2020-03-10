@@ -593,6 +593,35 @@ def get_readme_from_uri_by_user(username, uri):
     return item["readme"]
 
 
+def get_annotations_from_uri_by_user(username, uri):
+    """Return the annotations.
+
+    :param username: username
+    :param uri: dataset URI
+    :returns: dataset annotations
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to read
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise(UnknownBaseURIError())
+
+    if base_uri not in user.search_base_uris:
+        raise(AuthorizationError())
+
+    collection = mongo.db[MONGO_COLLECTION]
+    item = collection.find_one({"uri": uri})
+    if item is None:
+        raise(UnknownURIError())
+    return item["annotations"]
+
+
 def get_manifest_from_uri_by_user(username, uri):
     """Return the manifest.
 
