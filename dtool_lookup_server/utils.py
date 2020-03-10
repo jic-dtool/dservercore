@@ -35,6 +35,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "manifest",
     "creator_username",
     "frozen_at",
+    "annotations",
 )
 
 

@@ -40,6 +40,7 @@ def test_get_readme_from_uri(tmp_app):  # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536236399.19497,
+        "annotations": {"software": "bowtie2"},
     }
 
     with pytest.raises(ValidationError):

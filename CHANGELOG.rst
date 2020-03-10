@@ -14,6 +14,8 @@ Added
 Changed
 ^^^^^^^
 
+- Registering a dataset now requires a key for ``annotations`` in the JSON
+  content
 - The /dataset/search route no longer returns manifest and readme in the body
   of the JSON response. These will now have to be retrieved using the
   /dataset/manifest and /dataset/readme routes respectively. This change was

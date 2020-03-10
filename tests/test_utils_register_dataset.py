@@ -55,6 +55,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536236399.19497,
+        "annotations": {"software": "bowtie2"},
     }
 
     register_dataset(dataset_info)
@@ -124,6 +125,7 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         },
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
+        "annotations": {"software": "bowtie2"},
     }
 
     register_dataset(dataset_info)

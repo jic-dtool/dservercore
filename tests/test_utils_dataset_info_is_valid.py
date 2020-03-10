@@ -19,6 +19,7 @@ def test_dataset_info_is_valid_returns_true_on_valid_info():
         "base_uri": "file:///tmp",
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
+        "annotations": {"stars": 5},
     }
     assert dataset_info_is_valid(info)
 
@@ -168,6 +169,24 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
         "uri": "file:///tmp/a_dataset",
         "name": "my-dataset",
         "readme": {"description": "test dataset"},
+        "base_uri": "file:///tmp",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+    }
+    assert not dataset_info_is_valid(info)
+
+    # Missing annotations.
+    info = {
+        "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
+        "type": "dataset",
+        "uri": "file:///tmp/a_dataset",
+        "name": "my-dataset",
+        "readme": {"description": "test dataset"},
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {}
+        },
         "base_uri": "file:///tmp",
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,

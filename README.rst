@@ -432,6 +432,7 @@ Registering a dataset
 Below is an example of how to register a dataset::
 
     $ DATASET_INFO='{
+      "annotations": {},
       "base_uri": "s3://dtool-demo",
       "created_at": 1537802877.62,
       "creator_username": "olssont",
@@ -454,7 +455,6 @@ Below is an example of how to register a dataset::
         -X POST -d $DATASET_INFO  \
         http://localhost:5000/dataset/register
 
-Not all of the metadata above is required.
 The required keys are defined in the variable
 ``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
 
