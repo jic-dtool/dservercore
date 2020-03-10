@@ -35,6 +35,9 @@ Removed
 Fixed
 ^^^^^
 
+- Made registration of datasets more tolerant to type of frozen_at in
+  admin_metadata, now accepts value as a string
+
 
 Security
 ^^^^^^^^

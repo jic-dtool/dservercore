@@ -447,11 +447,17 @@ def _extract_created_at_as_datetime(admin_metadata):
     return datetime.utcfromtimestamp(created_at)
 
 
+def _extract_frozen_at_as_datatime(admin_metadata):
+    frozen_at = admin_metadata["frozen_at"]
+    frozen_at = float(frozen_at)
+    return datetime.utcfromtimestamp(frozen_at)
+
+
 def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
-    frozen_at = datetime.utcfromtimestamp(admin_metadata["frozen_at"])
+    frozen_at = _extract_frozen_at_as_datatime(admin_metadata)
     created_at = _extract_created_at_as_datetime(admin_metadata)
 
     dataset = Dataset(
@@ -489,7 +495,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     if not dataset_info_is_valid(dataset_info):
         return None
 
-    frozen_at = datetime.utcfromtimestamp(dataset_info["frozen_at"])
+    frozen_at = _extract_frozen_at_as_datatime(dataset_info)
     created_at = _extract_created_at_as_datetime(dataset_info)
 
     dataset_info["frozen_at"] = frozen_at
