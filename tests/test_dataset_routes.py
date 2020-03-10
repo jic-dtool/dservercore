@@ -125,9 +125,22 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 401
 
-    # Search for apples.
+    # Search for apples (in README).
     headers = dict(Authorization="Bearer " + grumpy_token)
     query = {"free_text": "apple"}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
+
+    # Search for U00096 (in manifest).
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"free_text": "U00096"}
     r = tmp_app_with_data.post(
         "/dataset/search",
         headers=headers,

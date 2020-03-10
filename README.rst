@@ -358,18 +358,6 @@ Below is the result of this search::
         "dtoolcore_version": "3.3.0",
         "frozen_at": "1536749825.85",
         "name": "hypocotyl3",
-        "readme": {
-          "DataDOI": "https://doi.org/10.6084/m9.figshare.3438743.v1",
-          "Device": "Zeiss LSM780",
-          "Experiment Commentary": "Confocal microscopy image of hypocotyl.\nCell walls stained using FM4-64 [5ug/ml].\nNucelus marked using 35s::GFP:eIF3a (see reference for more detail).\n",
-          "Experiment Date": "28 Jan 2016",
-          "Imaging probes": "FM4-64 + GFP-nucleus",
-          "Notes": "Orignal file unpacked using bfconvert 5.0.2",
-          "Objective Lens": "x40/1.2 water",
-          "Organ/tissue type": "Hypocotyl",
-          "ReferenceDOI": "http://dx.doi.org/10.1105/tpc.108.060434",
-          "Species": "Arabidopsis thaliana (Thale cress)"
-        },
         "type": "dataset",
         "uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db",
         "uuid": "ba92a5fa-d3b4-4f10-bcb9-947f62e652db"

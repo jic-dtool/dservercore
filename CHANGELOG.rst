@@ -14,6 +14,13 @@ Added
 Changed
 ^^^^^^^
 
+- The /dataset/search route no longer returns manifest and readme in the body
+  of the JSON response. These will now have to be retrieved using the
+  /dataset/manifest and /dataset/readme routes respectively. This change was
+  implemented to overcome the slow response time when accessing many (>1000)
+  datasets using the /dataset/search route. 
+
+
 
 Deprecated
 ^^^^^^^^^^
