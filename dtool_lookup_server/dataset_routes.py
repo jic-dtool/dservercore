@@ -27,6 +27,7 @@ from dtool_lookup_server.utils import (
     register_dataset,
     get_manifest_from_uri_by_user,
     get_readme_from_uri_by_user,
+    get_annotations_from_uri_by_user,
 )
 
 
@@ -150,6 +151,34 @@ def readme():
 
     try:
         readme = get_readme_from_uri_by_user(username, uri)
+    except AuthenticationError:
+        current_app.logger.info("AuthenticaitonError")
+        abort(401)
+    except AuthorizationError:
+        current_app.logger.info("AuthorizationError")
+        abort(400)
+    except UnknownBaseURIError:
+        current_app.logger.info("UnknownBaseURIError")
+        abort(400)
+    except UnknownURIError:
+        current_app.logger.info("UnknownURIError")
+        abort(400)
+
+    return jsonify(readme)
+
+
+@bp.route("/annotations", methods=["POST"])
+@jwt_required
+def annotations():
+    """Request the dataset annotations."""
+    username = get_jwt_identity()
+    query = request.get_json()
+    if "uri" not in query:
+        abort(400)
+    uri = query["uri"]
+
+    try:
+        readme = get_annotations_from_uri_by_user(username, uri)
     except AuthenticationError:
         current_app.logger.info("AuthenticaitonError")
         abort(401)

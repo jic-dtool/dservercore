@@ -462,7 +462,7 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
     assert r.status_code == 400
 
 
-def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
+def test_dataset_readme_route(tmp_app_with_data):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)
     query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
@@ -475,6 +475,24 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
     assert r.status_code == 200
 
     expected_readme = {"descripton": "apples from queen"}
+    actual_readme = json.loads(r.data.decode("utf-8"))
+
+    assert expected_readme == actual_readme
+
+
+def test_dataset_annotations_route(tmp_app_with_data):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
+    r = tmp_app_with_data.post(
+        "/dataset/annotations",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    expected_readme = {"type": "fruit"}
     actual_readme = json.loads(r.data.decode("utf-8"))
 
     assert expected_readme == actual_readme

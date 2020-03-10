@@ -10,6 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added /dataset/annotations route to which one can POST a URI and get back the
+  associated dataset annotations
+
 
 Changed
 ^^^^^^^
