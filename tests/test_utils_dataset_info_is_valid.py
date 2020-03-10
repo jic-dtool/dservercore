@@ -26,6 +26,7 @@ def test_dataset_info_is_valid_returns_true_on_valid_info():
 def test_dataset_info_returns_false_when_key_data_is_missing():
     from dtool_lookup_server.utils import dataset_info_is_valid
 
+    # Missing uuid.
     info = {
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
@@ -42,6 +43,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
+    # Missing type.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "uri": "file:///tmp/a_dataset",
@@ -58,6 +60,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
+    # Missing uri.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
@@ -74,6 +77,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
+    # Missing name.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
@@ -90,6 +94,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
+    # Missing base_uri.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
@@ -106,6 +111,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
+    # Missing readme.
     info = {
         "type": "dataset",
         "uri": "file:///tmp/a_dataset",
@@ -121,7 +127,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
-    # No creator_username.
+    # Missing creator_username.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
@@ -138,7 +144,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
-    # No frozen_at.
+    # Missing frozen_at.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
@@ -155,7 +161,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
     }
     assert not dataset_info_is_valid(info)
 
-    # No manifest.
+    # Missing manifest.
     info = {
         "uuid": "af6727bf-29c7-43dd-b42f-a5d7ede28337",
         "type": "dataset",
