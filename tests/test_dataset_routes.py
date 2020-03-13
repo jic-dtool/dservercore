@@ -169,6 +169,66 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     assert len(json.loads(r.data.decode("utf-8"))) == 1
 
 
+def test_filter_based_on_tags(tmp_app_with_data):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    query = {"tags": ["good"]}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
+    query = {"tags": ["good", "evil"]}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 0
+
+    query = {"tags": ["fruit", "evil"]}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
+
+
+def test_combination_query(tmp_app_with_data):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    query = {"free_text": "crazystuff", "tags": ["good"]}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
+    query = {"free_text": "crazystuff", "tags": ["evil"]}
+    r = tmp_app_with_data.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 0
+
+
 def test_dataset_register_route(tmp_app_with_users):  # NOQA
 
     from dtool_lookup_server.utils import (
