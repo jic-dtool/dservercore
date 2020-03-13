@@ -53,6 +53,24 @@ def test_base_uris():
     assert _dict_to_mongo_query(query) == expected_mongo_query
 
 
+def test_tags():
+    from dtool_lookup_server.utils import _dict_to_mongo_query
+
+    # Test single tag.
+    query = dict(tags=["evil"])
+    expected_mongo_query = {"tags": "evil"}
+    assert _dict_to_mongo_query(query) == expected_mongo_query
+
+    # Test multiple tags.
+    query = dict(tags=["evil", "good"])
+    expected_mongo_query = {"tags": { "$all": ["evil", "good"]}}
+    assert _dict_to_mongo_query(query) == expected_mongo_query
+
+    # Test empty list.
+    query = dict(tags=[])
+    assert _dict_to_mongo_query(query) == {}
+
+
 def test_combinations():
 
     from dtool_lookup_server.utils import _dict_to_mongo_query
@@ -60,7 +78,8 @@ def test_combinations():
     query = dict(
         free_text="apple",
         base_uris=["s3://snow-white"],
-        creator_usernames=["grumpy", "dopey"]
+        creator_usernames=["grumpy", "dopey"],
+        tags=["good", "evil"]
     )
     expected_mongo_query = {}
     expected_mongo_query = {
@@ -71,7 +90,8 @@ def test_combinations():
                 {"creator_username": "dopey"}
             ]
             },
-            {"base_uri": "s3://snow-white"}
+            {"base_uri": "s3://snow-white"},
+            {"tags": {"$all": ["good", "evil"]}}
         ]
     }
     assert _dict_to_mongo_query(query) == expected_mongo_query

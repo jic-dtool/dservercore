@@ -59,8 +59,8 @@ def _get_base_uri_obj(base_uri):
 
 
 def _dict_to_mongo_query(query_dict):
-    valid_keys = ["free_text", "creator_usernames", "base_uris"]
-    list_keys = ["creator_usernames", "base_uris"]
+    valid_keys = ["free_text", "creator_usernames", "base_uris", "tags"]
+    list_keys = ["creator_usernames", "base_uris", "tags"]
 
     def _sanitise(query_dict):
         for key in list(query_dict.keys()):
@@ -76,6 +76,12 @@ def _dict_to_mongo_query(query_dict):
             return {key: l[0]}
         else:
             return {"$or": [{key: v} for v in l]}
+
+    def _deal_with_possible_and_statement(l, key):
+        if len(l) == 1:
+            return {key: l[0]}
+        else:
+            return {key: {"$all": l}}
 
     _sanitise(query_dict)
 
@@ -94,6 +100,13 @@ def _dict_to_mongo_query(query_dict):
             _deal_with_possible_or_statment(
                 query_dict["base_uris"],
                 "base_uri"
+            )
+        )
+    if "tags" in query_dict:
+        sub_queries.append(
+            _deal_with_possible_and_statement(
+                query_dict["tags"],
+                "tags"
             )
         )
 
