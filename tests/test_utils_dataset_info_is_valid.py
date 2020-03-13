@@ -24,7 +24,7 @@ def test_dataset_info_is_valid_returns_true_on_valid_info():
     from dtool_lookup_server.utils import dataset_info_is_valid
 
     info = INFO.copy()
-    assert dataset_info_is_valid(INFO)
+    assert dataset_info_is_valid(info)
 
 
 def test_dataset_info_returns_false_when_key_data_is_missing():
