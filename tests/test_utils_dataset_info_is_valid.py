@@ -16,6 +16,7 @@ INFO = {
     "creator_username": "olssont",
     "frozen_at": 1536238185.881941,
     "annotations": {"stars": 5},
+    "tags": ["empty", "dataset"],
 }
 
 
@@ -33,7 +34,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
 
         info = INFO.copy()
         del info[key]
-        assert not dataset_info_is_valid(info)
+        assert not dataset_info_is_valid(info), key
 
 
 def test_dataset_info_returns_false_when_type_is_not_dataset():

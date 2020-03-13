@@ -36,6 +36,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "creator_username",
     "frozen_at",
     "annotations",
+    "tags",
 )
 
 
