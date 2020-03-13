@@ -307,7 +307,9 @@ The response will contain JSON content along the lines of::
         "creator_usernames": ["queen"],
         "base_uris": ["s3://mr-men", "s3://snow-white"],
         "datasets_per_creator": {"queen": 3},
-        "datasets_per_base_uri": {"s3://mr-men": 1, "s3://snow-white": 2}
+        "datasets_per_base_uri": {"s3://mr-men": 1, "s3://snow-white": 2},
+        "tags": ["fruit", "veg"],
+        "datasets_per_tag": {"fruit": 2, "veg": 1}
     }
 
 
@@ -366,12 +368,13 @@ Below is the result of this search::
 
 Below is a JSON string specifying a more complex query that will search for
 datasets with "aples" in the "s3://snow-white" bucket created by either
-"grumpy" or "dopey"::
+"grumpy" or "dopey", and has either of the tags "fruit" or "veg"::
 
     {
         "base_uris": ["s3://snow-white"],
         "creator_usernames": ["grumpy", "dopey"],
-        "free_text": "apples"
+        "free_text": "apples",
+        "tags": ["fruit", "veg"]
     }
 
 
