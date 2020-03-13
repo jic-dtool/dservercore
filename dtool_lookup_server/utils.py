@@ -157,6 +157,15 @@ def generate_dataset_info(dataset, base_uri):
         annotations[annotation_name] = dataset.get_annotation(annotation_name)
     dataset_info["annotations"] = annotations
 
+    # Add the tags.
+    tags = []
+    try:
+        tags = list(dataset.get_tags())
+    except AttributeError:
+        pass
+    dataset_info["tags"] = tags
+
+
     # Clean up datetime.data.
     dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
     dataset_info = json.loads(dataset_info_json_str)
