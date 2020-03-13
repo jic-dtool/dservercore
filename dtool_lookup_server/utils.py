@@ -165,7 +165,6 @@ def generate_dataset_info(dataset, base_uri):
         pass
     dataset_info["tags"] = tags
 
-
     # Clean up datetime.data.
     dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
     dataset_info = json.loads(dataset_info_json_str)

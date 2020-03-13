@@ -63,7 +63,7 @@ def test_tags():
 
     # Test multiple tags.
     query = dict(tags=["evil", "good"])
-    expected_mongo_query = {"tags": { "$all": ["evil", "good"]}}
+    expected_mongo_query = {"tags": {"$all": ["evil", "good"]}}
     assert _dict_to_mongo_query(query) == expected_mongo_query
 
     # Test empty list.
