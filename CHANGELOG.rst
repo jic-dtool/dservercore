@@ -12,6 +12,7 @@ Added
 
 - Added "tags" and "datasets_per_tag" keys to JSON response from
   /dataset/summary route
+- Added ability to filter/search based on tags
 
 
 Changed
