@@ -367,8 +367,8 @@ Below is the result of this search::
     ]
 
 Below is a JSON string specifying a more complex query that will search for
-datasets with "aples" in the "s3://snow-white" bucket created by either
-"grumpy" or "dopey", and has either of the tags "fruit" or "veg"::
+datasets with "apples" in the "s3://snow-white" bucket created by either
+"grumpy" or "dopey", and has both of the tags "fruit" and "veg"::
 
     {
         "base_uris": ["s3://snow-white"],
@@ -376,6 +376,11 @@ datasets with "aples" in the "s3://snow-white" bucket created by either
         "free_text": "apples",
         "tags": ["fruit", "veg"]
     }
+
+.. note:: The search engine make use of "OR" logic for the items in
+          ``base_uris`` and ``creator_usernames`` lists, but uses
+          "AND" logic for filtering the search based on the items
+          in the ``tags11 list.
 
 
 Accessing a dataset's readme, annotations and manifest
