@@ -10,9 +10,15 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added "tags" and "datasets_per_tag" keys to JSON response from
+  /dataset/summary route
+
 
 Changed
 ^^^^^^^
+
+- Registering a dataset now requires a key for ``tags`` in the JSON
+  content
 
 
 Deprecated

@@ -298,19 +298,21 @@ def summary_of_datasets_by_user(username):
     Return dictionary of summary information.
     Raises AuthenticationError if user is invalid.
     """
-    def _unique(l):
-        return list(set(l))
 
     # Get all the datasets the user has access to.
     datasets = search_datasets_by_user(username, query={})
+
     datasets_per_creator = {}
     datasets_per_base_uri = {}
+    datasets_per_tag = {}
 
     for ds in datasets:
         user = ds["creator_username"]
         uri = ds["base_uri"]
         datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
         datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
+        for tag in ds["tags"]:
+            datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
 
     summary = {
         "number_of_datasets": len(datasets),
@@ -318,6 +320,8 @@ def summary_of_datasets_by_user(username):
         "base_uris": sorted(datasets_per_base_uri.keys()),
         "datasets_per_creator": datasets_per_creator,
         "datasets_per_base_uri": datasets_per_base_uri,
+        "tags": sorted(datasets_per_tag.keys()),
+        "datasets_per_tag": datasets_per_tag,
     }
 
     return summary
