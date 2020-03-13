@@ -567,13 +567,6 @@ def get_admin_metadata_from_uri(uri):
     return dataset.as_dict()
 
 
-def get_readme_from_uri(uri):
-    """Return the readme information."""
-    collection = mongo.db[MONGO_COLLECTION]
-    item = collection.find_one({"uri": uri})
-    return item["readme"]
-
-
 def get_readme_from_uri_by_user(username, uri):
     """Return the readme.
 

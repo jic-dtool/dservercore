@@ -173,7 +173,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
 
     from dtool_lookup_server.utils import (
         get_admin_metadata_from_uri,
-        get_readme_from_uri,
+        get_readme_from_uri_by_user,
         lookup_datasets_by_user_and_uuid,
     )
 
@@ -224,7 +224,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
     )
     assert r.status_code == 201
 
-    assert get_readme_from_uri(uri) == dataset_info["readme"]
+    assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
 
     expected_content = {
         "base_uri": base_uri,
@@ -272,7 +272,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
     )
     assert r.status_code == 201
 
-    assert get_readme_from_uri(uri) == dataset_info["readme"]
+    assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
     assert get_admin_metadata_from_uri(uri) == expected_content
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
 
