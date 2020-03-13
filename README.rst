@@ -380,7 +380,7 @@ datasets with "apples" in the "s3://snow-white" bucket created by either
 .. note:: The search engine make use of "OR" logic for the items in
           ``base_uris`` and ``creator_usernames`` lists, but uses
           "AND" logic for filtering the search based on the items
-          in the ``tags11 list.
+          in the ``tags`` list.
 
 
 Accessing a dataset's readme, annotations and manifest
