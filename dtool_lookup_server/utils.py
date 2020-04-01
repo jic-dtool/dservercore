@@ -158,11 +158,7 @@ def generate_dataset_info(dataset, base_uri):
     dataset_info["annotations"] = annotations
 
     # Add the tags.
-    tags = []
-    try:
-        tags = list(dataset.get_tags())
-    except AttributeError:
-        pass
+    tags = dataset.list_tags()
     dataset_info["tags"] = tags
 
     # Clean up datetime.data.

@@ -27,7 +27,7 @@ setup(
         "flask-migrate",
         "flask-pymongo",
         "flask-cors",
-        "dtoolcore",
+        "dtoolcore>=3.17.0",
         "dtool_irods",
         "dtool_s3",
         "dtool_ecs",
