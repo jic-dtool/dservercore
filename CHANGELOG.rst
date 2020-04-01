@@ -10,16 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added "tags" and "datasets_per_tag" keys to JSON response from
-  /dataset/summary route
-- Added ability to filter/search based on tags
-
 
 Changed
 ^^^^^^^
-
-- Registering a dataset now requires a key for ``tags`` in the JSON
-  content
 
 
 Deprecated
@@ -36,6 +29,24 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.14.0] - 2020-04-01
+---------------------
+
+Added
+^^^^^
+
+- Added "tags" and "datasets_per_tag" keys to JSON response from
+  /dataset/summary route
+- Added ability to filter/search based on tags
+
+
+Changed
+^^^^^^^
+
+- Registering a dataset now requires a key for ``tags`` in the JSON
+  content
 
 
 [0.13.0] - 2020-03-10
