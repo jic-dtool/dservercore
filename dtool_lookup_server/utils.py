@@ -328,8 +328,15 @@ def summary_of_datasets_by_user(username):
         uri = ds["base_uri"]
         datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
         datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
-        for tag in ds["tags"]:
-            datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
+
+        # All datasets should have the "tags" key. However, it could be the
+        # case that a dataset in the database prior to version 0.14.0 fails
+        # to be re-indexed. In this case it would be left without having tags
+        # added to it. In the below we therefore check to make sure that it is
+        # present before we try to use it.
+        if "tags" in ds:
+            for tag in ds["tags"]:
+                datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
 
     summary = {
         "number_of_datasets": len(datasets),

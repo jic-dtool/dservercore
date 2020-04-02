@@ -31,6 +31,16 @@ Security
 ^^^^^^^^
 
 
+[0.14.1] - 2020-04-02
+---------------------
+
+Fixed
+^^^^^
+
+- Made /dataset/summary route able to cope with individual datasets in the
+  mongo database missing the tags key
+
+
 [0.14.0] - 2020-04-01
 ---------------------
 
