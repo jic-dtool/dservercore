@@ -59,13 +59,9 @@ def _get_base_uri_obj(base_uri):
 
 
 def _dict_to_mongo_query(query_dict):
-    valid_keys = ["free_text", "creator_usernames", "base_uris", "tags"]
     list_keys = ["creator_usernames", "base_uris", "tags"]
 
     def _sanitise(query_dict):
-        for key in list(query_dict.keys()):
-            if key not in valid_keys:
-                del query_dict[key]
         for lk in list_keys:
             if lk in query_dict:
                 if len(query_dict[lk]) == 0:
@@ -86,8 +82,11 @@ def _dict_to_mongo_query(query_dict):
     _sanitise(query_dict)
 
     sub_queries = []
+
+    # special treatment of special keywords:
     if "free_text" in query_dict:
         sub_queries.append({"$text": {"$search": query_dict["free_text"]}})
+        del query_dict["free_text"]
     if "creator_usernames" in query_dict:
         sub_queries.append(
             _deal_with_possible_or_statment(
@@ -95,6 +94,7 @@ def _dict_to_mongo_query(query_dict):
                 "creator_username"
             )
         )
+        del query_dict["creator_usernames"]
     if "base_uris" in query_dict:
         sub_queries.append(
             _deal_with_possible_or_statment(
@@ -102,6 +102,7 @@ def _dict_to_mongo_query(query_dict):
                 "base_uri"
             )
         )
+        del query_dict["base_uris"]
     if "tags" in query_dict:
         sub_queries.append(
             _deal_with_possible_and_statement(
@@ -109,6 +110,10 @@ def _dict_to_mongo_query(query_dict):
                 "tags"
             )
         )
+        del query_dict["tags"]
+    # if any other keywords left, treat them as raw mongo syntax queries
+    if len(query_dict) > 0:
+        sub_queries.append(query_dict)
 
     if len(sub_queries) == 0:
         return {}
@@ -262,9 +267,8 @@ def list_datasets_by_user(username):
 def search_datasets_by_user(username, query):
     """Search the datasets the user has access to.
 
-    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
-    the query dictionary is empty all datasets, that a user has access to, are
-    returned.
+    If the query dictionary is empty all datasets, that a user has access to,
+    are returned.
 
     :param username: username
     :param query: dictionary specifying query
