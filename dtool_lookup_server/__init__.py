@@ -8,10 +8,12 @@ from flask_jwt_extended import JWTManager
 import pymongo
 
 from dtool_lookup_server.config import Config
+from dtool_lookup_server.graph import build_undirected_adjecency_lists
 
 __version__ = "0.14.1"
 
 MONGO_COLLECTION = "datasets"
+MONGO_DEPENDENCY_VIEW = 'dependencies'
 
 
 class ValidationError(ValueError):
@@ -54,6 +56,15 @@ def create_app(test_config=None):
 
     # Enable full text searching.
     mongo.db[MONGO_COLLECTION].create_index([("$**", pymongo.TEXT)])
+
+    # enable undirected view on dependency graph
+    if Config.ENABLE_DEPENDENCY_VIEW:
+        aggregation_pipeline = build_undirected_adjecency_lists()
+        app.logger.debug("Configured view with {}".format(aggregation_pipeline))
+        mongo.db.command(
+            'create',
+            MONGO_DEPENDENCY_VIEW, viewOn=MONGO_COLLECTION,
+            pipeline=aggregation_pipeline)
 
     sql_db.init_app(app)
     Migrate(app, sql_db)

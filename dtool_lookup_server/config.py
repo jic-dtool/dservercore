@@ -44,14 +44,6 @@ class Config(object):
     # Would those settings belong here or should they be somewhere else, i.e.
     # a specific dtool lookup server configuration file?
 
-    # This option allows a client to submit direct mongo-syntaxed queries
-    # to the underlying mongo database. Externally managed privileges will
-    # be enforced as usual by embedding such queries in accompanying logical
-    # 'and' clauses, see utils._preprocess_privileges() and
-    #  utils._dict_to_mongo_query().
-    ALLOW_DIRECT_QUERY = os.environ.get('DTOOL_LOOKUP_SERVER_ALLOW_DIRECT_QUERY',
-                                        'False').lower() in ['true', '1', 'y', 'yes', 'on']
-
     # This option allows a client to submit direct mongo-syntaxed aggregations
     # to the underlying mongo database. As above, externally managed privileges
     # will still apply to the initial '$match' stage of the aggregation
@@ -63,6 +55,12 @@ class Config(object):
     ALLOW_DIRECT_AGGREGATION = os.environ.get('DTOOL_LOOKUP_SERVER_ALLOW_DIRECT_AGGREGATION',
                                               'False').lower() in ['true', '1', 'y', 'yes', 'on']
 
+    # Appending the 'query' key to the list of valid query dict keys
+    # allows a client to submit direct mongo-syntaxed queries
+    # to the underlying mongo database. Externally managed privileges will
+    # be enforced as usual by embedding such queries in accompanying logical
+    # '$and' clauses, see utils._preprocess_privileges() and
+    #  utils._dict_to_mongo_query().
     QUERY_DICT_VALID_KEYS = json.loads(
         os.environ.get('DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS',
                        '["free_text", "creator_usernames", "base_uris", "tags"]'))
@@ -75,5 +73,26 @@ class Config(object):
     if not isinstance(QUERY_DICT_LIST_KEYS, list):
         raise ValueError("DTOOL_LOOKUP_SERVER_QUERY_DICT_LIST_KEYS must be json-parsable list.")
 
-    if ALLOW_DIRECT_QUERY and "query" not in QUERY_DICT_VALID_KEYS:
-        QUERY_DICT_VALID_KEYS.append("query")
+    # If enabled, the underlying database will offer a 'view' named
+    # 'dependencies' on the default collection 'datasets'. 'dependencies'
+    # offers an on-the-fly-generated collection of undirected per-dataset
+    # adjacency lists in order to facilitate searching dataset dependeny graphs
+    # in both directions.
+    # See https://docs.mongodb.com/manual/core/views/.
+    ENABLE_DEPENDENCY_VIEW = os.environ.get('DTOOL_LOOKUP_SERVER_ENABLE_DEPENDENCY_VIEW',
+                                            'False').lower() in ['true', '1', 'y', 'yes', 'on']
+
+    # Specify a key or multiple possible keys that hold unidirectional
+    # dependency information in form of parents' UUIDs. The syntax must be
+    # a single key or a JSON-formatted list of keys.
+    # Nested fields are separated by a dot (.)
+    DEPENDENCY_KEYS = [
+        'readme.derived_from.uuid',
+        'annotations.source_dataset_uuid'
+    ]
+    dep_key = os.environ.get('DTOOL_LOOKUP_SERVER_DEPENDENCY_KEYS', '')
+    if len(dep_key) > 0:
+        try:
+            DEPENDENCY_KEYS = json.loads(dep_key)
+        except json.JSONDecodeError:  # assume only one key, plain string
+            DEPENDENCY_KEYS = [dep_key]

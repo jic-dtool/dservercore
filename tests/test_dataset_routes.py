@@ -295,7 +295,6 @@ def test_dataset_aggregate_route(tmp_app_with_data_and_relaxed_security):  # NOQ
     ]
     response = json.loads(r.data.decode("utf-8"))
     assert compare_nested(response, expected_response)
-    #assert len(response) == 2
 
 
 def test_filter_based_on_tags(tmp_app_with_data):  # NOQA
