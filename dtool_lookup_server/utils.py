@@ -24,6 +24,7 @@ from dtool_lookup_server.sql_models import (
     BaseURI,
     Dataset,
 )
+from dtool_lookup_server.config import Config
 
 DATASET_INFO_REQUIRED_KEYS = (
     "uuid",
@@ -59,10 +60,11 @@ def _get_base_uri_obj(base_uri):
 
 
 def _dict_to_mongo_query(query_dict):
-    list_keys = ["creator_usernames", "base_uris", "tags"]
-
     def _sanitise(query_dict):
-        for lk in list_keys:
+        for key in list(query_dict.keys()):
+            if key not in Config.QUERY_DICT_VALID_KEYS:
+                del query_dict[key]
+        for lk in Config.QUERY_DICT_LIST_KEYS:
             if lk in query_dict:
                 if len(query_dict[lk]) == 0:
                     del query_dict[lk]
@@ -82,11 +84,8 @@ def _dict_to_mongo_query(query_dict):
     _sanitise(query_dict)
 
     sub_queries = []
-
-    # special treatment of special keywords:
     if "free_text" in query_dict:
         sub_queries.append({"$text": {"$search": query_dict["free_text"]}})
-        del query_dict["free_text"]
     if "creator_usernames" in query_dict:
         sub_queries.append(
             _deal_with_possible_or_statment(
@@ -94,7 +93,6 @@ def _dict_to_mongo_query(query_dict):
                 "creator_username"
             )
         )
-        del query_dict["creator_usernames"]
     if "base_uris" in query_dict:
         sub_queries.append(
             _deal_with_possible_or_statment(
@@ -102,7 +100,6 @@ def _dict_to_mongo_query(query_dict):
                 "base_uri"
             )
         )
-        del query_dict["base_uris"]
     if "tags" in query_dict:
         sub_queries.append(
             _deal_with_possible_and_statement(
@@ -110,10 +107,8 @@ def _dict_to_mongo_query(query_dict):
                 "tags"
             )
         )
-        del query_dict["tags"]
-    # if any other keywords left, treat them as raw mongo syntax queries
-    if len(query_dict) > 0:
-        sub_queries.append(query_dict)
+    if "query" in query_dict:
+        sub_queries.append(query_dict["query"])
 
     if len(sub_queries) == 0:
         return {}
@@ -121,6 +116,23 @@ def _dict_to_mongo_query(query_dict):
         return sub_queries[0]
     else:
         return {"$and": [q for q in sub_queries]}
+
+
+def _dict_to_mongo_aggregation(query_dict):
+    """Construct mongo query as usual and prepend to aggregation pipeline."""
+    if "aggregation" in query_dict and isinstance(query_dict["aggregation"], list):
+        aggregation_tail = query_dict["aggregation"]
+        del query_dict["aggregation"]
+    else:
+        aggregation_tail = []
+
+    match_stage = _dict_to_mongo_query(query_dict)
+    if len(query_dict) > 0:
+        aggregation_head = [{'$match': match_stage}]
+    else:
+        aggregation_head = []
+
+    return [*aggregation_head, *aggregation_tail]
 
 
 #############################################################################
@@ -264,19 +276,8 @@ def list_datasets_by_user(username):
     return datasets
 
 
-def search_datasets_by_user(username, query):
-    """Search the datasets the user has access to.
-
-    If the query dictionary is empty all datasets, that a user has access to,
-    are returned.
-
-    :param username: username
-    :param query: dictionary specifying query
-    :returns: List of dicts if user is valid and has access to datasets.
-              Empty list if user is valid but has not got access to any
-              datasets.
-    :raises: AuthenticationError if user is invalid.
-    """
+def _preprocess_privileges(username, query):
+    """Preprocess a query dict according to per-user privileges."""
     user = get_user_obj(username)
 
     # Deal with base URIs. If not specified on the query add the ones that the
@@ -297,6 +298,25 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
+
+def search_datasets_by_user(username, query):
+    """Search the datasets the user has access to.
+
+    Valid keys for the query are configurable via environment variable
+    DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS. The value must be JSON-formatted
+    list. For possible choices, see dtool_lookup_server.config.
+    Default is: '["free_text", "creator_usernames", "base_uris", "tags"]'. If
+    the query dictionary is empty all datasets, that a user has access to, are
+    returned.
+
+    :param username: username
+    :param query: dictionary specifying query
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
+    """
+    query = _preprocess_privileges(username, query)
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(
@@ -308,6 +328,34 @@ def search_datasets_by_user(username, query):
             "annotations": False,
         }
     )
+    for ds in cx:
+        datasets.append(ds)
+    return datasets
+
+
+def aggregate_datasets_by_user(username, query):
+    """Aggregate the datasets the user has access to.
+
+    Valid keys for the query are: creator_usernames, base_uris, free_text,
+    aggregation. If the query dictionary is empty, all datasets that a user has
+    access to are returned.
+
+    :param username: username
+    :param query: dictionary specifying query
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
+    """
+    if not Config.ALLOW_DIRECT_AGGREGATION:
+        return []  # silently reject request
+
+    query = _preprocess_privileges(username, query)
+    datasets = []
+    mongo_aggregation = _dict_to_mongo_aggregation(query)
+    cx = mongo.db[MONGO_COLLECTION].aggregate(mongo_aggregation)
+    # Opposed to search_datasets_by_user, here it is the aggregator's
+    # responsibility to project out desired fields.
     for ds in cx:
         datasets.append(ds)
     return datasets

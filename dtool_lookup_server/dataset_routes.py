@@ -24,6 +24,7 @@ from dtool_lookup_server.utils import (
     list_datasets_by_user,
     lookup_datasets_by_user_and_uuid,
     search_datasets_by_user,
+    aggregate_datasets_by_user,
     register_dataset,
     get_manifest_from_uri_by_user,
     get_readme_from_uri_by_user,
@@ -73,11 +74,24 @@ def lookup_datasets(uuid):
 @bp.route("/search", methods=["POST"])
 @jwt_required
 def search_datasets():
-    """List the dataset a user has access to."""
+    """Search the dataset a user has access to."""
     username = get_jwt_identity()
     query = request.get_json()
     try:
         datasets = search_datasets_by_user(username, query)
+    except AuthenticationError:
+        abort(401)
+    return jsonify(datasets)
+
+
+@bp.route("/aggregate", methods=["POST"])
+@jwt_required
+def aggregate_datasets():
+    """Aegateggr the dataset a user has access to."""
+    username = get_jwt_identity()
+    query = request.get_json()
+    try:
+        datasets = aggregate_datasets_by_user(username, query)
     except AuthenticationError:
         abort(401)
     return jsonify(datasets)

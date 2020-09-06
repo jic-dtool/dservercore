@@ -1,3 +1,4 @@
+import json
 import os
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
@@ -38,3 +39,41 @@ class Config(object):
         JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
 
     JSONIFY_PRETTYPRINT_REGULAR = True
+
+    # Above all enters the flask app, below does not.
+    # Would those settings belong here or should they be somewhere else, i.e.
+    # a specific dtool lookup server configuration file?
+
+    # This option allows a client to submit direct mongo-syntaxed queries
+    # to the underlying mongo database. Externally managed privileges will
+    # be enforced as usual by embedding such queries in accompanying logical
+    # 'and' clauses, see utils._preprocess_privileges() and
+    #  utils._dict_to_mongo_query().
+    ALLOW_DIRECT_QUERY = os.environ.get('DTOOL_LOOKUP_SERVER_ALLOW_DIRECT_QUERY',
+                                        'False').lower() in ['true', '1', 'y', 'yes', 'on']
+
+    # This option allows a client to submit direct mongo-syntaxed aggregations
+    # to the underlying mongo database. As above, externally managed privileges
+    # will still apply to the initial '$match' stage of the aggregation
+    # pipeline (see utils._dict_to_mongo_aggregation()), but can be easiliy
+    # circumvented in subsequent aggregation stages. Further notice that
+    # aggregation stages allow write access to the database, thus this option
+    # should only be enabled if some privileges are configured a the MongoDB
+    # level as well.
+    ALLOW_DIRECT_AGGREGATION = os.environ.get('DTOOL_LOOKUP_SERVER_ALLOW_DIRECT_AGGREGATION',
+                                              'False').lower() in ['true', '1', 'y', 'yes', 'on']
+
+    QUERY_DICT_VALID_KEYS = json.loads(
+        os.environ.get('DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS',
+                       '["free_text", "creator_usernames", "base_uris", "tags"]'))
+    if not isinstance(QUERY_DICT_VALID_KEYS, list):
+        raise ValueError("DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS must be json-parsable list.")
+
+    QUERY_DICT_LIST_KEYS = json.loads(
+        os.environ.get('DTOOL_LOOKUP_SERVER_QUERY_DICT_LIST_KEYS',
+                       '["creator_usernames", "base_uris", "tags"]'))
+    if not isinstance(QUERY_DICT_LIST_KEYS, list):
+        raise ValueError("DTOOL_LOOKUP_SERVER_QUERY_DICT_LIST_KEYS must be json-parsable list.")
+
+    if ALLOW_DIRECT_QUERY and "query" not in QUERY_DICT_VALID_KEYS:
+        QUERY_DICT_VALID_KEYS.append("query")
