@@ -12,6 +12,24 @@ sys.path.insert(0, _ROOT)
 
 JWT_PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDV+7UTCb5JMX/GIY3g6kus84K5ko08nKbZcPgtRbTOkdNLFDcfotefNi+Y3bDEwMydXyc7uBmLkl9hyjBwTdCj6zAJ4VhLZ5wN0qg1cmg4Wkm6EUFgBHf7NY6V5M+v6XyZFinmzoe+J5llTH5xXLkieNMNtSDPUZWtRyhT9bwNSzYzBYZ13L1/yJJVUnb8mUmC2RG5ZqT8DZ+R/Y0Z35qACNmVqFTbSwFm3IoW2XcMXZawAKGoj0e9z6Eo6KZIRmVEFOfoeokz92zhS4b+j0+OJfmknpLYLHEyHswOnyFXFeNH1AHkGjDcAZwfr5ZMKpsy9XXlGiO2kFhK7RQ1ITvF olssont@n95996.nbi.ac.uk"  # NOQA
 
+def compare_nested(A, B):
+    """Compare nested dicts and lists."""
+    if isinstance(A, list) and isinstance(B, list):
+        for a, b in zip(A, B):
+            if not compare_nested(a, b):
+                return False
+        return True
+
+    if isinstance(A, dict) and isinstance(B, dict):
+        if set(A.keys()) == set(B.keys()):
+            for k in A.keys():
+                if not compare_nested(A[k], B[k]):
+                    return False
+            return True
+        else:
+            return False
+    return A == B
+
 
 def random_string(
     size=9,
@@ -225,6 +243,14 @@ def tmp_app_with_data(request):
 
     return app.test_client()
 
+
+@pytest.fixture
+def tmp_app_with_data_and_relaxed_security(request, tmp_app_with_data):
+    from dtool_lookup_server.config import Config
+    Config.ALLOW_DIRECT_QUERY = True
+    Config.QUERY_DICT_VALID_KEYS.append("query")
+    Config.ALLOW_DIRECT_AGGREGATION = True
+    return tmp_app_with_data
 
 @pytest.fixture
 def tmp_cli_runner(request):

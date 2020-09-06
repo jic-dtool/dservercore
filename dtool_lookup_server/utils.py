@@ -3,6 +3,8 @@
 from datetime import datetime, date
 import json
 
+from flask import current_app
+
 import yaml
 from sqlalchemy.sql import exists
 
@@ -61,6 +63,7 @@ def _get_base_uri_obj(base_uri):
 
 def _dict_to_mongo_query(query_dict):
     def _sanitise(query_dict):
+        current_app.logger.debug("Query dict before sanitizing: {}".format(query_dict))
         for key in list(query_dict.keys()):
             if key not in Config.QUERY_DICT_VALID_KEYS:
                 del query_dict[key]
@@ -68,6 +71,7 @@ def _dict_to_mongo_query(query_dict):
             if lk in query_dict:
                 if len(query_dict[lk]) == 0:
                     del query_dict[lk]
+        current_app.logger.debug("Query dict after sanitizing: {}".format(query_dict))
 
     def _deal_with_possible_or_statment(l, key):
         if len(l) == 1:
@@ -111,11 +115,13 @@ def _dict_to_mongo_query(query_dict):
         sub_queries.append(query_dict["query"])
 
     if len(sub_queries) == 0:
-        return {}
+        mongo_query = {}
     elif len(sub_queries) == 1:
-        return sub_queries[0]
+        mongo_query = sub_queries[0]
     else:
-        return {"$and": [q for q in sub_queries]}
+        mongo_query = {"$and": [q for q in sub_queries]}
+    current_app.logger.debug("Constructed mongo query: {}".format(mongo_query))
+    return mongo_query
 
 
 def _dict_to_mongo_aggregation(query_dict):
@@ -126,13 +132,18 @@ def _dict_to_mongo_aggregation(query_dict):
     else:
         aggregation_tail = []
 
+    # unset any _id field, as type ObjectId usually not serializable
+    aggregation_tail.append({'$unset': '_id'})
+
     match_stage = _dict_to_mongo_query(query_dict)
-    if len(query_dict) > 0:
+    if len(match_stage) > 0:
         aggregation_head = [{'$match': match_stage}]
     else:
         aggregation_head = []
 
-    return [*aggregation_head, *aggregation_tail]
+    aggregation = [*aggregation_head, *aggregation_tail]
+    current_app.logger.debug("Constructed mongo aggregation: {}".format(aggregation))
+    return aggregation
 
 
 #############################################################################
@@ -293,10 +304,7 @@ def _preprocess_privileges(username, query):
         ]
         query["base_uris"] = selected_uris
 
-    # If there are no base URIs at this point it means that the user has not
-    # got privileges to search for anything.
-    if len(query["base_uris"]) == 0:
-        return []
+    return query
 
 
 def search_datasets_by_user(username, query):
@@ -317,6 +325,11 @@ def search_datasets_by_user(username, query):
     :raises: AuthenticationError if user is invalid.
     """
     query = _preprocess_privileges(username, query)
+    # If there are no base URIs at this point it means that the user has not
+    # got privileges to search for anything.
+    if len(query["base_uris"]) == 0:
+        return []
+
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(
@@ -348,14 +361,23 @@ def aggregate_datasets_by_user(username, query):
     :raises: AuthenticationError if user is invalid.
     """
     if not Config.ALLOW_DIRECT_AGGREGATION:
+        current_app.logger.warning(
+            "Received aggregate request '{}' from user '{}', but direct "
+            "aggregations are disabled.".format(query, username))
         return []  # silently reject request
 
     query = _preprocess_privileges(username, query)
+    # If there are no base URIs at this point it means that the user has not
+    # got privileges to search for anything.
+    if len(query["base_uris"]) == 0:
+        return []
+
     datasets = []
     mongo_aggregation = _dict_to_mongo_aggregation(query)
     cx = mongo.db[MONGO_COLLECTION].aggregate(mongo_aggregation)
     # Opposed to search_datasets_by_user, here it is the aggregator's
-    # responsibility to project out desired fields.
+    # responsibility to project out desired fields and remove non-serializable
+    # content. The only modification always applied is removing any '_id' field.
     for ds in cx:
         datasets.append(ds)
     return datasets

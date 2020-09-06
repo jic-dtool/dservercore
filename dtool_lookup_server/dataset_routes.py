@@ -90,6 +90,7 @@ def aggregate_datasets():
     """Aegateggr the dataset a user has access to."""
     username = get_jwt_identity()
     query = request.get_json()
+    current_app.logger.debug("Received aggregate request '{}' from user '{}'.".format(query, username))
     try:
         datasets = aggregate_datasets_by_user(username, query)
     except AuthenticationError:
