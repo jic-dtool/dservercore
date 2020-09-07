@@ -56,12 +56,25 @@ def create_app(test_config=None):
 
     # enable undirected view on dependency graph
     if Config.ENABLE_DEPENDENCY_VIEW:
-        aggregation_pipeline = build_undirected_adjecency_lists()
-        app.logger.debug("Configured view with {}".format(aggregation_pipeline))
-        mongo.db.command(
-            'create',
-            Config.MONGO_DEPENDENCY_VIEW, viewOn=Config.MONGO_COLLECTION,
-            pipeline=aggregation_pipeline)
+        if Config.MONGO_DEPENDENCY_VIEW in mongo.db.list_collection_names():
+            app.logger.warning("View '{}' exists already.".format(Config.MONGO_DEPENDENCY_VIEW))
+            if Config.FORCE_REBUILD_DEPENDENCY_VIEW:
+                app.logger.warning("Dropping exisitng view '{}'.".format(Config.MONGO_DEPENDENCY_VIEW))
+                mongo.db[Config.MONGO_DEPENDENCY_VIEW].drop()
+
+        if Config.MONGO_DEPENDENCY_VIEW not in mongo.db.list_collection_names():
+            aggregation_pipeline = build_undirected_adjecency_lists()
+            app.logger.debug("Configured view with {}".format(aggregation_pipeline))
+            try:
+                mongo.db.command(
+                    'create',
+                    Config.MONGO_DEPENDENCY_VIEW, viewOn=Config.MONGO_COLLECTION,
+                    pipeline=aggregation_pipeline)
+            except pymongo.errors.OperationFailure as exc:
+                app.logger.exception(exc)
+                app.logger.warning("Dependency view creation failed. Ignored.")
+        else:
+            app.logger.info("Existing view '{}' not touched.".format(Config.MONGO_DEPENDENCY_VIEW))
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
