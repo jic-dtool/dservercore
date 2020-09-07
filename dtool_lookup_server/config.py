@@ -44,6 +44,9 @@ class Config(object):
     # Would those settings belong here or should they be somewhere else, i.e.
     # a specific dtool lookup server configuration file?
 
+    MONGO_COLLECTION = os.environ.get('DTOOL_LOOKUP_SERVER_MONGO_COLLECTION', 'datasets')
+    MONGO_DEPENDENCY_VIEW = os.environ.get('DTOOL_LOOKUP_SERVER_MONGO_DEPENDENCY_VIEW', 'dependencies')
+
     # This option allows a client to submit direct mongo-syntaxed aggregations
     # to the underlying mongo database. As above, externally managed privileges
     # will still apply to the initial '$match' stage of the aggregation

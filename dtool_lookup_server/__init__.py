@@ -12,9 +12,6 @@ from dtool_lookup_server.graph import build_undirected_adjecency_lists
 
 __version__ = "0.14.1"
 
-MONGO_COLLECTION = "datasets"
-MONGO_DEPENDENCY_VIEW = 'dependencies'
-
 
 class ValidationError(ValueError):
     pass
@@ -55,7 +52,7 @@ def create_app(test_config=None):
     mongo.init_app(app)
 
     # Enable full text searching.
-    mongo.db[MONGO_COLLECTION].create_index([("$**", pymongo.TEXT)])
+    mongo.db[Config.MONGO_COLLECTION].create_index([("$**", pymongo.TEXT)])
 
     # enable undirected view on dependency graph
     if Config.ENABLE_DEPENDENCY_VIEW:
@@ -63,7 +60,7 @@ def create_app(test_config=None):
         app.logger.debug("Configured view with {}".format(aggregation_pipeline))
         mongo.db.command(
             'create',
-            MONGO_DEPENDENCY_VIEW, viewOn=MONGO_COLLECTION,
+            Config.MONGO_DEPENDENCY_VIEW, viewOn=Config.MONGO_COLLECTION,
             pipeline=aggregation_pipeline)
 
     sql_db.init_app(app)

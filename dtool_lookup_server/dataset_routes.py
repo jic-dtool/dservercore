@@ -23,6 +23,7 @@ from dtool_lookup_server.utils import (
     summary_of_datasets_by_user,
     list_datasets_by_user,
     lookup_datasets_by_user_and_uuid,
+    dependency_graph_by_user_and_uuid,
     search_datasets_by_user,
     aggregate_datasets_by_user,
     register_dataset,
@@ -66,6 +67,20 @@ def lookup_datasets(uuid):
     username = get_jwt_identity()
     try:
         datasets = lookup_datasets_by_user_and_uuid(username, uuid)
+    except AuthenticationError:
+        abort(401)
+    return jsonify(datasets)
+
+
+@bp.route("/graph/<uuid>", methods=["GET"])
+@jwt_required
+def lookup_dependency_graph(uuid):
+    """List the datasets within the same dependency graph as <uuid>.
+    If not all datasets are accessible by the user, an incomplete, disconnected
+    graph may arise."""
+    username = get_jwt_identity()
+    try:
+        datasets = dependency_graph_by_user_and_uuid(username, uuid)
     except AuthenticationError:
         abort(401)
     return jsonify(datasets)

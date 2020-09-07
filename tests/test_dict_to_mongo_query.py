@@ -77,7 +77,9 @@ def test_direct_query():
     backup = Config.QUERY_DICT_VALID_KEYS.copy()
 
     # Test with direct queries disabled
-    Config.QUERY_DICT_VALID_KEYS.remove('query')
+    while 'query' in Config.QUERY_DICT_VALID_KEYS:
+        Config.QUERY_DICT_VALID_KEYS.remove('query')
+
     query = dict(query={'key': 'value'})
     assert _dict_to_mongo_query(query) == {}
 

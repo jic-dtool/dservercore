@@ -2,6 +2,7 @@
 
 from datetime import datetime, date
 import json
+import logging
 
 from flask import current_app
 
@@ -19,13 +20,13 @@ from dtool_lookup_server import (
     ValidationError,
     UnknownBaseURIError,
     UnknownURIError,
-    MONGO_COLLECTION,
 )
 from dtool_lookup_server.sql_models import (
     User,
     BaseURI,
     Dataset,
 )
+from dtool_lookup_server.graph import query_dependency_graph
 from dtool_lookup_server.config import Config
 
 DATASET_INFO_REQUIRED_KEYS = (
@@ -42,6 +43,7 @@ DATASET_INFO_REQUIRED_KEYS = (
     "tags",
 )
 
+logger = logging.getLogger(__name__)
 
 #############################################################################
 # Private helper functions.
@@ -63,7 +65,10 @@ def _get_base_uri_obj(base_uri):
 
 def _dict_to_mongo_query(query_dict):
     def _sanitise(query_dict):
-        current_app.logger.debug("Query dict before sanitizing: {}".format(query_dict))
+        logger.debug("Query dict before sanitizing: {}".format(query_dict))
+        logger.debug("Valid keys: {}".format(Config.QUERY_DICT_VALID_KEYS))
+        logger.debug("List keys: {}".format(Config.QUERY_DICT_LIST_KEYS))
+
         for key in list(query_dict.keys()):
             if key not in Config.QUERY_DICT_VALID_KEYS:
                 del query_dict[key]
@@ -71,7 +76,7 @@ def _dict_to_mongo_query(query_dict):
             if lk in query_dict:
                 if len(query_dict[lk]) == 0:
                     del query_dict[lk]
-        current_app.logger.debug("Query dict after sanitizing: {}".format(query_dict))
+        logger.debug("Query dict after sanitizing: {}".format(query_dict))
 
     def _deal_with_possible_or_statment(l, key):
         if len(l) == 1:
@@ -120,7 +125,7 @@ def _dict_to_mongo_query(query_dict):
         mongo_query = sub_queries[0]
     else:
         mongo_query = {"$and": [q for q in sub_queries]}
-    current_app.logger.debug("Constructed mongo query: {}".format(mongo_query))
+    logger.debug("Constructed mongo query: {}".format(mongo_query))
     return mongo_query
 
 
@@ -142,7 +147,7 @@ def _dict_to_mongo_aggregation(query_dict):
         aggregation_head = []
 
     aggregation = [*aggregation_head, *aggregation_tail]
-    current_app.logger.debug("Constructed mongo aggregation: {}".format(aggregation))
+    logger.debug("Constructed mongo aggregation: {}".format(aggregation))
     return aggregation
 
 
@@ -332,7 +337,7 @@ def search_datasets_by_user(username, query):
 
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
-    cx = mongo.db[MONGO_COLLECTION].find(
+    cx = mongo.db[Config.MONGO_COLLECTION].find(
         mongo_query,
         {
             "_id": False,
@@ -361,7 +366,7 @@ def aggregate_datasets_by_user(username, query):
     :raises: AuthenticationError if user is invalid.
     """
     if not Config.ALLOW_DIRECT_AGGREGATION:
-        current_app.logger.warning(
+        logger.warning(
             "Received aggregate request '{}' from user '{}', but direct "
             "aggregations are disabled.".format(query, username))
         return []  # silently reject request
@@ -374,10 +379,46 @@ def aggregate_datasets_by_user(username, query):
 
     datasets = []
     mongo_aggregation = _dict_to_mongo_aggregation(query)
-    cx = mongo.db[MONGO_COLLECTION].aggregate(mongo_aggregation)
+    cx = mongo.db[Config.MONGO_COLLECTION].aggregate(mongo_aggregation)
     # Opposed to search_datasets_by_user, here it is the aggregator's
     # responsibility to project out desired fields and remove non-serializable
     # content. The only modification always applied is removing any '_id' field.
+    for ds in cx:
+        datasets.append(ds)
+    return datasets
+
+
+def dependency_graph_by_user_and_uuid(username, uuid):
+    """Aggregate all datasets within the same dependency graph as uuid.
+
+    :param username: username
+    :param uuid: UUID of dataset to start dependency graph search from
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
+    """
+    if not Config.ENABLE_DEPENDENCY_VIEW:
+        logger.warning(
+            "Received dependency graph request from user '{}', but "
+            "feature is disabled.".format(username))
+        return []  # silently reject request
+
+    pre_query = _preprocess_privileges(username, {'query': {'uuid': uuid}})
+    post_query = _preprocess_privileges(username, {})
+
+    # If there are no base URIs at this point it means that the user has not
+    # got privileges to search for anything.
+    if (len(pre_query["base_uris"]) == 0) or len(post_query["base_uris"]) == 0:
+        return []
+    pre_query = _dict_to_mongo_query(pre_query)
+    post_query = _dict_to_mongo_query(post_query)
+
+
+    datasets = []
+    mongo_aggregation = query_dependency_graph(pre_query, post_query)
+    logger.debug("Constructed mongo aggregation: {}".format(mongo_aggregation))
+    cx = mongo.db[Config.MONGO_COLLECTION].aggregate(mongo_aggregation)
     for ds in cx:
         datasets.append(ds)
     return datasets
@@ -586,7 +627,7 @@ def register_dataset_descriptive_metadata(dataset_info):
     # Validate that the base URI exists.
     get_base_uri_obj(dataset_info["base_uri"])
 
-    collection = mongo.db[MONGO_COLLECTION]
+    collection = mongo.db[Config.MONGO_COLLECTION]
     _register_dataset_descriptive_metadata(collection, dataset_info)
 
 
@@ -687,7 +728,7 @@ def get_readme_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise(AuthorizationError())
 
-    collection = mongo.db[MONGO_COLLECTION]
+    collection = mongo.db[Config.MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
         raise(UnknownURIError())
@@ -716,7 +757,7 @@ def get_annotations_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise(AuthorizationError())
 
-    collection = mongo.db[MONGO_COLLECTION]
+    collection = mongo.db[Config.MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
         raise(UnknownURIError())
@@ -745,7 +786,7 @@ def get_manifest_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise(AuthorizationError())
 
-    collection = mongo.db[MONGO_COLLECTION]
+    collection = mongo.db[Config.MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
         raise(UnknownURIError())
