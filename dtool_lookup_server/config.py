@@ -85,6 +85,9 @@ class Config(object):
     ENABLE_DEPENDENCY_VIEW = os.environ.get('DTOOL_LOOKUP_SERVER_ENABLE_DEPENDENCY_VIEW',
                                             'False').lower() in ['true', '1', 'y', 'yes', 'on']
 
+    FORCE_REBUILD_DEPENDENCY_VIEW = os.environ.get('DTOOL_LOOKUP_SERVER_FORCE_REBUILD_DEPENDENCY_VIEW',
+                                            'False').lower() in ['true', '1', 'y', 'yes', 'on']
+
     # Specify a key or multiple possible keys that hold unidirectional
     # dependency information in form of parents' UUIDs. The syntax must be
     # a single key or a JSON-formatted list of keys.
