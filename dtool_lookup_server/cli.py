@@ -175,7 +175,7 @@ def generate_token(username, last_forever):
         token = create_access_token(identity=username, expires_delta=False)
     else:
         token = create_access_token(identity=username)
-    click.secho(token.decode("utf-8"))
+    click.secho(token)
 
 
 @base_uri_cli.command(name="index")
