@@ -248,7 +248,6 @@ def tmp_app_with_data(request):
 @pytest.fixture
 def tmp_app_with_data_and_relaxed_security(request, tmp_app_with_data):
     from dtool_lookup_server.config import Config
-    Config.ALLOW_DIRECT_QUERY = True
     Config.QUERY_DICT_VALID_KEYS.append("query")
     Config.ALLOW_DIRECT_AGGREGATION = True
     return tmp_app_with_data
