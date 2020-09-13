@@ -139,6 +139,74 @@ file::
 
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
 
+Configure server behavior
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Setting a JSON-formatted list of query key words::
+
+    export DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS='["free_text", "creator_usernames", "base_uris", "tags"]'
+
+allows to explicitly activate certain requests and deactivate all others. The
+example above shows the default. Append the ``query`` key to the list of valid
+query keys above to allow a client to submit direct mongo syntax queries to the
+underlying database. Externally managed privileges will be enforced as usual.
+See ``utils._preprocess_privileges()`` and ``utils._dict_to_mongo_query()``.
+
+
+Setting::
+
+    export DTOOL_LOOKUP_SERVER_ALLOW_DIRECT_AGGREGATION=True
+
+will allow a client to submit direct mongo syntax aggregations to the underlying
+database. As above, externally managed privileges will still apply at certain
+stages of the aggregation pipeline (see ``utils._dict_to_mongo_aggregation()``),
+but can be easily circumvented in subsequent aggregation stages. Further notice
+that aggregation stages allow write access to the database, thus this option
+should only be enabled if some privileges are configured a the database level as
+well.
+
+With::
+
+    export DTOOL_LOOKUP_SERVER_ENABLE_DEPENDENCY_VIEW=True
+
+the underlying database will offer a view on the default collection.
+This view offers an on-the-fly-generated collection of undirected per-dataset
+adjacency lists in order to facilitate searching dataset dependeny graphs
+in both directions. With::
+
+    export DTOOL_LOOKUP_SERVER_FORCE_REBUILD_DEPENDENCY_VIEW=True
+
+this view is reestablished at start-up. This is required to apply changes to
+related options, such as the JSON-formatted list::
+
+    export DTOOL_LOOKUP_SERVER_DEPENDENCY_KEYS='["readme.derived_from.uuid", "annotations.source_dataset_uuid"]'
+
+which indicates at which keys to look for source dataset(s) by UUID. The example
+above illustrates the default. All keys are treated equivalentnly and ested
+fields are separated by the dot (.). The actual nesting hierarchy does not
+matter. This means, for example, both structures evaluate equivalently in the
+following::
+
+    {'readme': {'derived_from': {'uuid':
+        ['8ecd8e05-558a-48e2-b563-0c9ea273e71e',
+         'faa44606-cb86-4877-b9ea-643a3777e021']}}}
+
+    {'readme': {'derived_from':
+        [{'uuid': '8ecd8e05-558a-48e2-b563-0c9ea273e71e'},
+         {'uuid': 'faa44606-cb86-4877-b9ea-643a3777e021'}]}}
+
+Setting::
+
+    export DTOOL_LOOKUP_SERVER_MONGO_COLLECTION=datasets
+    export DTOOL_LOOKUP_SERVER_MONGO_DEPENDENCY_VIEW=dependencies
+
+explicitly  will change the the names of default collection and dependency view,
+as described above.
+
+Note that the above exports containing JSON syntax are formatted for usage in
+bash. Enclosing single quotes are not to be part of the actual variable value
+when environment variables are configured elsewhere.
+
 Starting the flask app
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -434,6 +502,23 @@ Response content::
     }
 
 
+Looking up dependency graphs based on a dataset's UUID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A dataset can be derived from one or several source datasets, usually
+by machine-generated annotations attached via the Python API at dataset
+creation time, or manually by recording the UUIDs of parent datasets in some
+arbitrary fields within the README.yml. If configured appropriately,
+querying the server directly for all datasets within the same dependency
+graph by UUID is possible, i.e.:
+
+    $ UUID=8ecd8e05-558a-48e2-b563-0c9ea273e71e
+    $ curl -H $HEADER http://localhost:5000/dataset/graph/$UUID
+
+Looking up a dependency graph by UUID will reuslt in unique per-UUID hits.
+As it is possible for a dataset to be registered in more than one base
+URI, the query will yield one arbitrary hit in such a case.
+
 Data champion user usage
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -606,4 +691,3 @@ Response content::
       "users_with_register_permissions": [],
       "users_with_search_permissions": []
     }
-
