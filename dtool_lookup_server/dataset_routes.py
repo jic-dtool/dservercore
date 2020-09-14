@@ -17,6 +17,7 @@ from dtool_lookup_server import (
     ValidationError,
 )
 from dtool_lookup_server.utils import (
+    config_to_dict,
     dataset_info_is_valid,
     get_base_uri_obj,
     get_user_obj,
@@ -34,6 +35,18 @@ from dtool_lookup_server.utils import (
 
 
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
+
+
+@bp.route("/config", methods=["GET"])
+@jwt_required
+def server_config():
+    """Return the JSON-serialized server configuration."""
+    username = get_jwt_identity()
+    try:
+        config = config_to_dict(username)
+    except AuthenticationError:
+        abort(401)
+    return jsonify(config)
 
 
 @bp.route("/summary", methods=["GET"])

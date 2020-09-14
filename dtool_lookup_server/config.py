@@ -1,6 +1,8 @@
 import json
 import os
 
+from . import __version__
+
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -102,3 +104,14 @@ class Config(object):
             DEPENDENCY_KEYS = json.loads(dep_key)
         except json.JSONDecodeError:  # assume only one key, plain string
             DEPENDENCY_KEYS = [dep_key]
+
+    @classmethod
+    def to_dict(cls):
+        """Convert server configuration into dict."""
+        exclusions = ['SECRET_KEY', 'JWT_PRIVATE_KEY']  # config keys to exclude
+        d = {'version': __version__}
+        for k, v in cls.__dict__.items():
+            # select only capitalized fields
+            if k.upper() == k and k not in exclusions:
+                d[k.lower()] = v
+        return d
