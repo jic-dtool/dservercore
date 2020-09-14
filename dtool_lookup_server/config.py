@@ -1,6 +1,6 @@
 import os
 
-from . import __version__
+from dtool_lookup_server import __version__
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
