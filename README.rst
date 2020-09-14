@@ -607,3 +607,12 @@ Response content::
       "users_with_search_permissions": []
     }
 
+Querying server configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The request
+
+    $ curl -H "$HEADER" http://localhost:5000/admin/config/info
+
+will return the current server configuration with all keys in lowercase.
+See ``dtool_lookup_server.config.Config`` for more information.
