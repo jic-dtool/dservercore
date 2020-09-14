@@ -614,5 +614,38 @@ The request
 
     $ curl -H "$HEADER" http://localhost:5000/admin/config/info
 
-will return the current server configuration with all keys in lowercase.
+will return the current server configuration with all keys in lowercase::
+
+    {
+      "allow_direct_aggregation": false,
+      "dependency_keys": [
+        "readme.derived_from.uuid",
+        "annotations.source_dataset_uuid"
+      ],
+      "enable_dependency_view": true,
+      "force_rebuild_dependency_view": false,
+      "jsonify_prettyprint_regular": true,
+      "jwt_algorithm": "RS256",
+      "jwt_header_name": "Authorization",
+      "jwt_header_type": "Bearer",
+      "jwt_public_key": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n",
+      "jwt_token_location": "headers",
+      "mongo_collection": "datasets",
+      "mongo_dependency_view": "dependencies",
+      "query_dict_list_keys": [
+        "creator_usernames",
+        "base_uris",
+        "tags"
+      ],
+      "query_dict_valid_keys": [
+        "free_text",
+        "creator_usernames",
+        "base_uris",
+        "tags",
+        "query"
+      ],
+      "sqlalchemy_track_modifications": false,
+      "version": "0.14.1"
+    }
+
 See ``dtool_lookup_server.config.Config`` for more information.

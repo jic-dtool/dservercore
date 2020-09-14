@@ -1,6 +1,6 @@
 import os
 
-from dtool_lookup_server import __version__
+import dtool_lookup_server
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -44,8 +44,13 @@ class Config(object):
     @classmethod
     def to_dict(cls):
         """Convert server configuration into dict."""
-        exclusions = ['SECRET_KEY', 'JWT_PRIVATE_KEY']  # config keys to exclude
-        d = {'version': __version__}
+        exclusions = [
+            'JWT_PRIVATE_KEY',
+            'MONGO_URI',
+            'SECRET_KEY',
+            'SQLALCHEMY_DATABASE_URI',
+        ]  # config keys to exclude
+        d = {'version': dtool_lookup_server.__version__}
         for k, v in cls.__dict__.items():
             # select only capitalized fields
             if k.upper() == k and k not in exclusions:
