@@ -122,6 +122,11 @@ def _dict_to_mongo_query(query_dict):
 # Generally useful dtool helper functions.
 #############################################################################
 
+def config_to_dict(username):
+    # So far no check on privileges
+    return Config.to_dict()
+
+
 # TODO: this function should probably live in  dtoolcore along with a test.
 def iter_datasets_in_base_uri(base_uri):
     """Yield frozen datasets in a base URI."""
