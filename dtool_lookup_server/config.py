@@ -68,7 +68,7 @@ class Config(object):
     #  utils._dict_to_mongo_query().
     QUERY_DICT_VALID_KEYS = json.loads(
         os.environ.get('DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS',
-                       '["free_text", "creator_usernames", "base_uris", "tags"]'))
+                       '["free_text", "creator_usernames", "base_uris", "uuids", "tags"]'))
     if not isinstance(QUERY_DICT_VALID_KEYS, list):
         raise ValueError("DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS must be json-parsable list.")
 

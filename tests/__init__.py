@@ -406,7 +406,6 @@ def tmp_app_with_dependent_data(request):
     }
 
     Config.ALLOW_DIRECT_AGGREGATION = True
-    Config.QUERY_DICT_VALID_KEYS.append('query')
     Config.ENABLE_DEPENDENCY_VIEW = True
 
     app = create_app(config)
@@ -437,7 +436,6 @@ def tmp_app_with_dependent_data(request):
 
     @request.addfinalizer
     def teardown():
-        Config.QUERY_DICT_VALID_KEYS.remove("query")
         Config.ALLOW_DIRECT_AGGREGATION = False
         mongo.cx.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()

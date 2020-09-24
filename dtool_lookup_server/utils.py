@@ -109,6 +109,13 @@ def _dict_to_mongo_query(query_dict):
                 "base_uri"
             )
         )
+    if "uuids" in query_dict:
+        sub_queries.append(
+            _deal_with_possible_or_statment(
+                query_dict["uuids"],
+                "uuid"
+            )
+        )
     if "tags" in query_dict:
         sub_queries.append(
             _deal_with_possible_and_statement(
@@ -297,6 +304,8 @@ def list_datasets_by_user(username):
     return datasets
 
 
+# Per-user privileges snippet outsourced to this helper function as required
+# within several other utility functions.
 def _preprocess_privileges(username, query):
     """Preprocess a query dict according to per-user privileges."""
     user = get_user_obj(username)
@@ -409,16 +418,23 @@ def dependency_graph_by_user_and_uuid(username, uuid):
             "feature is disabled.".format(username))
         return []  # silently reject request
 
-    pre_query = _preprocess_privileges(username, {'query': {'uuid': uuid}})
+    # in the pipeline, we need to filter privileges two times. Initially,
+    # when looking up the specified uuid , and subsequently after building
+    # the dependency graph for the hypothetical case of the user not having
+    # sufficient privileges to view all datasets within the same graph.
+    # Building those pre- and post-queries relies on the _dict_to_mongo_query
+    # utility function and hence requires the 'uuids' keyword configured as
+    # an allowed query key. This is the default configuration in config.Config.
+    pre_query = _preprocess_privileges(username, {'uuids': [uuid]})
     post_query = _preprocess_privileges(username, {})
 
     # If there are no base URIs at this point it means that the user has not
     # got privileges to search for anything.
     if (len(pre_query["base_uris"]) == 0) or len(post_query["base_uris"]) == 0:
         return []
+
     pre_query = _dict_to_mongo_query(pre_query)
     post_query = _dict_to_mongo_query(post_query)
-
 
     datasets = []
     mongo_aggregation = query_dependency_graph(pre_query, post_query)
