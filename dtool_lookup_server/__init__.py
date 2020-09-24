@@ -57,7 +57,6 @@ def create_app(test_config=None):
     # enable undirected view on dependency graph
     if Config.ENABLE_DEPENDENCY_VIEW:
         if Config.MONGO_DEPENDENCY_VIEW in mongo.db.list_collection_names():
-            app.logger.warning("View '{}' exists already.".format(Config.MONGO_DEPENDENCY_VIEW))
             if Config.FORCE_REBUILD_DEPENDENCY_VIEW:
                 app.logger.warning("Dropping exisitng view '{}'.".format(Config.MONGO_DEPENDENCY_VIEW))
                 mongo.db[Config.MONGO_DEPENDENCY_VIEW].drop()
