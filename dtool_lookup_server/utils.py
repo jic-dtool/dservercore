@@ -259,20 +259,8 @@ def list_datasets_by_user(username):
     return datasets
 
 
-def search_datasets_by_user(username, query):
-    """Search the datasets the user has access to.
-
-    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
-    the query dictionary is empty all datasets, that a user has access to, are
-    returned.
-
-    :param username: username
-    :param query: dictionary specifying query
-    :returns: List of dicts if user is valid and has access to datasets.
-              Empty list if user is valid but has not got access to any
-              datasets.
-    :raises: AuthenticationError if user is invalid.
-    """
+def _preprocess_privileges(username, query):
+    """Preprocess a query dict according to per-user privileges."""
     user = get_user_obj(username)
 
     # Deal with base URIs. If not specified on the query add the ones that the
@@ -293,6 +281,25 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
+
+def search_datasets_by_user(username, query):
+    """Search the datasets the user has access to.
+
+    Valid keys for the query are configurable via environment variable
+    DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS. The value must be JSON-formatted
+    list. For possible choices, see dtool_lookup_server.config.
+    Default is: '["free_text", "creator_usernames", "base_uris", "tags"]'. If
+    the query dictionary is empty all datasets, that a user has access to, are
+    returned.
+
+    :param username: username
+    :param query: dictionary specifying query
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
+    """
+    query = _preprocess_privileges(username, query)
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(
