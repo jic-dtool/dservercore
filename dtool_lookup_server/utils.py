@@ -24,6 +24,7 @@ from dtool_lookup_server.sql_models import (
     BaseURI,
     Dataset,
 )
+from dtool_lookup_server.config import Config
 
 DATASET_INFO_REQUIRED_KEYS = (
     "uuid",
