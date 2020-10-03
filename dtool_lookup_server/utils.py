@@ -276,19 +276,13 @@ def _preprocess_privileges(username, query):
         ]
         query["base_uris"] = selected_uris
 
-    # If there are no base URIs at this point it means that the user has not
-    # got privileges to search for anything.
-    if len(query["base_uris"]) == 0:
-        return []
+    return query
 
 
 def search_datasets_by_user(username, query):
     """Search the datasets the user has access to.
 
-    Valid keys for the query are configurable via environment variable
-    DTOOL_LOOKUP_SERVER_QUERY_DICT_VALID_KEYS. The value must be JSON-formatted
-    list. For possible choices, see dtool_lookup_server.config.
-    Default is: '["free_text", "creator_usernames", "base_uris", "tags"]'. If
+    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
     the query dictionary is empty all datasets, that a user has access to, are
     returned.
 
@@ -299,7 +293,13 @@ def search_datasets_by_user(username, query):
               datasets.
     :raises: AuthenticationError if user is invalid.
     """
+
     query = _preprocess_privileges(username, query)
+    # If there are no base URIs at this point it means that the user is not
+    # allowed to search for anything.
+    if len(query["base_uris"]) == 0:
+        return []
+
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(
