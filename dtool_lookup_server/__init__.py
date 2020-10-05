@@ -1,3 +1,5 @@
+from pkg_resources import iter_entry_points
+
 from flask import Flask, request
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
@@ -74,6 +76,11 @@ def create_app(test_config=None):
     app.register_blueprint(base_uri_routes.bp)
     app.register_blueprint(user_admin_routes.bp)
     app.register_blueprint(permission_routes.bp)
+
+    # Load dtool-lookup-server plugin blueprints.
+    for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
+        bp = entrypoint.load()
+        app.register_blueprint(bp)
 
     @app.before_request
     def log_request():

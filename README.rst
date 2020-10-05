@@ -628,3 +628,55 @@ will return the current server configuration with all keys in lowercase, i.e.::
     }
 
 See ``dtool_lookup_server.config.Config`` for more information.
+
+
+Creating a plugin
+-----------------
+
+It is possible to create add plugins to this system. This is achieved by
+creating a separate Python package containing a `Flask blueprint
+<https://flask.palletsprojects.com/en/1.1.x/blueprints/>`_.
+
+A basic plugin could consist of a single ``__init__`` and a ``setup.py`` file
+in the directory structure below::
+
+    .
+    |-- my_plugin
+    |   `-- __init__.py
+    `-- setup.py
+
+
+The ``__init__.py`` file could contain the code below.
+
+.. code-block:: python
+
+    from flask import Blueprint
+
+    my_plugin_bp = Blueprint('my_plugin', __name__, url_prefix="/my_plugin")
+
+    @my_plugin_bp.route('/', methods=["GET"])
+    def show(page):
+        return "My plugin content"
+
+
+The Flask blueprint object(s) need to be associated with the
+``dtool_lookup_server.blueprints`` entrypoint in the Python package
+``setup.py`` file. The ``setup.py`` file would need to look something along the
+lines of the below.
+
+.. code-block:: python
+
+    from setuptools import setup
+
+    setup(
+        name="my-plugin",
+        packages=["my_plugin"],
+        install_requires=[
+            "flask",
+        ],
+        entry_points={
+            "dtool_lookup_server.blueprints": [
+                "my_plugin=my_plugin:my_plugin_bp",
+            ],
+        }
+    )
