@@ -607,3 +607,24 @@ Response content::
       "users_with_search_permissions": []
     }
 
+Querying server configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The request
+
+    $ curl -H "$HEADER" http://localhost:5000/config/info
+
+will return the current server configuration with all keys in lowercase, i.e.::
+
+    {
+      "jsonify_prettyprint_regular": true,
+      "jwt_algorithm": "RS256",
+      "jwt_header_name": "Authorization",
+      "jwt_header_type": "Bearer",
+      "jwt_public_key": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n",
+      "jwt_token_location": "headers",
+      "sqlalchemy_track_modifications": false,
+      "version": "0.14.1"
+    }
+
+See ``dtool_lookup_server.config.Config`` for more information.

@@ -1,5 +1,7 @@
 import os
 
+import dtool_lookup_server
+
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -38,3 +40,19 @@ class Config(object):
         JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
 
     JSONIFY_PRETTYPRINT_REGULAR = True
+
+    @classmethod
+    def to_dict(cls):
+        """Convert server configuration into dict."""
+        exclusions = [
+            'JWT_PRIVATE_KEY',
+            'MONGO_URI',
+            'SECRET_KEY',
+            'SQLALCHEMY_DATABASE_URI',
+        ]  # config keys to exclude
+        d = {'version': dtool_lookup_server.__version__}
+        for k, v in cls.__dict__.items():
+            # select only capitalized fields
+            if k.upper() == k and k not in exclusions:
+                d[k.lower()] = v
+        return d
