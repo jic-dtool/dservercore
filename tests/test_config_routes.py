@@ -21,7 +21,8 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
     )
     assert r.status_code == 200
 
-    # NOTE: If the configuration grows in the future, this text must adapt or will fail otherwise.
+    # NOTE: If the configuration grows in the future, this text must adapt or
+    # will fail otherwise.
     expected_content = {
         'jsonify_prettyprint_regular': True,
         'jwt_algorithm': 'RS256',
@@ -34,7 +35,8 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
 
     response = json.loads(r.data.decode("utf-8"))
 
-    # this allows the test to succeed if more config options enter in the future
+    # This allows the test to succeed if more config options enter in the
+    # future.
     for k, v in expected_content.items():
         assert k in response
         if k == "jwt_public_key":
