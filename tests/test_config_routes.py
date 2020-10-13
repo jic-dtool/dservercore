@@ -22,7 +22,6 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
         'jwt_algorithm': 'RS256',
         'jwt_header_name': 'Authorization',
         'jwt_header_type': 'Bearer',
-        'jwt_public_key': '',
         'jwt_token_location': 'headers',
         'sqlalchemy_track_modifications': False,
         'version': dtool_lookup_server.__version__}
@@ -32,7 +31,4 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
     # this allows the test to succeed if more config options enter in the future
     for k, v in expected_content.items():
         assert k in response
-        if k == "jwt_public_key":
-            # Ignore the value of the public key.
-            continue
         assert v == response[k]
