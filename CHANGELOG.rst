@@ -7,8 +7,22 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+THANK CONTRIBUTORS!
+
 Added
 ^^^^^
+
+- Added hook to allow the loading of plugins. Scaffold code for implementing a
+  plugin can be found in
+  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding.
+  For examples of actual plugins see:
+  https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin
+  and
+  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding
+- Added /config route
+- Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of
+  UUIDs of interest to a query submitted to the /dataset/search route
+- Added dtool_lookup_server.utils.preprocess_query_base_uris helper function
 
 
 Changed
@@ -25,6 +39,8 @@ Removed
 
 Fixed
 ^^^^^
+
+- Fixed defect in ``flask user token`` CLI command when using python3
 
 
 Security
