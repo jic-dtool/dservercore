@@ -7,7 +7,11 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
-THANK CONTRIBUTORS!
+This release makes it possible to create plugins to the dtool-lookup-server!
+
+Many thanks to `Johannes L. Hörmann <https://github.com/jotelha>`_ and `Lars
+Pastewka <https://github.com/pastewka>`_ for bug reports, design discussions
+and code contributions.
 
 Added
 ^^^^^
