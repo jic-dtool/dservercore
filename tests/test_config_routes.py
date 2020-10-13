@@ -28,4 +28,8 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
         'version': dtool_lookup_server.__version__}
 
     response = json.loads(r.data.decode("utf-8"))
-    assert response == expected_content
+
+    # this allows the test to succeed if more config options enter in the future
+    for k, v in expected_content.items():
+        assert k in response
+        assert v == response[k]

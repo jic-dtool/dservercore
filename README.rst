@@ -624,10 +624,17 @@ will return the current server configuration with all keys in lowercase, i.e.::
       "jwt_public_key": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n",
       "jwt_token_location": "headers",
       "sqlalchemy_track_modifications": false,
-      "version": "0.14.1"
+      "version": "0.14.1",
+      "dtool_lookup_server_plugin_scaffolding": {
+        "some_public_plugin_specific_setting": "public",
+        "version": "0.1.2"
+      }
     }
 
-See ``dtool_lookup_server.config.Config`` for more information.
+If any dtool server plugins are installed,  their configuration is embedded 
+in thesponse as shown for the dummy ``dtool_lookup_server_plugin_scaffolding``
+plugin above. See ``dtool_lookup_server.config.Config`` and 
+``dtool_lookup_server.utils.config_to_dict``for more information.
 
 
 Creating a plugin

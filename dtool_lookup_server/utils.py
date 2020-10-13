@@ -1,7 +1,9 @@
 """Utility functions."""
 
 from datetime import datetime, date
+import importlib
 import json
+from pkg_resources import iter_entry_points
 
 import yaml
 from sqlalchemy.sql import exists
@@ -132,7 +134,36 @@ def _dict_to_mongo_query(query_dict):
 
 def config_to_dict(username):
     # So far no check on privileges
-    return Config.to_dict()
+    core_config = Config.to_dict()
+    plugin_config = {}
+
+    # Iterate over all registered blueprints
+    # and get per-plugin configs if implemented.
+    # All plugins are expected to be top-level modules.
+    for ep in iter_entry_points("dtool_lookup_server.blueprints"):
+        module_name = ep.module_name.split(".")[0]
+        if module_name not in plugin_config:
+            try:
+                plugin_module = importlib.import_module(module_name)
+            except ImportError as exc:
+                # plugin import failed, this should not happen
+                plugin_config[module_name] = str(exc)
+                continue
+
+            try:
+                plugin_config[
+                    module_name] = plugin_module.config.Config.to_dict()
+            except AttributeError as exc:
+                # plugin did not implement config.Config.to_dict properly
+                plugin_config[module_name] = str(exc)
+                continue
+
+    # check for overlap between core config keys and plugin names
+    if len(set(core_config.keys()) & set(plugin_config.keys())) > 0:
+        raise ValueError(
+            "Plugin module names and core server config keys must not overlap.")
+
+    return {**core_config, **plugin_config}
 
 
 # TODO: this function should probably live in  dtoolcore along with a test.
