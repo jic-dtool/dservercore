@@ -42,6 +42,21 @@ DATASET_INFO_REQUIRED_KEYS = (
     "tags",
 )
 
+VALID_MONGO_QUERY_KEYS = (
+    "free_text",
+    "creator_usernames",
+    "base_uris",
+    "uuids",
+    "tags",
+)
+
+MONGO_QUERY_LIST_KEYS = (
+    "creator_usernames",
+    "base_uris",
+    "uuids",
+    "tags",
+)
+
 
 #############################################################################
 # Private helper functions.
@@ -62,14 +77,12 @@ def _get_base_uri_obj(base_uri):
 
 
 def _dict_to_mongo_query(query_dict):
-    valid_keys = ["free_text", "creator_usernames", "base_uris", "uuids", "tags"]
-    list_keys = ["creator_usernames", "base_uris", "uuids", "tags"]
 
     def _sanitise(query_dict):
         for key in list(query_dict.keys()):
-            if key not in valid_keys:
+            if key not in VALID_MONGO_QUERY_KEYS:
                 del query_dict[key]
-        for lk in list_keys:
+        for lk in MONGO_QUERY_LIST_KEYS:
             if lk in query_dict:
                 if len(query_dict[lk]) == 0:
                     del query_dict[lk]
