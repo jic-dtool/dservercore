@@ -19,10 +19,14 @@ Added
   https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin
   and
   https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding
-- Added /config route
+- Added /config route; see
+  https://github.com/jic-dtool/dtool-lookup-server/pull/6
 - Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of
-  UUIDs of interest to a query submitted to the /dataset/search route
-- Added dtool_lookup_server.utils.preprocess_query_base_uris helper function
+  UUIDs of interest to a query submitted to the /dataset/search route; see
+  https://github.com/jic-dtool/dtool-lookup-server/pull/8
+- Added dtool_lookup_server.utils.preprocess_query_base_uris helper function; see
+  https://github.com/jic-dtool/dtool-lookup-server/pull/7 and
+  https://github.com/jic-dtool/dtool-lookup-server/issues/10
 
 
 Changed
@@ -40,7 +44,11 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed defect in ``flask user token`` CLI command when using python3
+- Fixed timestamps returned form /dataset/search route; they are now returned
+  as floats rather than as strings; see
+  https://github.com/jic-dtool/dtool-lookup-server/issues/3
+- Fixed defect in ``flask user token`` CLI command when using python3; see
+  https://github.com/jic-dtool/dtool-lookup-server/pull/5
 
 
 Security
