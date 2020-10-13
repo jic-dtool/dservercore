@@ -382,6 +382,12 @@ def search_datasets_by_user(username, query):
         }
     )
     for ds in cx:
+
+        # Convert datetime object to float timestamp.
+        for key in ("created_at", "frozen_at"):
+            datetime_obj = ds[key]
+            ds[key] = dtoolcore.utils.timestamp(datetime_obj)
+
         datasets.append(ds)
     return datasets
 

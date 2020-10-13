@@ -74,7 +74,13 @@ def test_dataset_list_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 200
 
-    assert len(json.loads(r.data.decode("utf-8"))) == 3
+    hits = json.loads(r.data.decode("utf-8"))
+    assert len(hits) == 3
+
+    # Make sure that timestamps are returned as float.
+    first_entry = hits[0]
+    assert isinstance(first_entry["created_at"], float)
+    assert isinstance(first_entry["frozen_at"], float)
 
     r = tmp_app_with_data.get(
         "/dataset/list",
@@ -102,7 +108,13 @@ def test_dataset_search_route(tmp_app_with_data):  # NOQA
     )
     assert r.status_code == 200
 
+    hits = json.loads(r.data.decode("utf-8"))
     assert len(json.loads(r.data.decode("utf-8"))) == 3
+
+    # Make sure that timestamps are returned as float.
+    first_entry = hits[0]
+    assert isinstance(first_entry["created_at"], float)
+    assert isinstance(first_entry["frozen_at"], float)
 
     r = tmp_app_with_data.post(
         "/dataset/search",
