@@ -87,17 +87,17 @@ def _dict_to_mongo_query(query_dict):
                 if len(query_dict[lk]) == 0:
                     del query_dict[lk]
 
-    def _deal_with_possible_or_statment(l, key):
-        if len(l) == 1:
-            return {key: l[0]}
+    def _deal_with_possible_or_statment(a_list, key):
+        if len(a_list) == 1:
+            return {key: a_list[0]}
         else:
-            return {"$or": [{key: v} for v in l]}
+            return {"$or": [{key: v} for v in a_list]}
 
-    def _deal_with_possible_and_statement(l, key):
-        if len(l) == 1:
-            return {key: l[0]}
+    def _deal_with_possible_and_statement(a_list, key):
+        if len(a_list) == 1:
+            return {key: a_list[0]}
         else:
-            return {key: {"$all": l}}
+            return {key: {"$all": a_list}}
 
     _sanitise(query_dict)
 
