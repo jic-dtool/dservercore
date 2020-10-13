@@ -690,10 +690,10 @@ lines of the below.
 
 Scaffold code for implementing a plugin, created by `Johannes L. Hörmann
 <https://github.com/jotelha>`_ can be found in
-`https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding
-<dtool-lookup-server-plugin-scaffolding>`_.
+`dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>
+`_.
 
 Examples of actual plugins include:
 
-- `https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin <dtool-lookup-server-dependency-graph-plugin>`_
-- `https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding <dtool-lookup-server-plugin-scaffolding>`_
+- `dtool-lookup-server-dependency-graph-plugin <https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin>`_
+- `dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_
