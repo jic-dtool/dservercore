@@ -8,7 +8,6 @@ def test_preprocess_query_base_uris(tmp_app_with_users):  # NOQA
     from dtool_lookup_server.utils import preprocess_query_base_uris
 
     grumpy_expected_query = {"base_uris": ["s3://snow-white"]}
-    snow_white_expected_query = {"base_uris": []}
 
     # Test that all allowed are added if "base_uris" key is missing.
     grumpy_actual_query = preprocess_query_base_uris(

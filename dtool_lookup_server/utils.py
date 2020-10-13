@@ -174,7 +174,8 @@ def config_to_dict(username):
     # check for overlap between core config keys and plugin names
     if len(set(core_config.keys()) & set(plugin_config.keys())) > 0:
         raise ValueError(
-            "Plugin module names and core server config keys must not overlap.")
+            "Plugin module names and core server config keys must not overlap."
+        )
 
     all_config = core_config
     if len(plugin_config) > 0:

@@ -2,7 +2,6 @@ from flask import (
     abort,
     Blueprint,
     jsonify,
-    request
 )
 from flask_jwt_extended import (
     jwt_required,
@@ -20,7 +19,10 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 @jwt_required
 def server_config():
     """Return the JSON-serialized server configuration."""
-    username = get_jwt_identity()  # NOTE: dummy, no authentication implemented here so far
+
+    # NOTE: dummy, no authentication implemented here so far.
+    username = get_jwt_identity()
+
     try:
         config = config_to_dict(username)
     except AuthenticationError:
