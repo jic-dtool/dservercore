@@ -146,7 +146,9 @@ def _dict_to_mongo_query(query_dict):
 #############################################################################
 
 def config_to_dict(username):
-    # So far no check on privileges
+    # Authenticate the user.
+    get_user_obj(username)
+
     core_config = Config.to_dict()
     plugin_config = {}
 
