@@ -688,7 +688,7 @@ lines of the below.
         }
     )
 
-Scaffold code for implementing a plugin, created by `Johannes L. Hörmann
+Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
 <https://github.com/jotelha>`_ can be found in
 `dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>
 `_.
