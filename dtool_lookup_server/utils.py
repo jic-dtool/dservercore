@@ -326,6 +326,15 @@ def _preprocess_privileges(username, query):
     return query
 
 
+def preprocess_query_base_uris(username, query):
+    """Return query with appropriate base URIs.
+
+    If no base URIs are in the query add all the allowed ones.
+    If base URIs are provided only include the ones allowed.
+    """
+    return _preprocess_privileges(username, query)
+
+
 def search_datasets_by_user(username, query):
     """Search the datasets the user has access to.
 
@@ -341,7 +350,7 @@ def search_datasets_by_user(username, query):
     :raises: AuthenticationError if user is invalid.
     """
 
-    query = _preprocess_privileges(username, query)
+    query = preprocess_query_base_uris(username, query)
     # If there are no base URIs at this point it means that the user is not
     # allowed to search for anything.
     if len(query["base_uris"]) == 0:
