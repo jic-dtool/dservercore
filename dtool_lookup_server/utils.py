@@ -163,7 +163,10 @@ def config_to_dict(username):
         raise ValueError(
             "Plugin module names and core server config keys must not overlap.")
 
-    return {**core_config, **plugin_config}
+    all_config = core_config
+    if len(plugin_config) > 0:
+        all_config.update(plugin_config)
+    return all_config
 
 
 # TODO: this function should probably live in  dtoolcore along with a test.
