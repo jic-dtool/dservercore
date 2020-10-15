@@ -7,6 +7,35 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+
+Added
+^^^^^
+
+
+Changed
+^^^^^^^
+
+
+Deprecated
+^^^^^^^^^^
+
+
+Removed
+^^^^^^^
+
+
+Fixed
+^^^^^
+
+
+
+Security
+^^^^^^^^
+
+
+[0.15.0] - 2020-10-15
+---------------------
+
 This release makes it possible to create plugins to the dtool-lookup-server!
 
 Many thanks to `Johannes L. Hörmann <https://github.com/jotelha>`_ and `Lars
@@ -32,19 +61,6 @@ Added
   https://github.com/jic-dtool/dtool-lookup-server/pull/7 and
   https://github.com/jic-dtool/dtool-lookup-server/issues/10
 
-
-Changed
-^^^^^^^
-
-
-Deprecated
-^^^^^^^^^^
-
-
-Removed
-^^^^^^^
-
-
 Fixed
 ^^^^^
 
@@ -53,10 +69,6 @@ Fixed
   https://github.com/jic-dtool/dtool-lookup-server/issues/3
 - Fixed defect in ``flask user token`` CLI command when using python3; see
   https://github.com/jic-dtool/dtool-lookup-server/pull/5
-
-
-Security
-^^^^^^^^
 
 
 [0.14.1] - 2020-04-02
