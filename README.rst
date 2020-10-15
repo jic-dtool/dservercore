@@ -690,8 +690,7 @@ lines of the below.
 
 Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
 <https://github.com/jotelha>`_ can be found in
-`dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>
-`_.
+`dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_.
 
 Examples of actual plugins include:
 
