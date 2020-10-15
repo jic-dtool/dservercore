@@ -632,9 +632,9 @@ will return the current server configuration with all keys in lowercase, i.e.::
     }
 
 If any dtool server plugins are installed,  their configuration is embedded 
-in thesponse as shown for the dummy ``dtool_lookup_server_plugin_scaffolding``
+in the response as shown for the dummy ``dtool_lookup_server_plugin_scaffolding``
 plugin above. See ``dtool_lookup_server.config.Config`` and 
-``dtool_lookup_server.utils.config_to_dict``for more information.
+``dtool_lookup_server.utils.config_to_dict`` for more information.
 
 
 Creating a plugin
