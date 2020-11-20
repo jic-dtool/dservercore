@@ -8,6 +8,8 @@ from pkg_resources import iter_entry_points
 import yaml
 from sqlalchemy.sql import exists
 
+import pymongo.errors
+
 from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 import dtoolcore.utils
 
@@ -655,9 +657,18 @@ def register_dataset(dataset_info):
             "Base URI is not registered: {}".format(base_uri)
         ))
 
+    try:
+        # Take a copy as register_dataset_descriptive_metadata makes
+        # changes to the dictionary, in particular it changes the
+        # types of the dates to datetime objects.
+        register_dataset_descriptive_metadata(dataset_info.copy())
+    except pymongo.errors.DocumentTooLarge as e:
+        raise(ValidationError(
+            "Dataset has too much metadata: {}".format(e)
+        ))
+
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)
-    register_dataset_descriptive_metadata(dataset_info)
 
     return dataset_info["uri"]
 

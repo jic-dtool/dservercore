@@ -13,6 +13,7 @@ from flask_jwt_extended import create_access_token
 import yaml.parser
 import yaml.scanner
 
+import dtool_lookup_server
 import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
     base_uri_exists,
@@ -209,7 +210,16 @@ def index_base_uri(base_uri):
             click.echo(message)
             continue
 
-        r = register_dataset(dataset_info)
+        try:
+            r = register_dataset(dataset_info)
+        except dtool_lookup_server.ValidationError as message:
+            click.secho(
+                "Failed to register: {} {}".format(dataset.name, dataset.uri),
+                fg="red"
+            )
+            click.echo(message)
+            continue
+
         click.secho("Registered: {}".format(r), fg="green")
 
 
