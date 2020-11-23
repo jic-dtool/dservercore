@@ -15,8 +15,6 @@ Added
 Changed
 ^^^^^^^
 
-- Moved ``iter_datasets_in_base_uri`` from ``dtool_lookup_server.utils`` to ``dtoolcore``
-
 
 Deprecated
 ^^^^^^^^^^
@@ -29,16 +27,28 @@ Removed
 Fixed
 ^^^^^
 
+
+Security
+^^^^^^^^
+
+
+[0.16.0] - 2020-11-23
+---------------------
+
+Changed
+^^^^^^^
+
+- Moved ``iter_datasets_in_base_uri`` from ``dtool_lookup_server.utils`` to ``dtoolcore``
+
+Fixed
+^^^^^
+
 - Fixed issues registering datasets with "too much" metadata, resulting in datasets
   information JSON documents that were too large for the mongo database. These datasets
   are now ignored. See
   `issue 16 <https://github.com/jic-dtool/dtool-lookup-server/issues/16>`_
   for more information:
 
-
-
-Security
-^^^^^^^^
 
 
 [0.15.0] - 2020-10-15
