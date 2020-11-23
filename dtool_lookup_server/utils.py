@@ -10,7 +10,6 @@ from sqlalchemy.sql import exists
 
 import pymongo.errors
 
-from dtoolcore.utils import DEFAULT_CONFIG_PATH as CONFIG_PATH
 import dtoolcore.utils
 
 from dtool_lookup_server import (
