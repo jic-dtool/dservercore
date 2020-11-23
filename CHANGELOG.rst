@@ -27,6 +27,12 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed issues registering datasets with "too much" metadata, resulting in datasets
+  information JSON documents that were too large for the mongo database. These datasets
+  are now ignored. See
+  `issue 16 <https://github.com/jic-dtool/dtool-lookup-server/issues/16>`_
+  for more information:
+
 
 
 Security
