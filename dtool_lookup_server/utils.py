@@ -187,19 +187,6 @@ def config_to_dict(username):
     return all_config
 
 
-# TODO: this function should probably live in  dtoolcore along with a test.
-def iter_datasets_in_base_uri(base_uri):
-    """Yield frozen datasets in a base URI."""
-    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
-    StorageBroker = dtoolcore._get_storage_broker(base_uri, CONFIG_PATH)
-    for uri in StorageBroker.list_dataset_uris(base_uri, CONFIG_PATH):
-        try:
-            dataset = dtoolcore.DataSet.from_uri(uri)
-            yield dataset
-        except dtoolcore.DtoolCoreTypeError:
-            pass
-
-
 def generate_dataset_info(dataset, base_uri):
     """Return dictionary with dataset info."""
     dataset_info = dataset._admin_metadata

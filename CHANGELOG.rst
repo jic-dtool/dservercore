@@ -15,6 +15,8 @@ Added
 Changed
 ^^^^^^^
 
+- Moved ``iter_datasets_in_base_uri`` from ``dtool_lookup_server.utils`` to ``dtoolcore``
+
 
 Deprecated
 ^^^^^^^^^^

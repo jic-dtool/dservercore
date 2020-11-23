@@ -13,6 +13,7 @@ from flask_jwt_extended import create_access_token
 import yaml.parser
 import yaml.scanner
 
+from dtoolcore import iter_datasets_in_base_uri
 import dtool_lookup_server
 import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
@@ -23,7 +24,6 @@ from dtool_lookup_server.utils import (
     get_permission_info,
     update_permissions,
     register_dataset,
-    iter_datasets_in_base_uri,
     generate_dataset_info,
 )
 
