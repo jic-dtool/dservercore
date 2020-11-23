@@ -53,7 +53,7 @@ The dtool-lookup-server is consumed by the `dtool-lookup-client
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dtool-lookup-server have also been
 created, notably the `IMTEK-Simulation/dtool-lookup-gui
-<https://github.com/IMTEK-Simulation/dtool-lookup-gui>`_
+<https://github.com/IMTEK-Simulation/dtool-lookup-gui>`_.
 
 
 Installation
