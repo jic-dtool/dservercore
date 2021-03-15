@@ -21,6 +21,7 @@ from dtool_lookup_server.utils import (
     user_exists,
     delete_users,
     register_users,
+    update_users,
     register_base_uri,
     get_permission_info,
     update_permissions,
@@ -53,6 +54,27 @@ def register_user(username, is_admin):
         "is_admin": is_admin
     }]
     register_users(users)
+
+
+@user_cli.command(name="update")
+@click.argument('username')
+@click.option('-a', '--is_admin', is_flag=True)
+def update_user(username, is_admin):
+    """Update a user in the dtool lookup server."""
+
+    if not user_exists(username):
+        click.secho(
+            "User '{}' is not registered yet".format(username),
+            fg="red",
+            err=True
+        )
+        sys.exit(1)
+
+    users = [{
+        "username": username,
+        "is_admin": is_admin
+    }]
+    update_users(users)
 
 
 @user_cli.command(name="delete")

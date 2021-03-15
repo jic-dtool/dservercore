@@ -13,7 +13,9 @@ Added
 ^^^^^
 
 - Added ``flask user delete`` CLI command
+- Added ``flask user update`` CLI command
 - Added ``dtool_lookup_server.utils.delete_users`` helper function
+- Added ``dtool_lookup_server.utils.update_users`` helper function
 
 
 Changed

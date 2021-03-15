@@ -262,6 +262,18 @@ The command below can be used to delete a user::
     $ flask user delete overlord
 
 
+Adding and removing admin privileges from an existing user
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The command below can be used to give an existing user admin privileges::
+
+    $ flask user update --is_admin olssont
+
+The command below can be used to remove admin privileges from an existing user::
+
+    $ flask user update olssont
+
+
 The dtool lookup server API
 ---------------------------
 

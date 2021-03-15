@@ -249,8 +249,8 @@ def register_users(users):
         ]
 
     If a user is already registered in the system it is skipped. To change the
-    ``is_admin`` status of an existing user use the
-    :func:`dtool_lookup_server.utils.set_user_is_admin`` function.
+    ``is_admin`` status of an existing user use the :func:`.update_users``
+    function. The ``is_admin`` status defaults to False.
     """
 
     for user in users:
@@ -299,6 +299,31 @@ def delete_users(users):
 
         for sqlalch_user_obj in sql_db.session.query(User).filter_by(username=username).all():  # NOQA
             sql_db.session.delete(sqlalch_user_obj)
+
+    sql_db.session.commit()
+
+
+def update_users(users):
+    """Update a list of users in the system.
+
+    Example input structure::
+
+        [
+            {"username": "magic.mirror", "is_admin": True},
+            {"username": "snow.white", "is_admin": False},
+            {"username": "dopey"},
+            {"username": "sleepy"},
+        ]
+
+    If a user is missing in the system it is skipped. The ``is_admin`` status
+    defaults to False.
+    """
+    for user in users:
+        username = user["username"]
+        is_admin = user.get("is_admin", False)
+
+        for sqlalch_user_obj in sql_db.session.query(User).filter_by(username=username).all():  # NOQA
+            sqlalch_user_obj.is_admin = is_admin
 
     sql_db.session.commit()
 
