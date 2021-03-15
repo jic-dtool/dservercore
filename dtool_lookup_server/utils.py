@@ -277,6 +277,32 @@ def list_users():
     return users
 
 
+def delete_users(users):
+    """Delete a list of users in the system.
+
+    Example input structure::
+
+        [
+            {"username": "magic.mirror", "is_admin": True},
+            {"username": "snow.white", "is_admin": False},
+            {"username": "dopey"},
+            {"username": "sleepy"},
+        ]
+
+    If a user is missing in the system it is skipped.  Only the "username" key
+    is used to identify a user, any other keys, such as "is_admin", are
+    ignored.  The list of dictionary input argument is used to be consistent
+    with the :func:`.list_users`` and the :func:`register_users` functions.
+    """
+    for user in users:
+        username = user["username"]
+
+        for sqlalch_user_obj in sql_db.session.query(User).filter_by(username=username).all():  # NOQA
+            sql_db.session.delete(sqlalch_user_obj)
+
+    sql_db.session.commit()
+
+
 def get_user_info(username):
     """Return information about a user as a dictionary.
 

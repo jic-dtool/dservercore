@@ -222,7 +222,7 @@ Generating a JSON Web Token for a registered user
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The command below can be used to generate a token for a user to authenticate
-with when using the web API.
+with when using the web API::
 
     $ flask user token olssont
     eyJhbGciOiJSUzI1NiIsInR5... (truncated)
@@ -252,6 +252,14 @@ The command below lists the users registered in the dtool lookup server::
         "search_permissions_on_base_uris": []
       }
     ]
+
+
+Deleting a user
+^^^^^^^^^^^^^^^
+
+The command below can be used to delete a user::
+
+    $ flask user delete overlord
 
 
 The dtool lookup server API

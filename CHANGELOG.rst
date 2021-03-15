@@ -7,9 +7,13 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+Improved user management.
 
 Added
 ^^^^^
+
+- Added ``flask user delete`` CLI command
+- Added ``dtool_lookup_server.utils.delete_users`` helper function
 
 
 Changed

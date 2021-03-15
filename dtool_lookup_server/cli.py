@@ -19,6 +19,7 @@ import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
     base_uri_exists,
     user_exists,
+    delete_users,
     register_users,
     register_base_uri,
     get_permission_info,
@@ -52,6 +53,16 @@ def register_user(username, is_admin):
         "is_admin": is_admin
     }]
     register_users(users)
+
+
+@user_cli.command(name="delete")
+@click.argument('username')
+def delete_user(username):
+    """Delete a user in the dtool lookup server."""
+    users = [{
+        "username": username,
+    }]
+    delete_users(users)
 
 
 @user_cli.command(name="list")

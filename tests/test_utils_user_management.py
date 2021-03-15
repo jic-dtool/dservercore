@@ -95,3 +95,38 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         },
     ]
     assert list_users() == expected_content
+
+    # Test deleting a user
+    from dtool_lookup_server.utils import delete_users
+
+    users_to_delete = [
+        {
+            "username": standard_user_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": new_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+    ]
+    delete_users(users_to_delete)
+
+    expected_content = [
+        {
+            "username": admin_username,
+            "is_admin": True,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+        {
+            "username": data_champion_username,
+            "is_admin": False,
+            "search_permissions_on_base_uris": [],
+            "register_permissions_on_base_uris": []
+        },
+    ]
+    assert list_users() == expected_content
