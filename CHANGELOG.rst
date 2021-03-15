@@ -7,15 +7,8 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
-Improved user management.
-
 Added
 ^^^^^
-
-- Added ``flask user delete`` CLI command
-- Added ``flask user update`` CLI command
-- Added ``dtool_lookup_server.utils.delete_users`` helper function
-- Added ``dtool_lookup_server.utils.update_users`` helper function
 
 
 Changed
@@ -36,6 +29,20 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.17.0] - 2021-03-15
+---------------------
+
+Improved user management.
+
+Added
+^^^^^
+
+- Added ``flask user delete`` CLI command
+- Added ``flask user update`` CLI command
+- Added ``dtool_lookup_server.utils.delete_users`` helper function
+- Added ``dtool_lookup_server.utils.update_users`` helper function
 
 
 [0.16.0] - 2020-11-23
