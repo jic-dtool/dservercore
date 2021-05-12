@@ -26,12 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed version of flask-jwt-extended to be less than 4 to fix
-  https://github.com/jic-dtool/dtool-lookup-server/issues/19
-
 
 Security
 ^^^^^^^^
+
+
+[0.17.1] - 2021-05-12
+---------------------
+
+Fixed
+^^^^^
+
+- Fixed version of flask-jwt-extended to be less than 4 to fix
+  https://github.com/jic-dtool/dtool-lookup-server/issues/19
 
 
 [0.17.0] - 2021-03-15
