@@ -22,7 +22,9 @@ setup(
         ],
     },
     install_requires=[
-        "Flask",
+        "flask<2.0",
+        "pymongo",
+        "alembic",
         "flask-sqlalchemy",
         "flask-migrate",
         "flask-pymongo",
