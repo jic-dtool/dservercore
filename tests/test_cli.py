@@ -2,6 +2,8 @@
 
 import json
 
+from operator import itemgetter
+
 from . import tmp_cli_runner  # NOQA
 
 
@@ -100,14 +102,16 @@ def test_cli_list_base_uri(tmp_cli_runner):  # NOQA
     result = tmp_cli_runner.invoke(list_base_uris, [])
     assert result.exit_code == 0
 
-    expected_content = [
+    expected_content = sorted([
         {
             "base_uri": uri,
             "users_with_search_permissions": [],
             "users_with_register_permissions": []
         } for uri in base_uris
-    ]
-    assert json.loads(result.output) == expected_content
+    ], itemgetter("base_uri"))
+
+    actual = sorted(json.loads(result.output), itemgetter("base_uri"))
+    assert actual == expected_content
 
 
 def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
