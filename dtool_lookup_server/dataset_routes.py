@@ -168,7 +168,7 @@ def readme():
 
 
 @bp.route("/annotations", methods=["POST"])
-@jwt_required
+@jwt_required()
 def annotations():
     """Request the dataset annotations."""
     username = get_jwt_identity()
