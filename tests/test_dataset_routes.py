@@ -5,7 +5,6 @@ import json
 from . import tmp_app, tmp_app_with_data, tmp_app_with_users  # NOQA
 
 from . import (
-    snowwhite_token,
     grumpy_token,
     sleepy_token,
     dopey_token,
