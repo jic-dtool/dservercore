@@ -35,7 +35,7 @@ bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 
 
 @bp.route("/summary", methods=["GET"])
-@jwt_required
+@jwt_required()
 def summary_of_datasets():
     """List the dataset a user has access to."""
     username = get_jwt_identity()
@@ -47,7 +47,7 @@ def summary_of_datasets():
 
 
 @bp.route("/list", methods=["GET"])
-@jwt_required
+@jwt_required()
 def list_datasets():
     """List the dataset a user has access to."""
     username = get_jwt_identity()
@@ -59,7 +59,7 @@ def list_datasets():
 
 
 @bp.route("/lookup/<uuid>", methods=["GET"])
-@jwt_required
+@jwt_required()
 def lookup_datasets(uuid):
     """List the dataset a user has access to."""
     username = get_jwt_identity()
@@ -71,7 +71,7 @@ def lookup_datasets(uuid):
 
 
 @bp.route("/search", methods=["POST"])
-@jwt_required
+@jwt_required()
 def search_datasets():
     """List the dataset a user has access to."""
     username = get_jwt_identity()
@@ -84,7 +84,7 @@ def search_datasets():
 
 
 @bp.route("/register", methods=["POST"])
-@jwt_required
+@jwt_required()
 def register():
     """Register a dataset. The user needs to have register permissions."""
     username = get_jwt_identity()
@@ -112,7 +112,7 @@ def register():
 
 
 @bp.route("/manifest", methods=["POST"])
-@jwt_required
+@jwt_required()
 def manifest():
     """Request the dataset manifest."""
     username = get_jwt_identity()
@@ -140,7 +140,7 @@ def manifest():
 
 
 @bp.route("/readme", methods=["POST"])
-@jwt_required
+@jwt_required()
 def readme():
     """Request the dataset readme."""
     username = get_jwt_identity()

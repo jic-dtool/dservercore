@@ -16,7 +16,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 
 @bp.route("/info", methods=["POST"])
-@jwt_required
+@jwt_required()
 def permission_info():
     """Get information about the permissions on a base URI.
 
@@ -41,7 +41,7 @@ def permission_info():
 
 
 @bp.route("/update_on_base_uri", methods=["POST"])
-@jwt_required
+@jwt_required()
 def update_on_base_uri():
     """Update the permissions on a base URI.
 

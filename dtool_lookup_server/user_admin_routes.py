@@ -21,7 +21,7 @@ bp = Blueprint("user_admin", __name__, url_prefix="/admin/user")
 
 
 @bp.route("/register", methods=["POST"])
-@jwt_required
+@jwt_required()
 def register():
     """Register a user in the dtool lookup server.
 
@@ -53,7 +53,7 @@ def register():
 
 
 @bp.route("/list", methods=["GET"])
-@jwt_required
+@jwt_required()
 def list_users():
     """List the users in the dtool lookup server.
 

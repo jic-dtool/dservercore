@@ -13,7 +13,7 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 
 
 @bp.route("/info/<username>", methods=["GET"])
-@jwt_required
+@jwt_required()
 def get_user_info(username):
     """Return a users information.
 

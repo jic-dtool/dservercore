@@ -22,7 +22,7 @@ bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
-@jwt_required
+@jwt_required()
 def register():
     """Register a base URI.
 
@@ -53,7 +53,7 @@ def register():
 
 
 @bp.route("/list", methods=["GET"])
-@jwt_required
+@jwt_required()
 def base_uri_list():
     """Register a base URI.
 
