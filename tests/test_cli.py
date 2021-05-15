@@ -108,9 +108,9 @@ def test_cli_list_base_uri(tmp_cli_runner):  # NOQA
             "users_with_search_permissions": [],
             "users_with_register_permissions": []
         } for uri in base_uris
-    ], itemgetter("base_uri"))
+    ], key=itemgetter("base_uri"))
 
-    actual = sorted(json.loads(result.output), itemgetter("base_uri"))
+    actual = sorted(json.loads(result.output), key=itemgetter("base_uri"))
     assert actual == expected_content
 
 
