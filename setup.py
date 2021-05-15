@@ -33,7 +33,7 @@ setup(
         "dtool_irods",
         "dtool_s3",
         "dtool_ecs",
-        "flask-jwt-extended[asymmetric_crypto]<4.0",
+        "flask-jwt-extended[asymmetric_crypto]>=4.0",
         "pyyaml",
     ],
     download_url="{}/tarball/{}".format(url, version),
