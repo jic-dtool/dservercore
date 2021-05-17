@@ -27,6 +27,10 @@ Fixed
 ^^^^^
 
 - Made code compatible with flask-jwt-extended version 4 API
+  https://github.com/jic-dtool/dtool-lookup-server/issues/19
+- Resolve SQLAlchemy warnings about conflicting relationships
+  https://github.com/jic-dtool/dtool-lookup-server/issues/20
+- Resolve SQLAlchemy warning about cartesian product
 
 
 Security
