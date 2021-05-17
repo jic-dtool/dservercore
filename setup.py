@@ -12,7 +12,7 @@ setup(
     package_data={"dtool_lookup_server": ["templates/*"]},
     include_package_data=True,
     author="Tjelvar Olsson",
-    author_email="tjelvar.olsson@jic.ac.uk",
+    author_email="tjelvar.olsson@gmail.com",
     version=version,
     url=url,
     entry_points={
