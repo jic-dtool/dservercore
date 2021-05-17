@@ -485,13 +485,14 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
     user = get_user_obj(username)
 
     datasets = []
-    query = sql_db.session.query(Dataset, BaseURI, User)  \
+    query = sql_db.session.query(Dataset, User)  \
+        .join(User.search_base_uris)  \
         .filter(Dataset.uuid == uuid)  \
         .filter(User.username == username)  \
         .filter(BaseURI.id == Dataset.base_uri_id)  \
-        .filter(User.search_base_uris.any(BaseURI.id == Dataset.base_uri_id)) \
         .all()
-    for ds, base_uri, user in query:
+
+    for ds, user in query:
         datasets.append(ds.as_dict())
 
     return datasets
