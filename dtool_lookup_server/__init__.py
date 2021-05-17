@@ -11,7 +11,7 @@ import pymongo
 
 from dtool_lookup_server.config import Config
 
-__version__ = "0.17.1"
+__version__ = "0.17.2"
 
 MONGO_COLLECTION = "datasets"
 
