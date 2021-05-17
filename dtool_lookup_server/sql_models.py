@@ -42,10 +42,12 @@ class User(db.Model):
     search_base_uris = db.relationship(
         "BaseURI",
         secondary=search_permissions,
+        back_populates="search_users"
     )
     register_base_uris = db.relationship(
         "BaseURI",
         secondary=register_permissions,
+        back_populates="register_users"
     )
 
     def __repr__(self):
@@ -73,10 +75,12 @@ class BaseURI(db.Model):
     search_users = db.relationship(
         "User",
         secondary=search_permissions,
+        back_populates="search_base_uris"
     )
     register_users = db.relationship(
         "User",
         secondary=register_permissions,
+        back_populates="register_base_uris"
     )
     datasets = db.relationship("Dataset", back_populates="base_uri")
 
