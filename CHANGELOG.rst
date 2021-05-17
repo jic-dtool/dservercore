@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Made code compatible with flask-jwt-extended version 4 API
+
 
 Security
 ^^^^^^^^
