@@ -216,6 +216,11 @@ def generate_dataset_info(dataset, base_uri):
     dataset_info_json_str = json.dumps(dataset_info, default=_json_serial)
     dataset_info = json.loads(dataset_info_json_str)
 
+    # Compute size of dataset
+    dataset_info["size_in_bytes"] = \
+        sum([dataset.item_properties(i)["size_in_bytes"]
+             for i in dataset.identifiers])
+
     return dataset_info
 
 
@@ -619,6 +624,11 @@ def register_dataset_admin_metadata(admin_metadata):
     frozen_at = _extract_frozen_at_as_datatime(admin_metadata)
     created_at = _extract_created_at_as_datetime(admin_metadata)
 
+    try:
+        size_in_bytes = admin_metadata["size_in_bytes"]
+    except KeyError:
+        size_in_bytes = None
+
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
@@ -626,7 +636,8 @@ def register_dataset_admin_metadata(admin_metadata):
         name=admin_metadata["name"],
         creator_username=admin_metadata["creator_username"],
         frozen_at=frozen_at,
-        created_at=created_at
+        created_at=created_at,
+        size_in_bytes=size_in_bytes,
     )
     sql_db.session.add(dataset)
     sql_db.session.commit()
