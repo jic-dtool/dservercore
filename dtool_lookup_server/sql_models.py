@@ -130,5 +130,5 @@ class Dataset(db.Model):
             "creator_username": self.creator_username,
             "frozen_at": dtoolcore.utils.timestamp(self.frozen_at),
             "created_at": dtoolcore.utils.timestamp(self.created_at),
-            "size_in_bytes": self.size,
+            "size_in_bytes": self.size_in_bytes,
         }
