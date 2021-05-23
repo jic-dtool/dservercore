@@ -115,7 +115,7 @@ class Dataset(db.Model):
     creator_username = db.Column(db.String(255), index=True, nullable=False)
     frozen_at = db.Column(db.DateTime(), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
-    size_in_bytes = db.Column(db.Integer)
+    size_in_bytes = db.Column(db.BigInteger)
 
     def __repr__(self):
         return '<Dataset {}>'.format(self.uri)
