@@ -63,6 +63,7 @@ def create_app(test_config=None):
     jwt.init_app(app)
 
     from dtool_lookup_server import (
+        cli,
         config_routes,
         dataset_routes,
         user_routes,
@@ -76,6 +77,10 @@ def create_app(test_config=None):
     app.register_blueprint(base_uri_routes.bp)
     app.register_blueprint(user_admin_routes.bp)
     app.register_blueprint(permission_routes.bp)
+
+    # Register command-line interface commands
+    app.cli.add_command(cli.user_cli)
+    app.cli.add_command(cli.base_uri_cli)
 
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
