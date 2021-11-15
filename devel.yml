@@ -1,0 +1,98 @@
+version: '3'
+
+volumes:
+  postgres_data: {}
+  mongo_data: {}
+  minio_data: {}
+  cert_data: {}
+  key_data: {}
+
+services:
+  dtool_lookup_server:
+    build:
+      context: .
+      dockerfile: ./docker/dtool_lookup_server_devel/Dockerfile
+    image: local_dtool_lookup_server
+    depends_on:
+      postgres:
+        condition: service_started
+      mongo:
+        condition: service_started
+      minio:
+        condition: service_started
+      omgwtfssl:
+        condition: service_completed_successfully
+      minio-create-buckets:
+        condition: service_completed_successfully
+    volumes:
+      - .:/app
+      - cert_data:/certs
+      - key_data:/keys
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://admin:secret12@postgres:5432/dtool
+      - MONGO_URI=mongodb://mongo:27017/dtool_info
+      - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
+      - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
+      - SSL_CERT_FILE=/certs/dtool-lookup-server.crt
+      - SSL_KEY_FILE=/certs/dtool-lookup-server.key
+    ports:
+      - "5000:5000"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=dtool
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret12
+    ports:
+      - "5432:5432"
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_DATA_DIR=/data/db
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=secret12
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-create-buckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      - BUCKET_NAME=test-bucket
+      - ENDPOINT=http://minio:9000
+    entrypoint: >
+        /bin/sh -c "
+        /usr/bin/mc config host add minio http://minio:9000 admin secret12;
+        /usr/bin/mc mb minio/test-bucket;
+        /usr/bin/mc policy set public minio/test-bucket;
+        exit 0;
+        "
+
+  omgwtfssl:
+    image: paulczar/omgwtfssl
+    restart: "no"
+    volumes:
+      - cert_data:/certs
