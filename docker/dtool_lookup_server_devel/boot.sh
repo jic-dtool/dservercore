@@ -43,7 +43,8 @@ if [ ! -d migrations ]; then
     flask db init
 fi
 
-echo "-> Upgrading database..."
+echo "-> Migrating database..."
+flask db migrate
 flask db upgrade
 
 echo "-> Register base URI..."
