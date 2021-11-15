@@ -1,11 +1,12 @@
-FROM python:3.6-jessie
+FROM python:3.10-bullseye
 
 RUN adduser --disabled-password --gecos '' dtool_lookup_server
 
 RUN pip install -U pip  && \
     pip install gunicorn  && \
     pip install 'flask<2.0' pymongo alembic flask-sqlalchemy flask-migrate flask-pymongo flask-cors \
-        'dtoolcore>=3.18.0' dtool-cli dtool-info dtool-s3 'flask-jwt-extended[asymmetric_crypto]>=4.0' pyyaml && \
+        'dtoolcore>=3.18.0' dtool-cli dtool-info dtool-create dtool-s3 'flask-jwt-extended[asymmetric_crypto]>=4.0' \
+        pyyaml psycopg2 && \
     rm -rf /root/.cache/pip
 
 ENV FLASK_APP=dtool_lookup_server
@@ -19,6 +20,8 @@ WORKDIR /app
 
 COPY docker/dtool_lookup_server_devel/boot.sh /
 RUN chmod +x /boot.sh
+
+RUN mkdir /keys && chown dtool_lookup_server /keys
 
 USER dtool_lookup_server
 EXPOSE 5000
