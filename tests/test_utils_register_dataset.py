@@ -55,6 +55,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536236399.19497,
+        "number_of_items": 9876,
         "size_in_bytes": 5741810,
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
@@ -70,6 +71,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536236399.19497,
+        "number_of_items": 9876,
         "size_in_bytes": 5741810,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
@@ -128,6 +130,7 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         },
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
+        "number_of_items": 1232,
         "size_in_bytes": 5741810,
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
@@ -144,6 +147,7 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536238185.881941,
+        "number_of_items": 1232,
         "size_in_bytes": 5741810,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
@@ -217,6 +221,7 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQ
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536238185.881941,
+        "number_of_items": None,
         "size_in_bytes": None,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
