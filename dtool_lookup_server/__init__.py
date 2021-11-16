@@ -78,10 +78,6 @@ def create_app(test_config=None):
     app.register_blueprint(user_admin_routes.bp)
     app.register_blueprint(permission_routes.bp)
 
-    # Register command-line interface commands
-    app.cli.add_command(cli.user_cli)
-    app.cli.add_command(cli.base_uri_cli)
-
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()

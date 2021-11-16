@@ -17,6 +17,7 @@ RUN rm -Rf app/venv app/.idea app/.pytest_cache app/.git app/__pycache__
 COPY docker/dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
 
 WORKDIR /app
+RUN pip install -e .
 
 COPY docker/dtool_lookup_server_devel/boot.sh /
 RUN chmod +x /boot.sh
