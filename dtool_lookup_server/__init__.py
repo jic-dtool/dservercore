@@ -63,7 +63,6 @@ def create_app(test_config=None):
     jwt.init_app(app)
 
     from dtool_lookup_server import (
-        cli,
         config_routes,
         dataset_routes,
         user_routes,
