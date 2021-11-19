@@ -49,8 +49,19 @@ class Config(object):
     OPENAPI_REDOC_URL = 'https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'
     OPENAPI_SWAGGER_UI_PATH = '/swagger'
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    API_SPEC_OPTIONS = {'x-internal-id': '2'}
-
+    API_SPEC_OPTIONS = {
+        'x-internal-id': '2',
+        'security': [{"bearerAuth": []}],
+        'components': {
+            "securitySchemes": {
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT"
+                }
+            }
+        }
+    }
 
     @classmethod
     def to_dict(cls):
