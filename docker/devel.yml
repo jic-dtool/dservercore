@@ -11,7 +11,7 @@ services:
   dtool_lookup_server:
     build:
       context: .
-      dockerfile: ./docker/dtool_lookup_server_devel/Dockerfile
+      dockerfile: ./dtool_lookup_server_devel/Dockerfile
     image: local_dtool_lookup_server
     depends_on:
       postgres:
@@ -25,7 +25,7 @@ services:
       minio-create-buckets:
         condition: service_completed_successfully
     volumes:
-      - .:/app
+      - ..:/app
       - cert_data:/certs
       - key_data:/keys
     environment:

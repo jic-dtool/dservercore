@@ -11,15 +11,16 @@ RUN pip install -U pip  && \
 
 ENV FLASK_APP=dtool_lookup_server
 
-COPY --chown=dtool_lookup_server . /app
-RUN rm -Rf app/venv app/.idea app/.pytest_cache app/.git app/__pycache__
+#COPY --chown=dtool_lookup_server . /app
+#RUN rm -Rf app/venv app/.idea app/.pytest_cache app/.git app/__pycache__
 
-COPY docker/dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
+RUN mkdir /app && chown dtool_lookup_server /app
+
+COPY dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
 
 WORKDIR /app
-RUN pip install -e .
 
-COPY docker/dtool_lookup_server_devel/boot.sh /
+COPY dtool_lookup_server_devel/boot.sh  /
 RUN chmod +x /boot.sh
 
 RUN mkdir /keys && chown dtool_lookup_server /keys
