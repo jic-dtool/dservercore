@@ -4,6 +4,8 @@ from flask import Flask, request
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_marshmallow import Marshmallow
+from flask_smorest import Api
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
@@ -40,9 +42,9 @@ mongo = PyMongo()
 sql_db = SQLAlchemy()
 jwt = JWTManager()
 
-
 def create_app(test_config=None):
     app = Flask(__name__)
+
     CORS(app)
 
     if test_config is None:
@@ -62,6 +64,9 @@ def create_app(test_config=None):
 
     jwt.init_app(app)
 
+    Marshmallow(app)
+    api = Api(app)
+
     from dtool_lookup_server import (
         config_routes,
         dataset_routes,
@@ -70,17 +75,19 @@ def create_app(test_config=None):
         user_admin_routes,
         permission_routes,
     )
-    app.register_blueprint(config_routes.bp)
-    app.register_blueprint(dataset_routes.bp)
-    app.register_blueprint(user_routes.bp)
-    app.register_blueprint(base_uri_routes.bp)
-    app.register_blueprint(user_admin_routes.bp)
-    app.register_blueprint(permission_routes.bp)
+    api.register_blueprint(config_routes.bp)
+    api.register_blueprint(dataset_routes.bp)
+    api.register_blueprint(user_routes.bp)
+    api.register_blueprint(base_uri_routes.bp)
+    api.register_blueprint(user_admin_routes.bp)
+    api.register_blueprint(permission_routes.bp)
 
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()
-        app.register_blueprint(bp)
+        # TODO: Should plugins be forced to use smorest?
+        #  Or dynamically detect if they support smorest blueprints?
+        api.register_blueprint(bp)
 
     @app.before_request
     def log_request():

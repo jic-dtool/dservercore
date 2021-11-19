@@ -1,14 +1,16 @@
 from flask import (
     abort,
-    Blueprint,
     jsonify,
 )
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+from flask_smorest import Blueprint
+
 from dtool_lookup_server import AuthenticationError
 import dtool_lookup_server.utils
+
 bp = Blueprint("user", __name__, url_prefix="/user")
 
 
