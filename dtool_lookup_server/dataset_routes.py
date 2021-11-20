@@ -9,6 +9,12 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from flask_smorest import Blueprint
+from marshmallow import Schema
+from marshmallow.fields import (
+    String,
+    URL,
+    UUID
+)
 
 from dtool_lookup_server import (
     AuthenticationError,
@@ -31,8 +37,11 @@ from dtool_lookup_server.utils import (
     get_annotations_from_uri_by_user,
 )
 
-
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
+
+
+class UriSchema(Schema):
+    uri = URL()
 
 
 @bp.route("/summary", methods=["GET"])
@@ -72,6 +81,7 @@ def lookup_datasets(uuid):
 
 
 @bp.route("/search", methods=["POST"])
+@bp.arguments(UriSchema)
 @jwt_required()
 def search_datasets():
     """List the dataset a user has access to."""
@@ -84,7 +94,14 @@ def search_datasets():
     return jsonify(datasets)
 
 
+class RegisterDatasetSchema(Schema):
+    type = String()
+    uuid = UUID()
+    base_uri = URL()
+
+
 @bp.route("/register", methods=["POST"])
+@bp.arguments(RegisterDatasetSchema)
 @jwt_required()
 def register():
     """Register a dataset. The user needs to have register permissions."""
