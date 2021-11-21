@@ -5,7 +5,10 @@ from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
-from flask_smorest import Api
+from flask_smorest import (
+    Api,
+    Blueprint
+)
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
@@ -85,9 +88,8 @@ def create_app(test_config=None):
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()
-        # TODO: Should plugins be forced to use smorest?
-        #  Or dynamically detect if they support smorest blueprints?
-        api.register_blueprint(bp)
+        if isinstance(bp, Blueprint):
+            api.register_blueprint(bp)
 
     @app.before_request
     def log_request():
