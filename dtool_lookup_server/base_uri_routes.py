@@ -1,6 +1,5 @@
 from flask import (
     abort,
-    jsonify,
     request,
 )
 from flask_jwt_extended import (
@@ -53,9 +52,14 @@ def register():
     return "", 201
 
 
+from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
+
+
 @bp.route("/list", methods=["GET"])
+@bp.paginate()
+@bp.response(200, BaseURISchema(many=True))
 @jwt_required()
-def base_uri_list():
+def base_uri_list(pagination_parameters):
     """Register a base URI.
 
     The user needs to be admin. Returns 404 for non-admins.
@@ -70,4 +74,6 @@ def base_uri_list():
     if not user.is_admin:
         abort(404)
 
-    return jsonify(list_base_uris())
+    query = BaseURI.query.filter_by()
+    pagination_parameters.item_count = query.count()
+    return query.paginate(pagination_parameters.page, pagination_parameters.page_size, True).items

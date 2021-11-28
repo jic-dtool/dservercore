@@ -1,5 +1,5 @@
 import dtoolcore.utils
-
+from dtool_lookup_server import ma
 from dtool_lookup_server import sql_db as db
 
 search_permissions = db.Table(
@@ -130,3 +130,8 @@ class Dataset(db.Model):
             "frozen_at": dtoolcore.utils.timestamp(self.frozen_at),
             "created_at": dtoolcore.utils.timestamp(self.created_at),
         }
+
+
+class BaseURISchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = BaseURI

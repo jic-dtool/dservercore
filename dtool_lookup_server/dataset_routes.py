@@ -81,7 +81,7 @@ def lookup_datasets(uuid):
 
 
 @bp.route("/search", methods=["POST"])
-@bp.arguments(UriSchema)
+# @bp.arguments(UriSchema)
 @jwt_required()
 def search_datasets():
     """List the dataset a user has access to."""
@@ -101,7 +101,7 @@ class RegisterDatasetSchema(Schema):
 
 
 @bp.route("/register", methods=["POST"])
-@bp.arguments(RegisterDatasetSchema)
+# @bp.arguments(RegisterDatasetSchema)
 @jwt_required()
 def register():
     """Register a dataset. The user needs to have register permissions."""

@@ -1,3 +1,5 @@
+import sys
+
 from pkg_resources import iter_entry_points
 
 from flask import Flask, request
@@ -41,9 +43,11 @@ class UnknownURIError(KeyError):
     pass
 
 
-mongo = PyMongo()
 sql_db = SQLAlchemy()
 jwt = JWTManager()
+ma = Marshmallow()
+mongo = PyMongo()
+
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -64,10 +68,9 @@ def create_app(test_config=None):
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
-
+    ma.init_app(app)
     jwt.init_app(app)
 
-    Marshmallow(app)
     api = Api(app)
 
     from dtool_lookup_server import (
@@ -88,8 +91,11 @@ def create_app(test_config=None):
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()
-        if isinstance(bp, Blueprint):
-            api.register_blueprint(bp)
+        if not isinstance(bp, Blueprint):
+            print("Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint", file=sys.stderr)
+            sys.exit(1)
+        api.register_blueprint(bp)
+
 
     @app.before_request
     def log_request():
