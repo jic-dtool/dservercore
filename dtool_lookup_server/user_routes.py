@@ -17,11 +17,10 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 @bp.route("/info/<username>", methods=["GET"])
 @jwt_required()
 def get_user_info(username):
-    """Return a users information.
+    """Return a user's information.
 
     A user can see his/her own profile.
     An admin user can see other user's profiles.
-    A user who tries to see another user's profile gets a 404.
     """
     token_username = get_jwt_identity()
 

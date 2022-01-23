@@ -13,6 +13,7 @@ from dtool_lookup_server import (
     AuthenticationError,
 )
 import dtool_lookup_server.utils
+from dtool_lookup_server.schemas import RegisterUserSchema
 from dtool_lookup_server.utils import (
     get_user_obj,
     register_users,
@@ -22,12 +23,12 @@ bp = Blueprint("user_admin", __name__, url_prefix="/admin/user")
 
 
 @bp.route("/register", methods=["POST"])
+@bp.arguments(RegisterUserSchema(many=True, partial=True))
 @jwt_required()
-def register():
+def register(user: RegisterUserSchema):
     """Register a user in the dtool lookup server.
 
-    The user in the Authorization token needs to be admin. Returns 404 for
-    non-admins.
+    The user in the Authorization token needs to be admin.
     """
     username = get_jwt_identity()
     data = request.get_json()
@@ -42,9 +43,9 @@ def register():
     if not user.is_admin:
         abort(404)
 
-#   # Make it idempotent.
-#   if base_uri_exists(base_uri):
-#       return "", 201
+    #   # Make it idempotent.
+    #   if base_uri_exists(base_uri):
+    #       return "", 201
 
     # There should be some validation of the input here...
 
@@ -58,8 +59,7 @@ def register():
 def list_users():
     """List the users in the dtool lookup server.
 
-    The user in the Authorization token needs to be admin. Returns 404 for
-    non-admins.
+    The user in the Authorization token needs to be admin.
     """
     username = get_jwt_identity()
 

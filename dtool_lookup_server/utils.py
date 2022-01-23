@@ -63,6 +63,7 @@ MONGO_QUERY_LIST_KEYS = (
 # Private helper functions.
 #############################################################################
 
+
 def _json_serial(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
@@ -78,7 +79,6 @@ def _get_base_uri_obj(base_uri):
 
 
 def _dict_to_mongo_query(query_dict):
-
     def _sanitise(query_dict):
         for key in list(query_dict.keys()):
             if key not in VALID_MONGO_QUERY_KEYS:
@@ -108,30 +108,18 @@ def _dict_to_mongo_query(query_dict):
     if "creator_usernames" in query_dict:
         sub_queries.append(
             _deal_with_possible_or_statment(
-                query_dict["creator_usernames"],
-                "creator_username"
+                query_dict["creator_usernames"], "creator_username"
             )
         )
     if "base_uris" in query_dict:
         sub_queries.append(
-            _deal_with_possible_or_statment(
-                query_dict["base_uris"],
-                "base_uri"
-            )
+            _deal_with_possible_or_statment(query_dict["base_uris"], "base_uri")
         )
     if "uuids" in query_dict:
-        sub_queries.append(
-            _deal_with_possible_or_statment(
-                query_dict["uuids"],
-                "uuid"
-            )
-        )
+        sub_queries.append(_deal_with_possible_or_statment(query_dict["uuids"], "uuid"))
     if "tags" in query_dict:
         sub_queries.append(
-            _deal_with_possible_and_statement(
-                query_dict["tags"],
-                "tags"
-            )
+            _deal_with_possible_and_statement(query_dict["tags"], "tags")
         )
 
     if len(sub_queries) == 0:
@@ -145,6 +133,7 @@ def _dict_to_mongo_query(query_dict):
 #############################################################################
 # Generally useful dtool helper functions.
 #############################################################################
+
 
 def config_to_dict(username):
     # Authenticate the user.
@@ -167,8 +156,7 @@ def config_to_dict(username):
                 continue
 
             try:
-                plugin_config[
-                    module_name] = plugin_module.config.Config.to_dict()
+                plugin_config[module_name] = plugin_module.config.Config.to_dict()
             except AttributeError as exc:
                 # plugin did not implement config.Config.to_dict properly
                 plugin_config[module_name] = str(exc)
@@ -193,10 +181,7 @@ def generate_dataset_info(dataset, base_uri):
     dataset_info["base_uri"] = base_uri
 
     # Add the readme info.
-    readme_info = yaml.load(
-        dataset.get_readme_content(),
-        Loader=yaml.FullLoader
-    )
+    readme_info = yaml.load(dataset.get_readme_content(), Loader=yaml.FullLoader)
     dataset_info["readme"] = readme_info
 
     # Add the manifest.
@@ -223,6 +208,7 @@ def generate_dataset_info(dataset, base_uri):
 # User helper functions
 #############################################################################
 
+
 def user_exists(username):
     if _get_user_obj(username) is None:
         return False
@@ -232,7 +218,7 @@ def user_exists(username):
 def get_user_obj(username):
     user = _get_user_obj(username)
     if user is None:
-        raise(AuthenticationError())
+        raise (AuthenticationError())
     return user
 
 
@@ -258,9 +244,7 @@ def register_users(users):
         is_admin = user.get("is_admin", False)
 
         # Skip existing users.
-        if sql_db.session.query(
-            exists().where(User.username == username)
-        ).scalar():
+        if sql_db.session.query(exists().where(User.username == username)).scalar():
             continue
 
         user = User(username=username, is_admin=is_admin)
@@ -297,7 +281,9 @@ def delete_users(users):
     for user in users:
         username = user["username"]
 
-        for sqlalch_user_obj in sql_db.session.query(User).filter_by(username=username).all():  # NOQA
+        for sqlalch_user_obj in (
+            sql_db.session.query(User).filter_by(username=username).all()
+        ):  # NOQA
             sql_db.session.delete(sqlalch_user_obj)
 
     sql_db.session.commit()
@@ -322,7 +308,9 @@ def update_users(users):
         username = user["username"]
         is_admin = user.get("is_admin", False)
 
-        for sqlalch_user_obj in sql_db.session.query(User).filter_by(username=username).all():  # NOQA
+        for sqlalch_user_obj in (
+            sql_db.session.query(User).filter_by(username=username).all()
+        ):  # NOQA
             sqlalch_user_obj.is_admin = is_admin
 
     sql_db.session.commit()
@@ -344,6 +332,7 @@ def get_user_info(username):
 #############################################################################
 # Dataset list/search/lookup helper functions.
 #############################################################################
+
 
 def list_datasets_by_user(username):
     """List the datasets the user has access to.
@@ -372,10 +361,7 @@ def _preprocess_privileges(username, query):
     if "base_uris" not in query:
         query["base_uris"] = allowed_uris
     else:
-        selected_uris = [
-            str(bu) for bu in query["base_uris"]
-            if bu in allowed_uris
-        ]
+        selected_uris = [str(bu) for bu in query["base_uris"] if bu in allowed_uris]
         query["base_uris"] = selected_uris
 
     return query
@@ -420,7 +406,7 @@ def search_datasets_by_user(username, query):
             "readme": False,
             "manifest": False,
             "annotations": False,
-        }
+        },
     )
     for ds in cx:
 
@@ -485,12 +471,14 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
     user = get_user_obj(username)
 
     datasets = []
-    query = sql_db.session.query(Dataset, User)  \
-        .join(User.search_base_uris)  \
-        .filter(Dataset.uuid == uuid)  \
-        .filter(User.username == username)  \
-        .filter(BaseURI.id == Dataset.base_uri_id)  \
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(Dataset.uuid == uuid)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
         .all()
+    )
 
     for ds, user in query:
         datasets.append(ds.as_dict())
@@ -501,6 +489,7 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 #############################################################################
 # Base URI helper functions
 #############################################################################
+
 
 def base_uri_exists(base_uri):
     """Return True if the base URI has been registered."""
@@ -513,9 +502,7 @@ def get_base_uri_obj(base_uri):
     """Return SQLAlchemy BaseURI object."""
     base_uri_obj = _get_base_uri_obj(base_uri)
     if base_uri_obj is None:
-        raise(ValidationError(
-            "Base URI {} not registered".format(base_uri)
-        ))
+        raise (ValidationError("Base URI {} not registered".format(base_uri)))
     return base_uri_obj
 
 
@@ -538,6 +525,7 @@ def list_base_uris():
 #############################################################################
 # Permission helper functions
 #############################################################################
+
 
 def get_permission_info(base_uri_str):
     """Return the permissions of on a base URI as a dictionary."""
@@ -569,6 +557,7 @@ def update_permissions(permissions):
 #############################################################################
 # Register dataset helper functions
 #############################################################################
+
 
 def dataset_info_is_valid(dataset_info):
     """Return True if the dataset info is valid."""
@@ -626,7 +615,7 @@ def register_dataset_admin_metadata(admin_metadata):
         name=admin_metadata["name"],
         creator_username=admin_metadata["creator_username"],
         frozen_at=frozen_at,
-        created_at=created_at
+        created_at=created_at,
     )
     sql_db.session.add(dataset)
     sql_db.session.commit()
@@ -660,10 +649,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     dataset_info["frozen_at"] = frozen_at
     dataset_info["created_at"] = created_at
 
-    query = {
-        "uuid": dataset_info["uuid"],
-        "uri": dataset_info["uri"]
-    }
+    query = {"uuid": dataset_info["uuid"], "uri": dataset_info["uri"]}
 
     # If a record with the same UUID and URI exists return the uuid
     # without adding a duplicate record.
@@ -685,15 +671,11 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
 def register_dataset(dataset_info):
     """Register a dataset in the lookup server."""
     if not dataset_info_is_valid(dataset_info):
-        raise(ValidationError(
-            "Dataset info not valid: {}".format(dataset_info)
-        ))
+        raise (ValidationError("Dataset info not valid: {}".format(dataset_info)))
 
     base_uri = dataset_info["base_uri"]
     if not base_uri_exists(base_uri):
-        raise(ValidationError(
-            "Base URI is not registered: {}".format(base_uri)
-        ))
+        raise (ValidationError("Base URI is not registered: {}".format(base_uri)))
 
     try:
         # Take a copy as register_dataset_descriptive_metadata makes
@@ -701,9 +683,7 @@ def register_dataset(dataset_info):
         # types of the dates to datetime objects.
         register_dataset_descriptive_metadata(dataset_info.copy())
     except pymongo.errors.DocumentTooLarge as e:
-        raise(ValidationError(
-            "Dataset has too much metadata: {}".format(e)
-        ))
+        raise (ValidationError("Dataset has too much metadata: {}".format(e)))
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)
@@ -714,6 +694,7 @@ def register_dataset(dataset_info):
 #############################################################################
 # Dataset information retrieval helper functions.
 #############################################################################
+
 
 def get_admin_metadata_from_uri(uri):
     """Return the dataset SQL table row as dictionary."""
@@ -742,15 +723,15 @@ def get_readme_from_uri_by_user(username, uri):
     base_uri_str = uri.rsplit("/", 1)[0]
     base_uri = _get_base_uri_obj(base_uri_str)
     if base_uri is None:
-        raise(UnknownBaseURIError())
+        raise (UnknownBaseURIError())
 
     if base_uri not in user.search_base_uris:
-        raise(AuthorizationError())
+        raise (AuthorizationError())
 
     collection = mongo.db[MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
-        raise(UnknownURIError())
+        raise (UnknownURIError())
     return item["readme"]
 
 
@@ -771,15 +752,15 @@ def get_annotations_from_uri_by_user(username, uri):
     base_uri_str = uri.rsplit("/", 1)[0]
     base_uri = _get_base_uri_obj(base_uri_str)
     if base_uri is None:
-        raise(UnknownBaseURIError())
+        raise (UnknownBaseURIError())
 
     if base_uri not in user.search_base_uris:
-        raise(AuthorizationError())
+        raise (AuthorizationError())
 
     collection = mongo.db[MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
-        raise(UnknownURIError())
+        raise (UnknownURIError())
     return item["annotations"]
 
 
@@ -800,21 +781,20 @@ def get_manifest_from_uri_by_user(username, uri):
     base_uri_str = uri.rsplit("/", 1)[0]
     base_uri = _get_base_uri_obj(base_uri_str)
     if base_uri is None:
-        raise(UnknownBaseURIError())
+        raise (UnknownBaseURIError())
 
     if base_uri not in user.search_base_uris:
-        raise(AuthorizationError())
+        raise (AuthorizationError())
 
     collection = mongo.db[MONGO_COLLECTION]
     item = collection.find_one({"uri": uri})
     if item is None:
-        raise(UnknownURIError())
+        raise (UnknownURIError())
     return item["manifest"]
 
 
 def list_admin_metadata_in_base_uri(base_uri_str):
-    """Return list of dictionaries with admin metadata from dataset SQL table.
-    """
+    """Return list of dictionaries with admin metadata from dataset SQL table."""
     base_uri = get_base_uri_obj(base_uri_str)
 
     if base_uri is None:

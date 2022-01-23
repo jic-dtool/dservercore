@@ -267,7 +267,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
             }
         },
         "creator_username": "olssont",
-        "frozen_at": 1536238185.881941,
+        "frozen_at": "1536238185.881941",
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
     }
@@ -327,7 +327,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
             }
         },
         "creator_username": "olssont",
-        "frozen_at": 1536238185.881941,
+        "frozen_at": "1536238185.881941",
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
     }
@@ -367,7 +367,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "type": "dataset",
         "readme": {"description": "new metadata"},
         "creator_username": "olssont",
-        "frozen_at": 1536238185.881941,
+        "frozen_at": "1536238185.881941",
     }
     r = tmp_app_with_users.post(
         "/dataset/register",
@@ -408,7 +408,7 @@ def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  
             }
         },
         "creator_username": "olssont",
-        "frozen_at": 1536238185.881941,
+        "frozen_at": "1536238185.881941",
         "created_at": "1536238185.881941",
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
@@ -493,7 +493,7 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
 
     # Not authenticated, but in system.
     r = tmp_app_with_data.post(
-        "/dataset/search",
+        "/dataset/manifest",
         headers=dict(Authorization="Bearer " + dopey_token),
         data=json.dumps(query),
         content_type="application/json"
@@ -502,7 +502,7 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
 
     # Not authenticated, not in system.
     r = tmp_app_with_data.post(
-        "/dataset/search",
+        "/dataset/manifest",
         headers=dict(Authorization="Bearer " + noone_token),
         data=json.dumps(query),
         content_type="application/json"
@@ -546,7 +546,7 @@ def test_dataset_manifest_route(tmp_app_with_data):  # NOQA
         data=json.dumps(query),
         content_type="application/json"
     )
-    assert r.status_code == 400
+    assert r.status_code == 422
 
 
 def test_dataset_readme_route(tmp_app_with_data):  # NOQA

@@ -81,6 +81,7 @@ def create_app(test_config=None):
         user_admin_routes,
         permission_routes,
     )
+
     api.register_blueprint(config_routes.bp)
     api.register_blueprint(dataset_routes.bp)
     api.register_blueprint(user_routes.bp)
@@ -92,10 +93,12 @@ def create_app(test_config=None):
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()
         if not isinstance(bp, Blueprint):
-            print("Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint", file=sys.stderr)
+            print(
+                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",
+                file=sys.stderr,
+            )
             sys.exit(1)
         api.register_blueprint(bp)
-
 
     @app.before_request
     def log_request():

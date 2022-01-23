@@ -9,12 +9,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from flask_smorest import Blueprint
-from marshmallow import Schema
-from marshmallow.fields import (
-    String,
-    URL,
-    UUID
-)
 
 from dtool_lookup_server import (
     AuthenticationError,
@@ -22,6 +16,11 @@ from dtool_lookup_server import (
     UnknownBaseURIError,
     UnknownURIError,
     ValidationError,
+)
+from dtool_lookup_server.schemas import (
+    UriSchema,
+    RegisterDatasetSchema,
+    SearchDatasetSchema,
 )
 from dtool_lookup_server.utils import (
     dataset_info_is_valid,
@@ -40,14 +39,10 @@ from dtool_lookup_server.utils import (
 bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 
 
-class UriSchema(Schema):
-    uri = URL()
-
-
 @bp.route("/summary", methods=["GET"])
 @jwt_required()
 def summary_of_datasets():
-    """List the dataset a user has access to."""
+    """Global summary of the datasets a user has access to."""
     username = get_jwt_identity()
     try:
         summary = summary_of_datasets_by_user(username)
@@ -59,7 +54,7 @@ def summary_of_datasets():
 @bp.route("/list", methods=["GET"])
 @jwt_required()
 def list_datasets():
-    """List the dataset a user has access to."""
+    """List the datasets a user has access to."""
     username = get_jwt_identity()
     try:
         datasets = list_datasets_by_user(username)
@@ -71,7 +66,7 @@ def list_datasets():
 @bp.route("/lookup/<uuid>", methods=["GET"])
 @jwt_required()
 def lookup_datasets(uuid):
-    """List the dataset a user has access to."""
+    """List all instances of a dataset in any base_uris the user has access to."""
     username = get_jwt_identity()
     try:
         datasets = lookup_datasets_by_user_and_uuid(username, uuid)
@@ -81,10 +76,10 @@ def lookup_datasets(uuid):
 
 
 @bp.route("/search", methods=["POST"])
-# @bp.arguments(UriSchema)
+@bp.arguments(SearchDatasetSchema(partial=True))
 @jwt_required()
-def search_datasets():
-    """List the dataset a user has access to."""
+def search_datasets(query: SearchDatasetSchema):
+    """List datasets the user has access to matching the query."""
     username = get_jwt_identity()
     query = request.get_json()
     try:
@@ -94,17 +89,11 @@ def search_datasets():
     return jsonify(datasets)
 
 
-class RegisterDatasetSchema(Schema):
-    type = String()
-    uuid = UUID()
-    base_uri = URL()
-
-
 @bp.route("/register", methods=["POST"])
-# @bp.arguments(RegisterDatasetSchema)
+@bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @jwt_required()
-def register():
-    """Register a dataset. The user needs to have register permissions."""
+def register(dataset: RegisterDatasetSchema):
+    """Register a dataset. The user needs to have register permissions on the base_uri."""
     username = get_jwt_identity()
     dataset_info = request.get_json()
 
@@ -130,8 +119,9 @@ def register():
 
 
 @bp.route("/manifest", methods=["POST"])
+@bp.arguments(UriSchema)
 @jwt_required()
-def manifest():
+def manifest(uri: UriSchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
     query = request.get_json()
@@ -158,8 +148,9 @@ def manifest():
 
 
 @bp.route("/readme", methods=["POST"])
+@bp.arguments(UriSchema)
 @jwt_required()
-def readme():
+def readme(uri: UriSchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
     query = request.get_json()
@@ -186,8 +177,9 @@ def readme():
 
 
 @bp.route("/annotations", methods=["POST"])
+@bp.arguments(UriSchema)
 @jwt_required()
-def annotations():
+def annotations(uri: UriSchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
     query = request.get_json()

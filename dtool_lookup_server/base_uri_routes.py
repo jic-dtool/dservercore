@@ -11,22 +11,23 @@ from flask_smorest import Blueprint
 from dtool_lookup_server import (
     AuthenticationError,
 )
+from dtool_lookup_server.schemas import BaseUriSchema
 from dtool_lookup_server.utils import (
     base_uri_exists,
     get_user_obj,
     register_base_uri,
-    list_base_uris,
 )
 
 bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
+@bp.arguments(BaseUriSchema)
 @jwt_required()
-def register():
+def register(uri: BaseUriSchema):
     """Register a base URI.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
     username = get_jwt_identity()
     data = request.get_json()
@@ -60,9 +61,9 @@ from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 @bp.response(200, BaseURISchema(many=True))
 @jwt_required()
 def base_uri_list(pagination_parameters):
-    """Register a base URI.
+    """List all base_uris.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
     username = get_jwt_identity()
     try:
@@ -76,4 +77,6 @@ def base_uri_list(pagination_parameters):
 
     query = BaseURI.query.filter_by()
     pagination_parameters.item_count = query.count()
-    return query.paginate(pagination_parameters.page, pagination_parameters.page_size, True).items
+    return query.paginate(
+        pagination_parameters.page, pagination_parameters.page_size, True
+    ).items

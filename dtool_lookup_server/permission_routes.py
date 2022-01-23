@@ -11,16 +11,18 @@ from flask_smorest import Blueprint
 
 from dtool_lookup_server import AuthenticationError
 import dtool_lookup_server.utils
+from dtool_lookup_server.schemas import BaseUriSchema, UriPermissionSchema
 
 bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 
 @bp.route("/info", methods=["POST"])
+@bp.arguments(BaseUriSchema)
 @jwt_required()
-def permission_info():
+def permission_info(base_uri: BaseUriSchema):
     """Get information about the permissions on a base URI.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
     username = get_jwt_identity()
 
@@ -41,11 +43,12 @@ def permission_info():
 
 
 @bp.route("/update_on_base_uri", methods=["POST"])
+@bp.arguments(UriPermissionSchema)
 @jwt_required()
-def update_on_base_uri():
+def update_on_base_uri(permissions: UriPermissionSchema):
     """Update the permissions on a base URI.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
 
     username = get_jwt_identity()
