@@ -572,7 +572,7 @@ def dataset_info_is_valid(dataset_info):
         return False
 
     # Ensure that the UUID has the correct number of characters.
-    if len(dataset_info["uuid"]) != 36:
+    if len(str(dataset_info["uuid"])) != 36:
         return False
 
     # Ensure that the base URI has had any trailing slash removed.
@@ -611,7 +611,7 @@ def register_dataset_admin_metadata(admin_metadata):
     dataset = Dataset(
         uri=admin_metadata["uri"],
         base_uri_id=base_uri.id,
-        uuid=admin_metadata["uuid"],
+        uuid=str(admin_metadata["uuid"]),
         name=admin_metadata["name"],
         creator_username=admin_metadata["creator_username"],
         frozen_at=frozen_at,

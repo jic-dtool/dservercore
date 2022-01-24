@@ -1,7 +1,6 @@
 """Test the /admin/base_uri blueprint routes."""
 
 import json
-import pprint
 
 from . import tmp_app_with_users, tmp_app_with_data  # NOQA
 
@@ -20,7 +19,6 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     assert not base_uri_exists(base_uri)
 
     data = {"base_uri": base_uri}
-    pprint.pprint(data)
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users.post(
         "/admin/base_uri/register",
@@ -28,7 +26,6 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
         data=json.dumps(data),
         content_type="application/json"
     )
-    pprint.pprint(r)
     assert r.status_code == 201
     assert base_uri_exists(base_uri)
 

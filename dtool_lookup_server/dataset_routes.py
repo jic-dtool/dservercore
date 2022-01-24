@@ -1,7 +1,6 @@
 from flask import (
     abort,
     jsonify,
-    request,
     current_app,
 )
 from flask_jwt_extended import (
@@ -94,7 +93,6 @@ def search_datasets(
 ):
     """List datasets the user has access to matching the query."""
     username = get_jwt_identity()
-    query = request.get_json()
     try:
         datasets = search_datasets_by_user(username, query)
     except AuthenticationError:
@@ -111,7 +109,7 @@ def search_datasets(
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
     username = get_jwt_identity()
-    dataset_info = request.get_json()
+    dataset_info = dataset
 
     try:
         user = get_user_obj(username)
@@ -137,16 +135,15 @@ def register(dataset: RegisterDatasetSchema):
 @bp.route("/manifest", methods=["POST"])
 @bp.arguments(UriSchema)
 @jwt_required()
-def manifest(uri: UriSchema):
+def manifest(query: UriSchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
-    query = request.get_json()
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
 
     try:
-        manifest = get_manifest_from_uri_by_user(username, uri)
+        manifest_ = get_manifest_from_uri_by_user(username, uri)
     except AuthenticationError:
         current_app.logger.info("AuthenticaitonError")
         abort(401)
@@ -160,22 +157,21 @@ def manifest(uri: UriSchema):
         current_app.logger.info("UnknownURIError")
         abort(400)
 
-    return jsonify(manifest)
+    return jsonify(manifest_)
 
 
 @bp.route("/readme", methods=["POST"])
 @bp.arguments(UriSchema)
 @jwt_required()
-def readme(uri: UriSchema):
+def readme(query: UriSchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
-    query = request.get_json()
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
 
     try:
-        readme = get_readme_from_uri_by_user(username, uri)
+        readme_ = get_readme_from_uri_by_user(username, uri)
     except AuthenticationError:
         current_app.logger.info("AuthenticaitonError")
         abort(401)
@@ -189,22 +185,21 @@ def readme(uri: UriSchema):
         current_app.logger.info("UnknownURIError")
         abort(400)
 
-    return jsonify(readme)
+    return jsonify(readme_)
 
 
 @bp.route("/annotations", methods=["POST"])
 @bp.arguments(UriSchema)
 @jwt_required()
-def annotations(uri: UriSchema):
+def annotations(query: UriSchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
-    query = request.get_json()
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
 
     try:
-        readme = get_annotations_from_uri_by_user(username, uri)
+        annotations_ = get_annotations_from_uri_by_user(username, uri)
     except AuthenticationError:
         current_app.logger.info("AuthenticaitonError")
         abort(401)
@@ -218,4 +213,4 @@ def annotations(uri: UriSchema):
         current_app.logger.info("UnknownURIError")
         abort(400)
 
-    return jsonify(readme)
+    return jsonify(annotations_)

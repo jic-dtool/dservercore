@@ -11,7 +11,6 @@ TODO
 ^^^^
 
 - Simplify code cleaning up created_at and frozen_at types
-- Replace get_json for use of the request argument directly
 - Create response schemas
 
 Added
@@ -21,6 +20,7 @@ Added
 - Pagination for all listing endpoints
 - Defined schemas for endpoint arguments
 - Missing and improved docstrings for endpoints
+- Replaces get_json() uses for the use of request's arguments
 
 Changed
 ^^^^^^^

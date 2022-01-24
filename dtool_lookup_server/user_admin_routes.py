@@ -1,6 +1,5 @@
 from flask import (
     abort,
-    request,
 )
 from flask_jwt_extended import (
     jwt_required,
@@ -12,7 +11,6 @@ from flask_smorest.pagination import PaginationParameters
 from dtool_lookup_server import (
     AuthenticationError,
 )
-
 from dtool_lookup_server.schemas import RegisterUserSchema
 from dtool_lookup_server.sql_models import (
     User,
@@ -29,13 +27,12 @@ bp = Blueprint("user_admin", __name__, url_prefix="/admin/user")
 @bp.route("/register", methods=["POST"])
 @bp.arguments(RegisterUserSchema(many=True, partial=("is_admin",)))
 @jwt_required()
-def register(user: RegisterUserSchema):
+def register(data: RegisterUserSchema):
     """Register a user in the dtool lookup server.
 
     The user in the Authorization token needs to be admin.
     """
     username = get_jwt_identity()
-    data = request.get_json()
 
     try:
         user = get_user_obj(username)

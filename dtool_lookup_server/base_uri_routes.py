@@ -1,6 +1,5 @@
 from flask import (
     abort,
-    request,
 )
 from flask_jwt_extended import (
     jwt_required,
@@ -11,7 +10,7 @@ from flask_smorest import Blueprint
 from dtool_lookup_server import (
     AuthenticationError,
 )
-from dtool_lookup_server.schemas import BaseUriSchema
+from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 from dtool_lookup_server.utils import (
     base_uri_exists,
     get_user_obj,
@@ -22,17 +21,15 @@ bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
-@bp.arguments(BaseUriSchema)
+@bp.arguments(BaseURISchema, required=True)
 @jwt_required()
-def register(uri: BaseUriSchema):
+def register(parameter: BaseURISchema):
     """Register a base URI.
 
     The user needs to be admin.
     """
     username = get_jwt_identity()
-    data = request.get_json()
-
-    base_uri = data["base_uri"]
+    base_uri = parameter['base_uri']
 
     try:
         user = get_user_obj(username)
@@ -51,9 +48,6 @@ def register(uri: BaseUriSchema):
     register_base_uri(base_uri)
 
     return "", 201
-
-
-from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 
 
 @bp.route("/list", methods=["GET"])
