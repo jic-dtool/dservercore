@@ -8,7 +8,9 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+
 from flask_smorest import Blueprint
+from flask_smorest.pagination import PaginationParameters
 
 from dtool_lookup_server import (
     AuthenticationError,
@@ -52,33 +54,44 @@ def summary_of_datasets():
 
 
 @bp.route("/list", methods=["GET"])
+@bp.paginate()
 @jwt_required()
-def list_datasets():
+def list_datasets(pagination_parameters: PaginationParameters):
     """List the datasets a user has access to."""
     username = get_jwt_identity()
     try:
         datasets = list_datasets_by_user(username)
     except AuthenticationError:
         abort(401)
-    return jsonify(datasets)
+    pagination_parameters.item_count = len(datasets)
+    return jsonify(
+        datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
+    )
 
 
 @bp.route("/lookup/<uuid>", methods=["GET"])
+@bp.paginate()
 @jwt_required()
-def lookup_datasets(uuid):
+def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
     """List all instances of a dataset in any base_uris the user has access to."""
     username = get_jwt_identity()
     try:
         datasets = lookup_datasets_by_user_and_uuid(username, uuid)
     except AuthenticationError:
         abort(401)
-    return jsonify(datasets)
+    pagination_parameters.item_count = len(datasets)
+    return jsonify(
+        datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
+    )
 
 
 @bp.route("/search", methods=["POST"])
 @bp.arguments(SearchDatasetSchema(partial=True))
+@bp.paginate()
 @jwt_required()
-def search_datasets(query: SearchDatasetSchema):
+def search_datasets(
+    query: SearchDatasetSchema, pagination_parameters: PaginationParameters
+):
     """List datasets the user has access to matching the query."""
     username = get_jwt_identity()
     query = request.get_json()
@@ -86,7 +99,10 @@ def search_datasets(query: SearchDatasetSchema):
         datasets = search_datasets_by_user(username, query)
     except AuthenticationError:
         abort(401)
-    return jsonify(datasets)
+    pagination_parameters.item_count = len(datasets)
+    return jsonify(
+        datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
+    )
 
 
 @bp.route("/register", methods=["POST"])

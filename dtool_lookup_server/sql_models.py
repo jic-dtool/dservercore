@@ -109,3 +109,8 @@ class Dataset(db.Model):
 class BaseURISchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
+
+
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User

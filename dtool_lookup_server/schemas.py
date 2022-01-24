@@ -1,5 +1,14 @@
 from marshmallow import Schema
-from marshmallow.fields import String, UUID, Dict, List, Boolean, Integer, Nested, Float
+from marshmallow.fields import (
+    String,
+    UUID,
+    Dict,
+    List,
+    Boolean,
+    Integer,
+    Nested,
+    Float
+)
 
 
 class UriSchema(Schema):

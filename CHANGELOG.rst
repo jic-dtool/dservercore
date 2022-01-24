@@ -10,7 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 TODO
 ^^^^
 
-- Finish integrating pagination to all endpoints listing items
 - Simplify code cleaning up created_at and frozen_at types
 - Replace get_json for use of the request argument directly
 - Create response schemas
@@ -19,6 +18,7 @@ Added
 ^^^^^
 
 - Integrated openapi
+- Pagination for all listing endpoints
 - Defined schemas for endpoint arguments
 - Missing and improved docstrings for endpoints
 

@@ -1,6 +1,5 @@
 from flask import (
     abort,
-    jsonify,
     request,
 )
 from flask_jwt_extended import (
@@ -8,12 +7,17 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from flask_smorest import Blueprint
+from flask_smorest.pagination import PaginationParameters
 
 from dtool_lookup_server import (
     AuthenticationError,
 )
-import dtool_lookup_server.utils
+
 from dtool_lookup_server.schemas import RegisterUserSchema
+from dtool_lookup_server.sql_models import (
+    User,
+    UserSchema
+)
 from dtool_lookup_server.utils import (
     get_user_obj,
     register_users,
@@ -23,7 +27,7 @@ bp = Blueprint("user_admin", __name__, url_prefix="/admin/user")
 
 
 @bp.route("/register", methods=["POST"])
-@bp.arguments(RegisterUserSchema(many=True, partial=True))
+@bp.arguments(RegisterUserSchema(many=True, partial=("is_admin",)))
 @jwt_required()
 def register(user: RegisterUserSchema):
     """Register a user in the dtool lookup server.
@@ -55,8 +59,10 @@ def register(user: RegisterUserSchema):
 
 
 @bp.route("/list", methods=["GET"])
+@bp.paginate()
+@bp.response(200, UserSchema(many=True))
 @jwt_required()
-def list_users():
+def list_users(pagination_parameters: PaginationParameters):
     """List the users in the dtool lookup server.
 
     The user in the Authorization token needs to be admin.
@@ -72,5 +78,8 @@ def list_users():
     # Non admin users should see 404.
     if not user.is_admin:
         abort(404)
-
-    return jsonify(dtool_lookup_server.utils.list_users())
+    query = User.query.filter_by()
+    pagination_parameters.item_count = query.count()
+    return query.paginate(
+        pagination_parameters.page, pagination_parameters.page_size, True
+    ).items
