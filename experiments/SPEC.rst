@@ -30,3 +30,9 @@ base classes to inherit from to help guide my development efforts.
 As a consumer of the dtool-lookup-server REST API I want to be able to create
 clients that auto-discover the API to make it easier to maintain the clients
 when the dtool-lookup-server REST API is updated.
+
+
+Further reading
+---------------
+
+- `The Tweleve-Factor App <https://12factor.net/>`_
