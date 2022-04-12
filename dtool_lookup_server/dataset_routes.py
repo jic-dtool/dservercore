@@ -11,6 +11,16 @@ from flask_jwt_extended import (
 from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
+from .sql_models import (
+    BaseURISchema,
+    DatasetSchema
+)
+
+from marshmallow.fields import (
+    String,
+    Dict
+)
+
 from dtool_lookup_server import (
     AuthenticationError,
     AuthorizationError,
@@ -22,6 +32,7 @@ from dtool_lookup_server.schemas import (
     UriSchema,
     RegisterDatasetSchema,
     SearchDatasetSchema,
+    SummarySchema,
 )
 from dtool_lookup_server.utils import (
     dataset_info_is_valid,
@@ -41,6 +52,7 @@ bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 
 
 @bp.route("/summary", methods=["GET"])
+@bp.response(200, SummarySchema)
 @jwt_required()
 def summary_of_datasets():
     """Global summary of the datasets a user has access to."""
@@ -49,10 +61,11 @@ def summary_of_datasets():
         summary = summary_of_datasets_by_user(username)
     except AuthenticationError:
         abort(401)
-    return jsonify(summary)
+    return summary
 
 
 @bp.route("/list", methods=["GET"])
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def list_datasets(pagination_parameters: PaginationParameters):
@@ -69,6 +82,7 @@ def list_datasets(pagination_parameters: PaginationParameters):
 
 
 @bp.route("/lookup/<uuid>", methods=["GET"])
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
@@ -86,6 +100,7 @@ def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
 
 @bp.route("/search", methods=["POST"])
 @bp.arguments(SearchDatasetSchema(partial=True))
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def search_datasets(
@@ -105,6 +120,7 @@ def search_datasets(
 
 @bp.route("/register", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
+@bp.response(201, UriSchema)
 @jwt_required()
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
@@ -129,7 +145,7 @@ def register(dataset: RegisterDatasetSchema):
         abort(401)
 
     dataset_uri = register_dataset(dataset_info)
-    return dataset_uri, 201
+    return {"uri": dataset_uri}
 
 
 @bp.route("/manifest", methods=["POST"])
@@ -190,6 +206,7 @@ def readme(query: UriSchema):
 
 @bp.route("/annotations", methods=["POST"])
 @bp.arguments(UriSchema)
+@bp.response(200, Dict)
 @jwt_required()
 def annotations(query: UriSchema):
     """Request the dataset annotations."""
