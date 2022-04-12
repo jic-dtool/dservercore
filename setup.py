@@ -34,6 +34,7 @@ setup(
         "dtoolcore>=3.18.0",
         "dtool_s3",
         "flask-jwt-extended[asymmetric_crypto]>=4.0",
+        "marshmallow-sqlalchemy",
         "pyyaml",
     ],
     download_url="{}/tarball/{}".format(url, version),
