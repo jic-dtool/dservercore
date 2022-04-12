@@ -426,6 +426,8 @@ def summary_of_datasets_by_user(username):
     Raises AuthenticationError if user is invalid.
     """
 
+    from .schemas import SummarySchema
+
     # Get all the datasets the user has access to.
     datasets = search_datasets_by_user(username, query={})
 
@@ -459,6 +461,7 @@ def summary_of_datasets_by_user(username):
     }
 
     return summary
+
 
 
 def lookup_datasets_by_user_and_uuid(username, uuid):
