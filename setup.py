@@ -22,7 +22,7 @@ setup(
         ],
     },
     install_requires=[
-        "flask<2.0",
+        "flask",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",
@@ -32,9 +32,7 @@ setup(
         "flask-smorest",
         "flask-cors",
         "dtoolcore>=3.18.0",
-        "dtool_irods",
         "dtool_s3",
-        "dtool_ecs",
         "flask-jwt-extended[asymmetric_crypto]>=4.0",
         "pyyaml",
     ],
