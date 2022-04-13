@@ -65,3 +65,12 @@ class SearchDatasetSchema(Schema):
     base_uris = List(String)
     uuids = List(UUID)
     tags = List(String)
+
+class SummarySchema(Schema):
+    number_of_datasets = Integer()
+    creator_usernames = List(String)
+    base_uris = List(String)
+    datasets_per_creator = Dict(keys=String, values=Integer)
+    datasets_per_base_uri = Dict(keys=String, values=Integer)
+    tags = List(String)
+    datasets_per_tag = Dict(keys=String, values=Integer)

@@ -9,7 +9,10 @@ from flask_jwt_extended import (
 from flask_smorest import Blueprint
 
 import dtool_lookup_server.utils
-from dtool_lookup_server import AuthenticationError
+from dtool_lookup_server import (
+    AuthenticationError,
+    ValidationError
+)
 from dtool_lookup_server.schemas import BaseUriSchema, UriPermissionSchema
 
 bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
@@ -17,6 +20,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 @bp.route("/info", methods=["POST"])
 @bp.arguments(BaseUriSchema)
+@bp.response(200, BaseUriSchema)
 @jwt_required()
 def permission_info(data: BaseUriSchema):
     """Get information about the permissions on a base URI.
@@ -37,7 +41,10 @@ def permission_info(data: BaseUriSchema):
 
     base_uri = data["base_uri"]
 
-    return jsonify(dtool_lookup_server.utils.get_permission_info(base_uri))
+    try:
+        return dtool_lookup_server.utils.get_permission_info(base_uri)
+    except ValidationError:
+        return "", 404
 
 
 @bp.route("/update_on_base_uri", methods=["POST"])
