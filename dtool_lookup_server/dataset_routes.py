@@ -161,7 +161,7 @@ def manifest(query: UriSchema):
     try:
         manifest_ = get_manifest_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
@@ -189,7 +189,7 @@ def readme(query: UriSchema):
     try:
         readme_ = get_readme_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
@@ -218,7 +218,7 @@ def annotations(query: UriSchema):
     try:
         annotations_ = get_annotations_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
