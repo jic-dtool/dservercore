@@ -1,7 +1,4 @@
-from flask import (
-    abort,
-    jsonify,
-)
+from flask import abort
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
@@ -20,7 +17,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 @bp.route("/info", methods=["POST"])
 @bp.arguments(BaseUriSchema)
-@bp.response(200, BaseUriSchema)
+@bp.response(200, UriPermissionSchema)
 @jwt_required()
 def permission_info(data: BaseUriSchema):
     """Get information about the permissions on a base URI.
