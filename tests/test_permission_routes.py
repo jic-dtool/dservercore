@@ -52,7 +52,7 @@ def test_permission_info_route(tmp_app_with_users):  # NOQA
     assert r.status_code == 404
 
 
-def test_persmissoin_update_all_route(tmp_app_with_users):  # NOQA
+def test_permission_update_all_route(tmp_app_with_users):  # NOQA
 
     from dtool_lookup_server.utils import get_permission_info
     base_uri = "s3://snow-white"
