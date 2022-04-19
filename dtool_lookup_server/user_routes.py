@@ -11,13 +11,13 @@ from flask_smorest import Blueprint
 from dtool_lookup_server import AuthenticationError
 import dtool_lookup_server.utils
 
-from .sql_models import UserSchema
+from .schemas import UserResponseSchema
 
 bp = Blueprint("user", __name__, url_prefix="/user")
 
 
 @bp.route("/info/<username>", methods=["GET"])
-@bp.response(200, UserSchema)
+@bp.response(200, UserResponseSchema)
 @jwt_required()
 def get_user_info(username):
     """Return a user's information.
