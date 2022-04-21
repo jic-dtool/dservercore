@@ -346,10 +346,7 @@ def list_datasets_by_user(username):
     datasets = []
     for base_uri in user.search_base_uris:
         for ds in base_uri.datasets:
-            ds_dict = ds.as_dict()
-            ds_dict['frozen_at'] = _extract_frozen_at_as_datetime(ds_dict)
-            ds_dict['created_at'] = _extract_created_at_as_datetime(ds_dict)
-            datasets.append(ds_dict)
+            datasets.append(ds.as_dict())
     return datasets
 
 
@@ -412,11 +409,10 @@ def search_datasets_by_user(username, query):
         },
     )
     for ds in cx:
-
-        # don't convert datetime object to float timestamp.
-        # for key in ("created_at", "frozen_at"):
-        #    datetime_obj = ds[key]
-        #    ds[key] = dtoolcore.utils.timestamp(datetime_obj)
+        # convert datetime object to float timestamp.
+        for key in ("created_at", "frozen_at"):
+            datetime_obj = ds[key]
+            ds[key] = dtoolcore.utils.timestamp(datetime_obj)
 
         datasets.append(ds)
     return datasets
