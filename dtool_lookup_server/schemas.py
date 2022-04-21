@@ -11,11 +11,11 @@ from marshmallow.fields import (
 )
 
 
-class UriSchema(Schema):
+class URISchema(Schema):
     uri = String()
 
 
-class BaseUriSchema(Schema):
+class BaseURISchema(Schema):
     base_uri = String()
 
 

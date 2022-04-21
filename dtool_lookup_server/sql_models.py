@@ -106,17 +106,18 @@ class Dataset(db.Model):
         }
 
 
-class BaseURISchema(ma.SQLAlchemyAutoSchema):
+class BaseURISQLAlchemySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
         fields = ('base_uri',)
 
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
+class UserSQLAlchemySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
 
-class DatasetSchema(ma.SQLAlchemyAutoSchema):
+
+class DatasetSQLAlchemySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Dataset
         fields = ('base_uri', 'created_at', 'creator_username', 'frozen_at', 'created_at', 'name', 'uri', 'uuid')

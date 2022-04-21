@@ -12,8 +12,8 @@ from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
 from .sql_models import (
-    BaseURISchema,
-    DatasetSchema
+    BaseURISQLAlchemySchema,
+    DatasetSQLAlchemySchema
 )
 
 from marshmallow.fields import (
@@ -30,7 +30,7 @@ from dtool_lookup_server import (
 )
 from dtool_lookup_server.schemas import (
     AnnotationsSchema,
-    UriSchema,
+    URISchema,
     RegisterDatasetSchema,
     SearchDatasetSchema,
     SummarySchema,
@@ -66,7 +66,7 @@ def summary_of_datasets():
 
 
 @bp.route("/list", methods=["GET"])
-@bp.response(200, DatasetSchema(many=True))
+@bp.response(200, DatasetSQLAlchemySchema(many=True))
 @bp.paginate()
 @jwt_required()
 def list_datasets(pagination_parameters: PaginationParameters):
@@ -83,7 +83,7 @@ def list_datasets(pagination_parameters: PaginationParameters):
 
 
 @bp.route("/lookup/<uuid>", methods=["GET"])
-@bp.response(200, DatasetSchema(many=True))
+@bp.response(200, DatasetSQLAlchemySchema(many=True))
 @bp.paginate()
 @jwt_required()
 def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
@@ -101,7 +101,7 @@ def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
 
 @bp.route("/search", methods=["POST"])
 @bp.arguments(SearchDatasetSchema(partial=True))
-@bp.response(200, DatasetSchema(many=True))
+@bp.response(200, DatasetSQLAlchemySchema(many=True))
 @bp.paginate()
 @jwt_required()
 def search_datasets(
@@ -121,7 +121,7 @@ def search_datasets(
 
 @bp.route("/register", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
-@bp.response(201, UriSchema)
+@bp.response(201, URISchema)
 @jwt_required()
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
@@ -150,9 +150,9 @@ def register(dataset: RegisterDatasetSchema):
 
 
 @bp.route("/manifest", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def manifest(query: UriSchema):
+def manifest(query: URISchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
     if "uri" not in query:
@@ -178,9 +178,9 @@ def manifest(query: UriSchema):
 
 
 @bp.route("/readme", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def readme(query: UriSchema):
+def readme(query: URISchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
     if "uri" not in query:
@@ -206,10 +206,10 @@ def readme(query: UriSchema):
 
 
 @bp.route("/annotations", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @bp.response(200, AnnotationsSchema)
 @jwt_required()
-def annotations(query: UriSchema):
+def annotations(query: URISchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
     if "uri" not in query:

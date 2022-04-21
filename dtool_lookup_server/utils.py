@@ -346,7 +346,10 @@ def list_datasets_by_user(username):
     datasets = []
     for base_uri in user.search_base_uris:
         for ds in base_uri.datasets:
-            datasets.append(ds.as_dict())
+            ds_dict = ds.as_dict()
+            ds_dict['frozen_at'] = _extract_frozen_at_as_datetime(ds_dict)
+            ds_dict['created_at'] = _extract_created_at_as_datetime(ds_dict)
+            datasets.append(ds_dict)
     return datasets
 
 
@@ -410,10 +413,10 @@ def search_datasets_by_user(username, query):
     )
     for ds in cx:
 
-        # Convert datetime object to float timestamp.
-        for key in ("created_at", "frozen_at"):
-            datetime_obj = ds[key]
-            ds[key] = dtoolcore.utils.timestamp(datetime_obj)
+        # don't convert datetime object to float timestamp.
+        # for key in ("created_at", "frozen_at"):
+        #    datetime_obj = ds[key]
+        #    ds[key] = dtoolcore.utils.timestamp(datetime_obj)
 
         datasets.append(ds)
     return datasets
@@ -598,7 +601,7 @@ def _extract_created_at_as_datetime(admin_metadata):
     return datetime.utcfromtimestamp(created_at)
 
 
-def _extract_frozen_at_as_datatime(admin_metadata):
+def _extract_frozen_at_as_datetime(admin_metadata):
     frozen_at = admin_metadata["frozen_at"]
     frozen_at = float(frozen_at)
     return datetime.utcfromtimestamp(frozen_at)
@@ -608,7 +611,7 @@ def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
-    frozen_at = _extract_frozen_at_as_datatime(admin_metadata)
+    frozen_at = _extract_frozen_at_as_datetime(admin_metadata)
     created_at = _extract_created_at_as_datetime(admin_metadata)
 
     dataset = Dataset(
@@ -646,7 +649,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     if not dataset_info_is_valid(dataset_info):
         return None
 
-    frozen_at = _extract_frozen_at_as_datatime(dataset_info)
+    frozen_at = _extract_frozen_at_as_datetime(dataset_info)
     created_at = _extract_created_at_as_datetime(dataset_info)
 
     dataset_info["frozen_at"] = frozen_at
