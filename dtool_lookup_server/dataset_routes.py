@@ -29,7 +29,7 @@ from dtool_lookup_server import (
     ValidationError,
 )
 from dtool_lookup_server.schemas import (
-    AnnotationSchema,
+    AnnotationsSchema,
     UriSchema,
     RegisterDatasetSchema,
     SearchDatasetSchema,

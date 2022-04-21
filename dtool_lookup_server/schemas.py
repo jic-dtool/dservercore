@@ -85,4 +85,8 @@ class UserResponseSchema(Schema):
 
 
 class AnnotationsSchema(Schema):
-    annotations = Dict()
+    pass
+
+
+class ConfigSchema(Schema):
+    pass

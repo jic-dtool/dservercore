@@ -11,6 +11,8 @@ from flask_smorest import Blueprint
 
 from dtool_lookup_server import AuthenticationError
 
+from dtool_lookup_server.schemas import ConfigSchema
+
 from dtool_lookup_server.utils import config_to_dict
 
 
@@ -18,6 +20,7 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
+@bp.response(200, ConfigSchema)
 @jwt_required()
 def server_config():
     """Return the JSON-serialized server configuration."""
