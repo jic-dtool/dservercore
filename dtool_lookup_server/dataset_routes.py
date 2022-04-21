@@ -13,7 +13,7 @@ from flask_smorest.pagination import PaginationParameters
 
 from .sql_models import (
     BaseURISQLAlchemySchema,
-    DatasetSQLAlchemySchema
+    DatasetSchema
 )
 
 from marshmallow.fields import (
@@ -66,7 +66,7 @@ def summary_of_datasets():
 
 
 @bp.route("/list", methods=["GET"])
-@bp.response(200, DatasetSQLAlchemySchema(many=True))
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def list_datasets(pagination_parameters: PaginationParameters):
@@ -83,7 +83,7 @@ def list_datasets(pagination_parameters: PaginationParameters):
 
 
 @bp.route("/lookup/<uuid>", methods=["GET"])
-@bp.response(200, DatasetSQLAlchemySchema(many=True))
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
@@ -101,7 +101,7 @@ def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
 
 @bp.route("/search", methods=["POST"])
 @bp.arguments(SearchDatasetSchema(partial=True))
-@bp.response(200, DatasetSQLAlchemySchema(many=True))
+@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
 @jwt_required()
 def search_datasets(

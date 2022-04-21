@@ -14,7 +14,7 @@ from dtool_lookup_server import (
 from dtool_lookup_server.schemas import RegisterUserSchema
 from dtool_lookup_server.sql_models import (
     User,
-    UserSQLAlchemySchema
+    UserSchema
 )
 from dtool_lookup_server.utils import (
     get_user_obj,
@@ -57,7 +57,7 @@ def register(data: RegisterUserSchema):
 
 @bp.route("/list", methods=["GET"])
 @bp.paginate()
-@bp.response(200, UserSQLAlchemySchema(many=True))
+@bp.response(200, UserSchema(many=True))
 @jwt_required()
 def list_users(pagination_parameters: PaginationParameters):
     """List the users in the dtool lookup server.
