@@ -23,9 +23,10 @@ Simple development environment.
 ## openapi-generator-cli
 
 `openapi-generator-example.sh` contains a few examples on how to use openapi-generator-cli with the dtool-lookup-server.
+
 Different Python API generators exist. Only `python-legacy` is able to generate `asyncio`-based API. 
-Running `openapi-generator-cli` will produce two auto-generated Python packages, `out/python` and `out/python-legacy`,
-former `urllib3`-based, latter `asyncio`-based.
+Running `openapi-generator-example.sh` will produce three auto-generated Python packages, `out/python`, `out/python-experimental`, and `out/python-legacy`, 
+former two `urllib3`-based, latter `asyncio`-based. Only `out/python` works for now against a running lookup server.
 
 The `python*client-config.yml` files configure Python-specific behavior for openapi-generator-cli.
 
