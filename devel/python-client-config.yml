@@ -1,14 +1,14 @@
 # Description: python package name (convention: snake_case).
-# packageName: dtool_lookup_openapi_client
+packageName: dtool_lookup_openapi_client
 
 # Description: python project name in setup.py (e.g. petstore-api).
-# projectName: 
+projectName: dtool-lookup-openapi-python-client
 
 # Description: python package version.
 # packageVersion: 1.0.0
 
 # Description: python package URL.
-# packageUrl: 
+packageUrl:  https://github.com/jotelha/dtool-lookup-openapi-python-client
 
 # Description: Hides the generation timestamp when files are generated.
 # hideGenerationTimestamp: true

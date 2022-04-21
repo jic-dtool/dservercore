@@ -1,13 +1,15 @@
-#!/usr/bin/env bash
+#!/bin/bash -x
 # run from repository root
+ROOTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 APPDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "Script in $APPDIR"
+echo "Repository in $ROOTDIR, Script in $APPDIR"
 source ${APPDIR}/env.rc
 
 openssl genrsa -out ${JWT_PRIVATE_KEY_FILE} 2048
 openssl rsa -in ${JWT_PRIVATE_KEY_FILE} -pubout -outform PEM -out ${JWT_PUBLIC_KEY_FILE}
 
-docker run -d -p 27017:27017 -v $(pwd)/data:/data/db mongo
+mkdir -p ${ROOTDIR}/data
+docker run --user ${UID}:${UID} -d -p 27017:27017 -v ${ROOTDIR}/data:/data/db mongo:latest
 
 flask db init
 flask db migrate

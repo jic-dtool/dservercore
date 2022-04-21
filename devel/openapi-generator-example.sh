@@ -26,7 +26,7 @@
 docker run --rm --network="host" -v "${PWD}:/local" --user $UID:$UID openapitools/openapi-generator-cli:latest generate \
     --package-name "dtool_lookup_openapi_client" \
     --git-user-id "jotelha" \
-    --git-repo-id "dtool-lookup-openapi-client" \
+    --git-repo-id "dtool-lookup-openapi-python-client" \
     --release-note "auto-generated openapi client for dtool-lookup-server" \
     -c /local/python-client-config.yml \
     -i http://127.0.0.1:5000/doc/openapi.json \
@@ -43,4 +43,17 @@ docker run --rm --network="host" -v "${PWD}:/local" --user $UID:$UID openapitool
     -i http://127.0.0.1:5000/doc/openapi.json \
     -o /local/out/python-legacy \
     -g python-legacy \
+    --verbose
+
+# workaround for https://github.com/OpenAPITools/openapi-generator/issues/12196
+curl http://127.0.0.1:5000/doc/openapi.json | jq '. + {"x-original-swagger-version": .openapi}' > openapi.json
+docker run --rm --network="host" -v "${PWD}:/local" --user $UID:$UID openapitools/openapi-generator-cli:latest generate \
+    --package-name "dtool_lookup_openapi_client" \
+    --git-user-id "jotelha" \
+    --git-repo-id "dtool-lookup-openapi-python-experimental-client" \
+    --release-note "auto-generated openapi client for dtool-lookup-server" \
+    -c /local/python-experimental-client-config.yml \
+    -i /local/openapi.json \
+    -o /local/out/python-experimental \
+    -g python-experimental \
     --verbose
