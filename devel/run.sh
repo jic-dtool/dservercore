@@ -1,9 +1,8 @@
+#!/usr/bin/env bash
 # run from repository root
-
-export PYTHONUNBUFFERED=1
-export FLASK_APP=dtool_lookup_server
-export JWT_PUBLIC_KEY_FILE=$(pwd)/keys/jwt.pub
-export JWT_PRIVATE_KEY_FILE=$(pwd)/keys/jwt
+APPDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo "Script in $APPDIR"
+source ${APPDIR}/env.rc
 
 openssl genrsa -out ${JWT_PRIVATE_KEY_FILE} 2048
 openssl rsa -in ${JWT_PRIVATE_KEY_FILE} -pubout -outform PEM -out ${JWT_PUBLIC_KEY_FILE}

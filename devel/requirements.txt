@@ -1,4 +1,3 @@
-setuptools_scm
 alembic==1.7.7
 apispec==5.1.1
 boto3==1.21.40
@@ -66,3 +65,5 @@ zipp==3.8.0
 -e git+https://github.com/jotelha/dtool-lookup-server.git@openapi#egg=dtool_lookup_server
 -e git+https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding.git@openapi#egg=dtool-lookup-server-plugin-scaffolding
 -e git+https://github.com/livMatS/dtool-lookup-server-dependency-graph-plugin.git@openapi#egg=dtool-lookup-server-dependency-graph-plugin
+-e git+https://github.com/livMatS/dtool-lookup-server-direct-mongo-plugin.git@openapi#egg=dtool-lookup-server-direct-mongo-plugin
+-e git+https://github.com/livMatS/dtool-lookup-server-notification-plugin.git@openapi#egg=dtool-lookup-server-notification-plugin
