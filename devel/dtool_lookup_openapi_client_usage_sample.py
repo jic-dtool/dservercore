@@ -15,10 +15,10 @@ from dtool_lookup_openapi_client.model.pagination_metadata import PaginationMeta
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
 
-token = os.environ["TOKEN"]
-
+token = os.getenv("DTOOL_LOOKUP_SERVER_TOKEN")
+host = os.getenv("DTOOL_LOOKUP_SERVER_URL", "http://localhost:5000")
 # Configure Bearer authorization (JWT): bearerAuth
-configuration = dtool_lookup_openapi_client.Configuration(host="http://localhost:5000", access_token=token)
+configuration = dtool_lookup_openapi_client.Configuration(host=host, access_token=token)
 
 
 # Enter a context with an instance of the API client
