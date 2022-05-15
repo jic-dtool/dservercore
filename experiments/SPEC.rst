@@ -67,7 +67,7 @@ Create a Python package called something like `my_dtool_lookup_search` with
 code along the lines of the below exposed in the `__init__.py` file.
 
 
-.. code: python
+.. code-block:: python
 
     from dtool_lookup_server_core import SearchABC
 
@@ -86,7 +86,7 @@ code along the lines of the below exposed in the `__init__.py` file.
 Expose the custom class to the core system by exposing it as an entry point in
 the `setup.py` file.
 
-.. code: python
+.. code-block:: python
 
     from setuptools import setup
     setup(
@@ -109,7 +109,7 @@ Create a Python package called something like `my_dtool_lookup_auth` with
 code along the lines of the below exposed in the `__init__.py` file.
 
 
-.. code: python
+.. code-block:: python
 
     from dtool_lookup_server_core import AuthABC
 
@@ -167,7 +167,7 @@ code along the lines of the below exposed in the `__init__.py` file.
 Expose the custom class to the core system by exposing it as an entry point in
 the `setup.py` file.
 
-.. code: python
+.. code-block:: python
 
     from setuptools import setup
     setup(
@@ -190,7 +190,7 @@ Create a Python package called something like `my_dtool_lookup_extension` with
 code along the lines of the below exposed in the `__init__.py` file.
 
 
-.. code: python
+.. code-block:: python
 
     from dtool_lookup_server_core import ExtensionABC
 
@@ -218,7 +218,7 @@ code along the lines of the below exposed in the `__init__.py` file.
 Expose the custom class to the core system by exposing it as an entry point in
 the `setup.py` file.
 
-.. code: python
+.. code-block:: python
 
     from setuptools import setup
     setup(
