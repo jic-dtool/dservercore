@@ -1,6 +1,7 @@
 app.db
 TODO.rst
 .coverage
+.vscode
 
 *.swp
 *.pyc
