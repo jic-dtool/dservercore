@@ -9,3 +9,4 @@ def get_plugin(entrypoint_name):
     return tuple(eps)[0].load()
 
 auth_plugin = get_plugin("dtool_lookup_server.auth")
+search_plugin = get_plugin("dtool_lookup_server.search")
