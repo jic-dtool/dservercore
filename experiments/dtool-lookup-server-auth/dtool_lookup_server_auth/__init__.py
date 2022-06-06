@@ -1,12 +1,12 @@
 """dtool-lookup-server-auth"""
 
-import dtool_lookup_server_core as dls_core
+from dtool_lookup_server_core.abc import AuthABC
 
 
 __version__ = "0.1.0"
 
 
-class Auth(dls_core.AuthABC):
+class Auth(AuthABC):
 
     def has_admin_rights(self, username):
         return False
