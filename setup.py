@@ -22,7 +22,7 @@ setup(
         ],
     },
     install_requires=[
-        "flask<2.0",
+        "flask",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",
@@ -30,6 +30,7 @@ setup(
         "flask-pymongo",
         "flask-marshmallow",
         "flask-smorest",
+        "marshmallow-sqlalchemy",
         "flask-cors",
         "dtoolcore>=3.18.0",
         "dtool_irods",
