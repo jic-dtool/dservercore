@@ -89,6 +89,8 @@ class Dataset(db.Model):
     creator_username = db.Column(db.String(255), index=True, nullable=False)
     frozen_at = db.Column(db.DateTime(), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
+    number_of_items = db.Column(db.Integer)
+    size_in_bytes = db.Column(db.BigInteger)
 
     def __repr__(self):
         return "<Dataset {}>".format(self.uri)
@@ -103,6 +105,8 @@ class Dataset(db.Model):
             "creator_username": self.creator_username,
             "frozen_at": dtoolcore.utils.timestamp(self.frozen_at),
             "created_at": dtoolcore.utils.timestamp(self.created_at),
+            "number_of_items": self.number_of_items,
+            "size_in_bytes": self.size_in_bytes,
         }
 
 

@@ -221,6 +221,8 @@ def tmp_app_with_data(request):
             "frozen_at": 1536238185.881941,
             "annotations": {"type": "fruit"},
             "tags": ["evil", "fruit"],
+            "size_in_bytes": 5741810,
+            "number_of_items": 1,
         }
         register_dataset(dataset_info)
 
@@ -243,6 +245,8 @@ def tmp_app_with_data(request):
         "frozen_at": 1536238185.881941,
         "annotations": {"type": "fruit", "only_here": "crazystuff"},
         "tags": ["good", "fruit"],
+        "size_in_bytes": 0,
+        "number_of_items": 0,
     }
     register_dataset(dataset_info)
 

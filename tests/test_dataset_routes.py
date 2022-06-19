@@ -270,6 +270,8 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "frozen_at": "1536238185.881941",
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 1536238185.881941,
     }
 
     for token in [dopey_token, sleepy_token]:
@@ -301,6 +303,8 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 1536238185.881941,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 
@@ -330,6 +334,8 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "frozen_at": "1536238185.881941",
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 1536238185.881941,
     }
     r = tmp_app_with_users.post(
         "/dataset/register",
@@ -410,6 +416,8 @@ def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  
         "creator_username": "olssont",
         "frozen_at": "1536238185.881941",
         "created_at": "1536238185.881941",
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
     }
@@ -431,6 +439,8 @@ def test_dataset_register_route_when_created_at_is_string(tmp_app_with_users):  
         "creator_username": "olssont",
         "frozen_at": 1536238185.881941,
         "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 
