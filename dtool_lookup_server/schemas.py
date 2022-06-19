@@ -51,6 +51,8 @@ class RegisterDatasetSchema(Schema):
     created_at = String()
     annotations = Dict()
     tags = List(String)
+    number_of_items = Integer()
+    size_in_bytes = Integer()
 
 
 class UriPermissionSchema(Schema):
