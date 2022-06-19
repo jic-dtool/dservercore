@@ -271,7 +271,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "annotations": {"software": "bowtie2"},
         "tags": ["rnaseq"],
         "number_of_items": 1,
-        "size_in_bytes": 1536238185.881941,
+        "size_in_bytes": 5741810,
     }
 
     for token in [dopey_token, sleepy_token]:
@@ -304,7 +304,7 @@ def test_dataset_register_route(tmp_app_with_users):  # NOQA
         "frozen_at": 1536238185.881941,
         "created_at": 1536238185.881941,
         "number_of_items": 1,
-        "size_in_bytes": 1536238185.881941,
+        "size_in_bytes": 5741810,
     }
     assert get_admin_metadata_from_uri(uri) == expected_content
 
