@@ -1,9 +1,16 @@
+import sys
+
 from pkg_resources import iter_entry_points
 
 from flask import Flask, request
 from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_marshmallow import Marshmallow
+from flask_smorest import (
+    Api,
+    Blueprint
+)
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
@@ -36,13 +43,15 @@ class UnknownURIError(KeyError):
     pass
 
 
-mongo = PyMongo()
 sql_db = SQLAlchemy()
 jwt = JWTManager()
+ma = Marshmallow()
+mongo = PyMongo()
 
 
 def create_app(test_config=None):
     app = Flask(__name__)
+
     CORS(app)
 
     if test_config is None:
@@ -59,8 +68,10 @@ def create_app(test_config=None):
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
-
+    ma.init_app(app)
     jwt.init_app(app)
+
+    api = Api(app)
 
     from dtool_lookup_server import (
         config_routes,
@@ -70,17 +81,24 @@ def create_app(test_config=None):
         user_admin_routes,
         permission_routes,
     )
-    app.register_blueprint(config_routes.bp)
-    app.register_blueprint(dataset_routes.bp)
-    app.register_blueprint(user_routes.bp)
-    app.register_blueprint(base_uri_routes.bp)
-    app.register_blueprint(user_admin_routes.bp)
-    app.register_blueprint(permission_routes.bp)
+
+    api.register_blueprint(config_routes.bp)
+    api.register_blueprint(dataset_routes.bp)
+    api.register_blueprint(user_routes.bp)
+    api.register_blueprint(base_uri_routes.bp)
+    api.register_blueprint(user_admin_routes.bp)
+    api.register_blueprint(permission_routes.bp)
 
     # Load dtool-lookup-server plugin blueprints.
     for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
         bp = entrypoint.load()
-        app.register_blueprint(bp)
+        if not isinstance(bp, Blueprint):
+            print(
+                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        api.register_blueprint(bp)
 
     @app.before_request
     def log_request():

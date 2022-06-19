@@ -1,37 +1,35 @@
 from flask import (
     abort,
-    Blueprint,
-    jsonify,
-    request,
 )
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+from flask_smorest import Blueprint
+
 from dtool_lookup_server import (
     AuthenticationError,
 )
+from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 from dtool_lookup_server.utils import (
     base_uri_exists,
     get_user_obj,
     register_base_uri,
-    list_base_uris,
 )
 
 bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
+@bp.arguments(BaseURISchema, required=True)
 @jwt_required()
-def register():
+def register(parameter: BaseURISchema):
     """Register a base URI.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
     username = get_jwt_identity()
-    data = request.get_json()
-
-    base_uri = data["base_uri"]
+    base_uri = parameter['base_uri']
 
     try:
         user = get_user_obj(username)
@@ -53,11 +51,13 @@ def register():
 
 
 @bp.route("/list", methods=["GET"])
+@bp.paginate()
+@bp.response(200, BaseURISchema(many=True))
 @jwt_required()
-def base_uri_list():
-    """Register a base URI.
+def base_uri_list(pagination_parameters):
+    """List all base_uris.
 
-    The user needs to be admin. Returns 404 for non-admins.
+    The user needs to be admin.
     """
     username = get_jwt_identity()
     try:
@@ -69,4 +69,8 @@ def base_uri_list():
     if not user.is_admin:
         abort(404)
 
-    return jsonify(list_base_uris())
+    query = BaseURI.query.filter_by()
+    pagination_parameters.item_count = query.count()
+    return query.paginate(
+        pagination_parameters.page, pagination_parameters.page_size, True
+    ).items

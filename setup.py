@@ -28,6 +28,8 @@ setup(
         "flask-sqlalchemy",
         "flask-migrate",
         "flask-pymongo",
+        "flask-marshmallow",
+        "flask-smorest",
         "flask-cors",
         "dtoolcore>=3.18.0",
         "dtool_irods",

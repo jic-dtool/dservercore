@@ -45,6 +45,7 @@ def test_dataset_info_returns_false_when_type_is_not_dataset():
     assert not dataset_info_is_valid(info)
 
 
+# TODO: This test should be deprecated by using marshmallow.UUID
 def test_dataset_info_returns_false_if_uuid_looks_invalid():
     from dtool_lookup_server.utils import dataset_info_is_valid
 

@@ -7,13 +7,27 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+TODO
+^^^^
+
+- Simplify code cleaning up created_at and frozen_at types
+- Create response schemas
+
 Added
 ^^^^^
 
+- Integrated openapi
+- Pagination for all listing endpoints
+- Defined schemas for endpoint arguments
+- Missing and improved docstrings for endpoints
+- Replaces get_json() uses for the use of request's arguments
 
 Changed
 ^^^^^^^
 
+- The frozen_at and created_at fields for /dataset/register endpoint are string representation of the floating point
+  value. Previously the application was permissive and accepted any integer, float or string type. The type sanitation
+  shall happen in the API client.
 
 Deprecated
 ^^^^^^^^^^
@@ -94,7 +108,7 @@ Fixed
 
 This release makes it possible to create plugins to the dtool-lookup-server!
 
-Many thanks to `Johannes L. Hörmann <https://github.com/jotelha>`_ and `Lars
+Many thanks to `Johannes L. Hï¿½rmann <https://github.com/jotelha>`_ and `Lars
 Pastewka <https://github.com/pastewka>`_ for bug reports, design discussions
 and code contributions.
 

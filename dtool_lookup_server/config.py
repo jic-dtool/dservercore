@@ -15,16 +15,13 @@ def _get_file_content(key, default=""):
 
 
 class Config(object):
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'you-will-never-guess')
+    SECRET_KEY = os.environ.get("SECRET_KEY", "you-will-never-guess")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI',
-        'sqlite:///{}'.format(os.path.join(_HERE, "..", 'app.db'))
+        "SQLALCHEMY_DATABASE_URI",
+        "sqlite:///{}".format(os.path.join(_HERE, "..", "app.db")),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MONGO_URI = os.environ.get(
-        'MONGO_URI',
-        'mongodb://localhost:27017/dtool_info'
-    )
+    MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/dtool_info")
     JWT_ALGORITHM = "RS256"
     JWT_TOKEN_LOCATION = "headers"
     JWT_HEADER_NAME = "Authorization"
@@ -41,16 +38,40 @@ class Config(object):
 
     JSONIFY_PRETTYPRINT_REGULAR = True
 
+    API_TITLE = "dtool-lookup-server API"
+    API_VERSION = "v1"
+    OPENAPI_VERSION = "3.0.2"
+    OPENAPI_URL_PREFIX = "/doc"
+    OPENAPI_REDOC_PATH = "/redoc"
+    OPENAPI_REDOC_URL = (
+        "https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
+    )
+    OPENAPI_SWAGGER_UI_PATH = "/swagger"
+    OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    API_SPEC_OPTIONS = {
+        "x-internal-id": "2",
+        "security": [{"bearerAuth": []}],
+        "components": {
+            "securitySchemes": {
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                }
+            }
+        },
+    }
+
     @classmethod
     def to_dict(cls):
         """Convert server configuration into dict."""
         exclusions = [
-            'JWT_PRIVATE_KEY',
-            'MONGO_URI',
-            'SECRET_KEY',
-            'SQLALCHEMY_DATABASE_URI',
+            "JWT_PRIVATE_KEY",
+            "MONGO_URI",
+            "SECRET_KEY",
+            "SQLALCHEMY_DATABASE_URI",
         ]  # config keys to exclude
-        d = {'version': dtool_lookup_server.__version__}
+        d = {"version": dtool_lookup_server.__version__}
         for k, v in cls.__dict__.items():
             # select only capitalized fields
             if k.upper() == k and k not in exclusions:
