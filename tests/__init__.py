@@ -204,7 +204,7 @@ def tmp_app_with_data(request):
             "uuid": uuid,
             "uri": uri,
             "name": "bad-apples",
-            "readme": {"descripton": "apples from queen"},
+            "readme": "---\ndescripton: apples from queen",
             "manifest": {
                 "dtoolcore_version": "3.7.0",
                 "hash_function": "md5sum_hexdigest",
@@ -235,7 +235,7 @@ def tmp_app_with_data(request):
         "uuid": uuid,
         "uri": uri,
         "name": "oranges",
-        "readme": {"descripton": "oranges from queen"},
+        "readme": "---\ndescripton: oranges from queen",
         "manifest": {
             "dtoolcore_version": "3.7.0",
             "hash_function": "md5sum_hexdigest",

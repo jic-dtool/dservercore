@@ -28,6 +28,8 @@ Changed
 - The frozen_at and created_at fields for /dataset/register endpoint are string representation of the floating point
   value. Previously the application was permissive and accepted any integer, float or string type. The type sanitation
   shall happen in the API client.
+- When registering a dataset the readme should now be provided as a string
+  (text) rather than as a dictionary of key value entries
 
 Deprecated
 ^^^^^^^^^^

@@ -5,7 +5,6 @@ import importlib
 import json
 from pkg_resources import iter_entry_points
 
-import yaml
 from sqlalchemy.sql import exists
 
 import pymongo.errors
@@ -181,8 +180,7 @@ def generate_dataset_info(dataset, base_uri):
     dataset_info["base_uri"] = base_uri
 
     # Add the readme info.
-    readme_info = yaml.load(dataset.get_readme_content(), Loader=yaml.FullLoader)
-    dataset_info["readme"] = readme_info
+    dataset_info["readme"] = dataset.get_readme_content()
 
     # Add the manifest.
     dataset_info["manifest"] = dataset._manifest

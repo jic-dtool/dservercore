@@ -44,7 +44,7 @@ class RegisterDatasetSchema(Schema):
     # dtoolcore_version should be included when storing (based on current version) but not required on the request
     name = String()
     type = String()
-    readme = Dict()
+    readme = String()
     manifest = Nested(ManifestSchema)
     creator_username = String()
     frozen_at = String()

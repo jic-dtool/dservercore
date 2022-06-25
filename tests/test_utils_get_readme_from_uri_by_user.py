@@ -19,7 +19,7 @@ def test_get_readme_from_uri_by_user(tmp_app_with_data):  # NOQA
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
 
-    expected_readme = {"descripton": "apples from queen"}
+    expected_readme = "---\ndescripton: apples from queen"
 
     assert get_readme_from_uri_by_user("grumpy", uri) == expected_readme
 
