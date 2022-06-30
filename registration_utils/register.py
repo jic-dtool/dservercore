@@ -2,10 +2,9 @@ import click
 import requests
 import yaml
 
-from dtool_lookup_server.utils import (
-    iter_datasets_in_base_uri,
-    generate_dataset_info,
-)
+from dtoolcore import iter_datasets_in_base_uri
+
+from dtool_lookup_server.utils import generate_dataset_info
 
 
 def get_projects(fpath):
