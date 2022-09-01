@@ -3,20 +3,20 @@
 
 def test_empty_dict():
     """An empty dict should return query for all datasets."""
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
     assert _dict_to_mongo_query({}) == {}
 
 
 def test_free_text():
     """Should return {"$text": {"$search": "free_text_here"}}"""
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
     query = dict(free_text="free_text_here")
     expected_mongo_query = {"$text": {"$search": "free_text_here"}}
     assert _dict_to_mongo_query(query) == expected_mongo_query
 
 
 def test_creator_usernames():
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
 
     # Test single creator username.
     query = dict(creator_usernames=["grumpy"])
@@ -37,7 +37,7 @@ def test_creator_usernames():
 
 
 def test_base_uris():
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
 
     # Test single base URI.
     query = dict(base_uris=["s3://snow-white"])
@@ -54,7 +54,7 @@ def test_base_uris():
 
 
 def test_tags():
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
 
     # Test single tag.
     query = dict(tags=["evil"])
@@ -73,7 +73,7 @@ def test_tags():
 
 def test_combinations():
 
-    from dtool_lookup_server.utils import _dict_to_mongo_query
+    from dtool_lookup_server.mongo_utils import _dict_to_mongo_query
 
     query = dict(
         free_text="apple",
