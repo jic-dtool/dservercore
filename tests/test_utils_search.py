@@ -44,8 +44,12 @@ def test_functional(tmp_app_with_data):  # NOQA
 
                 mongo_search = MongoSearch()
 
+                # Get all for grumpy user.
                 query = preprocess_query_base_uris("grumpy", {})
                 result = mongo_search.search(query)
                 assert len(result) == 3
 
-
+                # Get all for sleep user.
+                query = preprocess_query_base_uris("sleepy", {})
+                result = mongo_search.search(query)
+                assert len(result) == 0

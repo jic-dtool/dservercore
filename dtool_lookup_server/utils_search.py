@@ -103,8 +103,13 @@ class MongoSearch(SearchABC):
         pass
 
     def search(self, query):
-        datasets = []
+
+        # Deal with edge case where a user has no access to any base URIs.
+        if len(query["base_uris"]) == 0:
+            return []
+
         mongo_query = _dict_to_mongo_query(query)
+
         cx = self.collection.find(
             mongo_query,
             {
@@ -114,6 +119,8 @@ class MongoSearch(SearchABC):
                 "annotations": False,
             },
         )
+
+        datasets = []
         for ds in cx:
             # Convert datetime object to float timestamp.
             for key in ("created_at", "frozen_at"):
@@ -121,6 +128,7 @@ class MongoSearch(SearchABC):
                 ds[key] = dtoolcore.utils.timestamp(datetime_obj)
 
             datasets.append(ds)
+
         return datasets
 
     def lookup_uris(self, uuid):
