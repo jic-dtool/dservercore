@@ -1,7 +1,7 @@
 """Test the search utility functions."""
 
 # TODO: copy over all the tests from test_dict_to_mongo_query.py
-# TODO: rework and add all search tests from test_dataset_routes.py
+# DONE: rework and add all search tests from test_dataset_routes.py
 # TODO: add tests and functionality for mongo_search.register_dataset()
 # TODO: add tests and functionality for mongo_search.lookup_uris()
 
@@ -51,5 +51,69 @@ def test_functional(tmp_app_with_data):  # NOQA
 
                 # Get all for sleep user.
                 query = preprocess_query_base_uris("sleepy", {})
+                result = mongo_search.search(query)
+                assert len(result) == 0
+
+                # Search for apples (in README).
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"free_text": "apple"}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 2
+
+                # Search for U00096 (in manifest).
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"free_text": "U00096"}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 2
+
+                # Search for crazystuff (in annotaitons).
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"free_text": "crazystuff"}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 1
+
+                # Tag test 1.
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"tags": ["good"]}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 1
+
+                # Tag test 2.
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"tags": ["good", "evil"]}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 0
+
+                # Tag test 3.
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"tags": ["fruit", "evil"]}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 2
+
+                # Combination query test 1.
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"free_text": "crazystuff", "tags": ["good"]}
+                )
+                result = mongo_search.search(query)
+                assert len(result) == 1
+
+                # Combination query test 2.
+                query = preprocess_query_base_uris(
+                    "grumpy",
+                    {"free_text": "crazystuff", "tags": ["evil"]}
+                )
                 result = mongo_search.search(query)
                 assert len(result) == 0
