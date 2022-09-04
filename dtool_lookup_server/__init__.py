@@ -94,7 +94,7 @@ def create_app(test_config=None):
         bp = entrypoint.load()
         if not isinstance(bp, Blueprint):
             print(
-                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",
+                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
                 file=sys.stderr,
             )
             sys.exit(1)
