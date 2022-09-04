@@ -3,6 +3,8 @@ import string
 import os
 import sys
 
+from contextlib import contextmanager
+
 import pytest
 
 # Pytest does not add the working directory to the path so we do it here.
@@ -25,6 +27,12 @@ def random_string(
     chars=string.ascii_uppercase + string.ascii_lowercase + string.digits
 ):
     return prefix + ''.join(random.choice(chars) for _ in range(size))
+
+@contextmanager
+def tmp_env_var(key, value):
+    os.environ[key] = value
+    yield
+    del os.environ[key]
 
 
 @pytest.fixture
