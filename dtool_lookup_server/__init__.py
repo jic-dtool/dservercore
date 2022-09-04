@@ -1,5 +1,6 @@
 import sys
 
+from abc import ABC, abstractmethod
 from pkg_resources import iter_entry_points
 
 from flask import Flask, request
@@ -41,6 +42,38 @@ class UnknownBaseURIError(KeyError):
 
 class UnknownURIError(KeyError):
     pass
+
+
+class SearchABC(ABC):
+
+    @abstractmethod
+    def register_dataset(self, dataset_info):
+        """Register a dataset.
+
+        The base URI is in the dataset_info. It is assumed that preflight checks
+        have been made to ensure that the base URI has been registered and that
+        the user has permissions to perform the action.
+        """
+        pass
+
+    @abstractmethod
+    def search(self, query):
+        """Search for datasets.
+
+        It is assumed that preflight checks have been made to ensure that the
+        user has permissions to perform the action and that the base URIs in the
+        query have been limited to those the user has permissions to search.
+        """
+        pass
+
+    @abstractmethod
+    def lookup_uris(self, uuid):
+        """Return list of URIs for a dataset defined by a UUID.
+
+        It is assumed that postflight checks will be performed to limit the
+        results to the base URIs that the user has permission to search.
+        """
+
 
 
 sql_db = SQLAlchemy()
