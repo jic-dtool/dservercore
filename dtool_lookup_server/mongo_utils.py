@@ -119,7 +119,7 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
     return dataset_info["uuid"]
 
 
-def search_datasets_by_user_mongo(username, query):
+def search_datasets_mongo(query):
     datasets = []
     mongo_query = _dict_to_mongo_query(query)
     cx = mongo.db[MONGO_COLLECTION].find(

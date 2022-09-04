@@ -24,7 +24,7 @@ from dtool_lookup_server.sql_models import (
 from dtool_lookup_server.config import Config
 
 from dtool_lookup_server.mongo_utils import (
-    search_datasets_by_user_mongo,
+    search_datasets_mongo,
     register_dataset_descriptive_metadata_mongo,
     get_readme_from_uri_mongo,
     get_annotations_from_uri_mongo,
@@ -346,7 +346,7 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
-    return search_datasets_by_user_mongo(username, query)
+    return search_datasets_mongo(query)
 
 
 def summary_of_datasets_by_user(username):
