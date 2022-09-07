@@ -9,8 +9,66 @@
 import pytest
 import pymongo
 
-from . import tmp_app_with_data  # NOQA
-from . import tmp_env_var
+from dtoolcore import DataSetCreator, DataSet
+from dtool_lookup_server.utils import generate_dataset_info
+
+from . import tmp_app, tmp_app_with_data  # NOQA
+from . import tmp_env_var, tmp_dir
+
+def _create_dataset_info(base_uri, name, readme, items_content, tags, annotations, creator):  # NOQA
+        with tmp_dir() as d:
+            with DataSetCreator(name, d, readme, creator) as ds_creator:
+                for ic in items_content:
+                    handle = ic + ".txt"
+                    fpath = ds_creator.prepare_staging_abspath_promise(handle)
+                    with open(fpath, "w") as fh:
+                        fh.write(ic)
+                for tag in tags:
+                    ds_creator.put_tag(tag)
+                for key, value in annotations.items():
+                    ds_creator.put_annotation(key, value)
+            dataset = DataSet.from_uri(ds_creator.uri)
+            ds_info = generate_dataset_info(dataset, base_uri)
+
+            # Make the URI not look like a disk set URI.
+            ds_uri = base_uri + "/" + ds_info["uuid"]
+            ds_info["uri"] = ds_uri
+
+            return ds_info
+
+
+
+def test_register_functional(tmp_app):  # NOQA
+
+    ds_info = _create_dataset_info(
+        "s3://store",
+        "apple-gala",
+        "---\ndescription: gala apples",
+        ["barrel1", "barrel2"],
+        ["red", "yellow"],
+        {"type": "fruit"},
+        "farmer"
+    )
+
+    from dtool_lookup_server.utils_search import MongoSearch
+
+    # For this test we will just rip the MONGO_URI out of the app config.
+    mongo_uri = tmp_app.application.config["MONGO_URI"]
+
+    # For this test we will just rip it out of the MONGO_URI.
+    parsed = pymongo.uri_parser.parse_uri(mongo_uri)
+    mongo_db = parsed['database']
+
+    with tmp_env_var("MONGO_URI", mongo_uri):
+        with tmp_env_var("MONGO_DB", mongo_db):
+            with tmp_env_var("MONGO_COLLECTION", "datasets"):
+                mongo_search = MongoSearch()
+                mongo_search.register_dataset(ds_info)
+                assert mongo_search.lookup_uris(ds_info["uuid"]) == [ds_info["uri"]]
+
+
+
+
 
 def test_functional(tmp_app_with_data):  # NOQA
 
