@@ -1,7 +1,10 @@
 import random
+import shutil
 import string
 import os
 import sys
+import tempfile
+import shutil
 
 from contextlib import contextmanager
 
@@ -34,6 +37,11 @@ def tmp_env_var(key, value):
     yield
     del os.environ[key]
 
+@contextmanager
+def tmp_dir():
+    d = tempfile.mkdtemp()
+    yield d
+    shutil.rmtree(d)
 
 @pytest.fixture
 def tmp_app(request):
