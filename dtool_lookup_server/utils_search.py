@@ -3,10 +3,17 @@
 import os
 
 import dtoolcore.utils
+import pymongo.errors
 
 from pymongo import MongoClient
 
+
 from dtool_lookup_server import SearchABC
+
+from dtool_lookup_server.date_utils import (
+    extract_created_at_as_datetime,
+    extract_frozen_at_as_datatime,
+)
 
 
 VALID_MONGO_QUERY_KEYS = (
@@ -24,6 +31,43 @@ MONGO_QUERY_LIST_KEYS = (
     "tags",
 )
 
+def _register_dataset_descriptive_metadata(collection, dataset_info):
+    """Register dataset info in the collection.
+
+    If the "uuid" and "uri" are the same as another record in
+    the mongodb collection a new record is not created, and
+    the UUID is returned.
+
+    Returns UUID of dataset otherwise.
+    """
+
+    # Make a copy to ensure that the original data strucutre does not
+    # get mangled by the datetime replacements.
+    dataset_info = dataset_info.copy()
+
+    frozen_at = extract_frozen_at_as_datatime(dataset_info)
+    created_at = extract_created_at_as_datetime(dataset_info)
+
+    dataset_info["frozen_at"] = frozen_at
+    dataset_info["created_at"] = created_at
+
+    query = {"uuid": dataset_info["uuid"], "uri": dataset_info["uri"]}
+
+    # If a record with the same UUID and URI exists return the uuid
+    # without adding a duplicate record.
+    exists = collection.find_one(query)
+
+    if exists is None:
+        collection.insert_one(dataset_info)
+    else:
+        collection.find_one_and_replace(query, dataset_info)
+
+    # The MongoDB client dynamically updates the dataset_info dict
+    # with and '_id' key. Remove it.
+    if "_id" in dataset_info:
+        del dataset_info["_id"]
+
+    return dataset_info["uuid"]
 
 def _dict_to_mongo_query(query_dict):
     def _sanitise(query_dict):
@@ -100,7 +144,10 @@ class MongoSearch(SearchABC):
             raise(RuntimeError("Please set the MONGO_COLLECTION environment variable"))  # NOQA
 
     def register_dataset(self, dataset_info):
-        pass
+        try:
+            return _register_dataset_descriptive_metadata(self.collection, dataset_info)
+        except pymongo.errors.DocumentTooLarge as e:
+            raise (ValidationError("Dataset has too much metadata: {}".format(e)))
 
     def search(self, query):
 

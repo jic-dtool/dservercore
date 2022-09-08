@@ -2,7 +2,7 @@
 
 # DONE: copy over all the tests from test_dict_to_mongo_query.py
 # DONE: rework and add all search tests from test_dataset_routes.py
-# TODO: add tests and functionality for mongo_search.register_dataset()
+# IN PROGRESS: add tests and functionality for mongo_search.register_dataset()
 # TODO: add tests and functionality for mongo_search.lookup_uris()
 # TODO: rework test fixture to make it stand alone from dtool-lookup-server (use register_dataset to make it easier to build it up)
 
@@ -63,8 +63,17 @@ def test_register_functional(tmp_app):  # NOQA
         with tmp_env_var("MONGO_DB", mongo_db):
             with tmp_env_var("MONGO_COLLECTION", "datasets"):
                 mongo_search = MongoSearch()
-                mongo_search.register_dataset(ds_info)
-                assert mongo_search.lookup_uris(ds_info["uuid"]) == [ds_info["uri"]]
+
+                # Should be empty. Nothing registered yet.
+                assert len(mongo_search.search({"base_uris": ["s3://store"]})) == 0
+
+                # Register a dataset.
+                mongo_search.register_dataset(ds_info) 
+                assert len(mongo_search.search({"base_uris": ["s3://store"]})) == 1
+
+                # Register the same dataset again. Shoud not result in a duplicate record.
+                mongo_search.register_dataset(ds_info.copy())
+                assert len(mongo_search.search({"base_uris": ["s3://store"]})) == 1
 
 
 
