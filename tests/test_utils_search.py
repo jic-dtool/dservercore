@@ -2,11 +2,12 @@
 
 # DONE: copy over all the tests from test_dict_to_mongo_query.py
 # DONE: rework and add all search tests from test_dataset_routes.py
-# IN PROGRESS: add tests and functionality for mongo_search.register_dataset()
+# DONE: add tests and functionality for mongo_search.register_dataset()
 # TODO: add tests and functionality for mongo_search.lookup_uris()
 # TODO: rework test fixture to make it stand alone from dtool-lookup-server (use register_dataset to make it easier to build it up)
 
 import pytest
+from dtool_lookup_server import ValidationError
 import pymongo
 
 from dtoolcore import DataSetCreator, DataSet
@@ -37,8 +38,7 @@ def _create_dataset_info(base_uri, name, readme, items_content, tags, annotation
             return ds_info
 
 
-
-def test_register_functional(tmp_app):  # NOQA
+def test_register_basic(tmp_app):  # NOQA
 
     ds_info = _create_dataset_info(
         "s3://store",
@@ -76,6 +76,40 @@ def test_register_functional(tmp_app):  # NOQA
                 assert len(mongo_search.search({"base_uris": ["s3://store"]})) == 1
 
 
+def test_register_raises_when_metadata_too_large(tmp_app):  # NOQA
+
+    readme_lines = ["---"]
+    for i in range(100000):
+        key = "here_is_a_long_key_{}".format(i)
+        value = "here_is_a_long_value_{}".format(i) * 10
+        readme_lines.append("{}: {}".format(key, value))
+    ds_info = _create_dataset_info(
+        "s3://store",
+        "apple-gala",
+        "\n".join(readme_lines),
+        ["barrel1", "barrel2"],
+        ["red", "yellow"],
+        {"type": "fruit"},
+        "farmer"
+    )
+
+    from dtool_lookup_server import ValidationError
+    from dtool_lookup_server.utils_search import MongoSearch
+
+    # For this test we will just rip the MONGO_URI out of the app config.
+    mongo_uri = tmp_app.application.config["MONGO_URI"]
+
+    # For this test we will just rip it out of the MONGO_URI.
+    parsed = pymongo.uri_parser.parse_uri(mongo_uri)
+    mongo_db = parsed['database']
+
+    with tmp_env_var("MONGO_URI", mongo_uri):
+        with tmp_env_var("MONGO_DB", mongo_db):
+            with tmp_env_var("MONGO_COLLECTION", "datasets"):
+                mongo_search = MongoSearch()
+
+                with pytest.raises(ValidationError):
+                    mongo_search.register_dataset(ds_info)
 
 
 

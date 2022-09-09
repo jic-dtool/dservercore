@@ -8,7 +8,7 @@ import pymongo.errors
 from pymongo import MongoClient
 
 
-from dtool_lookup_server import SearchABC
+from dtool_lookup_server import SearchABC, ValidationError
 
 from dtool_lookup_server.date_utils import (
     extract_created_at_as_datetime,
