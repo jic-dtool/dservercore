@@ -3,7 +3,7 @@
 # DONE: copy over all the tests from test_dict_to_mongo_query.py
 # DONE: rework and add all search tests from test_dataset_routes.py
 # DONE: add tests and functionality for mongo_search.register_dataset()
-# TODO: add tests and functionality for mongo_search.lookup_uris()
+# DONE: add tests and functionality for mongo_search.lookup_uris()
 # TODO: rework test fixture to make it stand alone from dtool-lookup-server (use register_dataset to make it easier to build it up)
 
 import pytest
@@ -15,6 +15,14 @@ from dtool_lookup_server.utils import generate_dataset_info
 
 from . import tmp_app, tmp_app_with_data  # NOQA
 from . import tmp_env_var, tmp_dir
+
+
+def _update_base_uri(ds_info, base_uri):
+    ds_uri = base_uri + "/" + ds_info["uuid"]
+    ds_info["uri"] = ds_uri
+    ds_info["base_uri"] = base_uri
+    return ds_info
+
 
 def _create_dataset_info(base_uri, name, readme, items_content, tags, annotations, creator):  # NOQA
         with tmp_dir() as d:
@@ -31,11 +39,74 @@ def _create_dataset_info(base_uri, name, readme, items_content, tags, annotation
             dataset = DataSet.from_uri(ds_creator.uri)
             ds_info = generate_dataset_info(dataset, base_uri)
 
-            # Make the URI not look like a disk set URI.
-            ds_uri = base_uri + "/" + ds_info["uuid"]
-            ds_info["uri"] = ds_uri
+            ds_info = _update_base_uri(ds_info, base_uri)
 
             return ds_info
+
+
+def test_lookup_uris(tmp_app):  # NOQA
+    from dtool_lookup_server.utils_search import MongoSearch
+
+    ds_info_1 = _create_dataset_info(
+        "s3://store1",
+        "apple-gala",
+        "---\ndescription: gala apples",
+        ["barrel1", "barrel2"],
+        ["red", "yellow"],
+        {"type": "fruit"},
+        "farmer"
+    )
+    ds_info_2 = _update_base_uri(ds_info_1.copy(), "s3://store2")
+    uuid = ds_info_1["uuid"]
+
+    both_base_uris = ["s3://store1", "s3://store2"]
+    only_store2 = ["s3://store2"]
+
+    # For this test we will just rip the MONGO_URI out of the app config.
+    mongo_uri = tmp_app.application.config["MONGO_URI"]
+
+    # For this test we will just rip it out of the MONGO_URI.
+    parsed = pymongo.uri_parser.parse_uri(mongo_uri)
+    mongo_db = parsed['database']
+
+    with tmp_env_var("MONGO_URI", mongo_uri):
+        with tmp_env_var("MONGO_DB", mongo_db):
+            with tmp_env_var("MONGO_COLLECTION", "datasets"):
+                mongo_search = MongoSearch()
+
+                # Should be empty. Nothing registered yet.
+                assert mongo_search.lookup_uris(uuid, both_base_uris) == []
+
+                # Register a dataset.
+                mongo_search.register_dataset(ds_info_1)
+                assert mongo_search.lookup_uris(uuid, both_base_uris) == [
+                    {
+                        "base_uri": ds_info_1["base_uri"],
+                        "name": ds_info_1["name"],
+                        "uri": ds_info_1["uri"],
+                        "uuid": ds_info_1["uuid"]
+                     }
+                ]
+
+                # Register the same dataset in different base URI
+                mongo_search.register_dataset(ds_info_2)
+                assert len(mongo_search.lookup_uris(uuid, both_base_uris)) == 2  # NOQA
+
+                # Make sure only the dataset from store2 is retrievd if limited
+                # that base URI.
+                assert mongo_search.lookup_uris(uuid, only_store2) == [
+                    {
+                        "base_uri": ds_info_2["base_uri"],
+                        "name": ds_info_2["name"],
+                        "uri": ds_info_2["uri"],
+                        "uuid": ds_info_2["uuid"]
+                     }
+                ]
+
+                # Make sure nothing is returned if there are no base URIs.
+                assert len(mongo_search.lookup_uris(uuid, [])) == 0  # NOQA
+
+
 
 
 def test_register_basic(tmp_app):  # NOQA

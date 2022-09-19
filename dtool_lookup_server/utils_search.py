@@ -178,5 +178,29 @@ class MongoSearch(SearchABC):
 
         return datasets
 
-    def lookup_uris(self, uuid):
-        pass
+    def lookup_uris(self, uuid, base_uris):
+
+        # Deal with edge case where a user has no access to any base URIs.
+        if len(base_uris) == 0:
+            return []
+
+        mongo_query = {
+            "uuid": uuid,
+            "$or": [{"base_uri": v} for v in base_uris]
+        }
+        cx = self.collection.find(
+            mongo_query,
+            {
+                "_id": False,
+                "uri": True,
+                "base_uri": True,
+                "uuid": True,
+                "name": True
+            },
+        )
+
+        datasets = []
+        for ds in cx:
+            datasets.append(ds)
+
+        return datasets

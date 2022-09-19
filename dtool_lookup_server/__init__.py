@@ -67,11 +67,11 @@ class SearchABC(ABC):
         pass
 
     @abstractmethod
-    def lookup_uris(self, uuid):
+    def lookup_uris(self, uuid, base_uris):
         """Return list of URIs for a dataset defined by a UUID.
 
-        It is assumed that postflight checks will be performed to limit the
-        results to the base URIs that the user has permission to search.
+        It is assumed that preflight checks will be performed to provide
+        a list of base URIs that the user is allowed to search through.
         """
 
 
