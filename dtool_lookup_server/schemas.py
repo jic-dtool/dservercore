@@ -11,11 +11,11 @@ from marshmallow.fields import (
 )
 
 
-class UriSchema(Schema):
+class URISchema(Schema):
     uri = String()
 
 
-class BaseUriSchema(Schema):
+class BaseURISchema(Schema):
     base_uri = String()
 
 
@@ -38,7 +38,7 @@ class ManifestSchema(Schema):
 
 
 class RegisterDatasetSchema(Schema):
-    uuid = UUID()
+    uuid = String()
     base_uri = String()
     uri = String()
     # dtoolcore_version should be included when storing (based on current version) but not required on the request
@@ -65,8 +65,9 @@ class SearchDatasetSchema(Schema):
     free_text = String()
     creator_usernames = List(String)
     base_uris = List(String)
-    uuids = List(UUID)
+    uuids = List(String)
     tags = List(String)
+
 
 class SummarySchema(Schema):
     number_of_datasets = Integer()
@@ -83,3 +84,11 @@ class UserResponseSchema(Schema):
     is_admin = Boolean()
     register_permissions_on_base_uris = List(String)
     search_permissions_on_base_uris = List(String)
+
+
+class AnnotationsSchema(Schema):
+    pass
+
+
+class ConfigSchema(Schema):
+    pass

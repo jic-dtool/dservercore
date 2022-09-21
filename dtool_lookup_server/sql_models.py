@@ -2,6 +2,8 @@ import dtoolcore.utils
 from dtool_lookup_server import ma
 from dtool_lookup_server import sql_db as db
 
+from marshmallow.fields import Float
+
 search_permissions = db.Table(
     "search_permissions",
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
@@ -110,7 +112,7 @@ class Dataset(db.Model):
         }
 
 
-class BaseURISchema(ma.SQLAlchemyAutoSchema):
+class BaseURISQLAlchemySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
         fields = ('base_uri',)
@@ -120,7 +122,12 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
 
+
 class DatasetSchema(ma.SQLAlchemyAutoSchema):
+    created_at = Float()
+    frozen_at = Float()
+
     class Meta:
         model = Dataset
-        fields = ('base_uri', 'created_at', 'creator_username', 'frozen_at', 'created_at', 'name', 'uri', 'uuid')
+        additional = ('base_uri', 'creator_username', 'name', 'uri', 'uuid')
+

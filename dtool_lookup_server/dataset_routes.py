@@ -12,7 +12,7 @@ from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
 from .sql_models import (
-    BaseURISchema,
+    BaseURISQLAlchemySchema,
     DatasetSchema
 )
 
@@ -29,7 +29,8 @@ from dtool_lookup_server import (
     ValidationError,
 )
 from dtool_lookup_server.schemas import (
-    UriSchema,
+    AnnotationsSchema,
+    URISchema,
     RegisterDatasetSchema,
     SearchDatasetSchema,
     SummarySchema,
@@ -120,7 +121,7 @@ def search_datasets(
 
 @bp.route("/register", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
-@bp.response(201, UriSchema)
+@bp.response(201, URISchema)
 @jwt_required()
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
@@ -149,9 +150,9 @@ def register(dataset: RegisterDatasetSchema):
 
 
 @bp.route("/manifest", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def manifest(query: UriSchema):
+def manifest(query: URISchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
     if "uri" not in query:
@@ -161,7 +162,7 @@ def manifest(query: UriSchema):
     try:
         manifest_ = get_manifest_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
@@ -177,9 +178,9 @@ def manifest(query: UriSchema):
 
 
 @bp.route("/readme", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def readme(query: UriSchema):
+def readme(query: URISchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
     if "uri" not in query:
@@ -189,7 +190,7 @@ def readme(query: UriSchema):
     try:
         readme_ = get_readme_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
@@ -205,10 +206,10 @@ def readme(query: UriSchema):
 
 
 @bp.route("/annotations", methods=["POST"])
-@bp.arguments(UriSchema)
-@bp.response(200, Dict)
+@bp.arguments(URISchema)
+@bp.response(200, AnnotationsSchema)
 @jwt_required()
-def annotations(query: UriSchema):
+def annotations(query: URISchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
     if "uri" not in query:
@@ -218,7 +219,7 @@ def annotations(query: UriSchema):
     try:
         annotations_ = get_annotations_from_uri_by_user(username, uri)
     except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
+        current_app.logger.info("AuthenticationError")
         abort(401)
     except AuthorizationError:
         current_app.logger.info("AuthorizationError")
