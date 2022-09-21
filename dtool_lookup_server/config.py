@@ -1,3 +1,4 @@
+import json
 import os
 
 import dtool_lookup_server
@@ -48,7 +49,7 @@ class Config(object):
     )
     OPENAPI_SWAGGER_UI_PATH = os.environ.get("OPENAPI_SWAGGER_UI_PATH", "/swagger")
     OPENAPI_SWAGGER_UI_URL = os.environ.get("OPENAPI_SWAGGER_UI_URL", "https://cdn.jsdelivr.net/npm/swagger-ui-dist/")
-    API_SPEC_OPTIONS = {
+    API_SPEC_OPTIONS = json.loads(os.environ.get("API_SPEC_OPTIONS", """{
         "x-internal-id": "2",
         "security": [{"bearerAuth": []}],
         "components": {
@@ -60,7 +61,7 @@ class Config(object):
                 }
             }
         },
-    }
+    }"""))
 
     @classmethod
     def to_dict(cls):
