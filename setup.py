@@ -34,7 +34,6 @@ setup(
         "flask-cors",
         "dtoolcore>=3.18.0",
         "flask-jwt-extended[asymmetric_crypto]>=4.0",
-        "marshmallow-sqlalchemy",
         "pyyaml",
     ],
     download_url="{}/tarball/{}".format(url, version),
