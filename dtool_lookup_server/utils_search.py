@@ -124,24 +124,44 @@ def _dict_to_mongo_query(query_dict):
 class MongoSearch(SearchABC):
     """Mongo implementation of the search plugin."""
 
-    def __init__(self):
-        try:
-            self._mongo_uri = os.environ["MONGO_URI"]
-            self.client = MongoClient(self._mongo_uri)
-        except KeyError:
-            raise(RuntimeError("Please set the MONGO_URI environment variable"))
+    # The intput arguments to the below are only there to make it easier to
+    # test the code. When plugged into the dtool-lookup-server these variables
+    # will be parsed from the environment variables named:
+    # MONGO_URI, MONGO_DB, and MONGO_COLLECTION.
+    def __init__(self, mongo_uri=None, mongo_db=None, mongo_collection=None):
+        if mongo_uri is None:
+            try:
+                self._mongo_uri = os.environ["MONGO_URI"]
+                self.client = MongoClient(self._mongo_uri)
+            except KeyError:
+                raise(RuntimeError("Please set the MONGO_URI environment variable"))  # NOQA
+        else:
+            self.client = MongoClient(mongo_uri)
 
-        try:
-            self._mongo_db = os.environ["MONGO_DB"]
-            self.db = self.client[self._mongo_db]
-        except KeyError:
-            raise(RuntimeError("Please set the MONGO_DB environment variable"))
+        if mongo_db is None:
+            try:
+                self._mongo_db = os.environ["MONGO_DB"]
+                self.db = self.client[self._mongo_db]
+            except KeyError:
+                raise(RuntimeError("Please set the MONGO_DB environment variable"))  # NOQA
+        else:
+            self.db = self.client[mongo_db]
 
-        try:
-            self._mongo_collection = os.environ["MONGO_COLLECTION"]
-            self.collection = self.db[self._mongo_collection]
-        except KeyError:
-            raise(RuntimeError("Please set the MONGO_COLLECTION environment variable"))  # NOQA
+        if mongo_collection is None:
+            try:
+                self._mongo_collection = os.environ["MONGO_COLLECTION"]
+                self.collection = self.db[self._mongo_collection]
+            except KeyError:
+                raise(RuntimeError("Please set the MONGO_COLLECTION environment variable"))  # NOQA
+        else:
+            self.collection = self.db[mongo_collection]
+
+        # Enable free text searching.
+        # According to the Mongo documenation indexes will not be regenerated
+        # if they already exists so it should be safe to run the command below
+        # every time the class is instanciated.
+        # https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/#recreating-an-existing-index  # NOQA
+        self.collection.create_index([("$**", pymongo.TEXT)])
 
     def register_dataset(self, dataset_info):
         try:
