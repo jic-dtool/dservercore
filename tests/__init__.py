@@ -1,5 +1,4 @@
 import random
-import shutil
 import string
 import os
 import sys
@@ -31,17 +30,20 @@ def random_string(
 ):
     return prefix + ''.join(random.choice(chars) for _ in range(size))
 
+
 @contextmanager
 def tmp_env_var(key, value):
     os.environ[key] = value
     yield
     del os.environ[key]
 
+
 @contextmanager
 def tmp_dir():
     d = tempfile.mkdtemp()
     yield d
     shutil.rmtree(d)
+
 
 @pytest.fixture
 def tmp_app(request):
