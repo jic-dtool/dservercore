@@ -75,6 +75,45 @@ class SearchABC(ABC):
         """
 
 
+class RetrieveABC(ABC):
+
+    @abstractmethod
+    def register_dataset(self, dataset_info):
+        """Register a dataset.
+
+        The base URI is in the dataset_info. It is assumed that preflight checks
+        have been made to ensure that the base URI has been registered and that
+        the user has permissions to perform the action.
+        """
+        pass
+
+    @abstractmethod
+    def get_readme(self, uri):
+        """Return the dataset readme.
+
+        It is assumed that preflight checks have been made to ensure that the
+        user has permissions to access the URI.
+        """
+        pass
+
+    @abstractmethod
+    def get_manifest(self, uri):
+        """Return the dataset manifest.
+
+        It is assumed that preflight checks have been made to ensure that the
+        user has permissions to access the URI.
+        """
+        pass
+
+    @abstractmethod
+    def get_annotations(self, uri):
+        """Return the dataset annotations.
+
+        It is assumed that preflight checks have been made to ensure that the
+        user has permissions to access the URI.
+        """
+        pass
+
 
 sql_db = SQLAlchemy()
 jwt = JWTManager()
