@@ -11,9 +11,9 @@ from dtool_lookup_server import (
     AuthenticationError,
 )
 from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
+import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
     base_uri_exists,
-    get_user_obj,
     register_base_uri,
 )
 
@@ -29,19 +29,11 @@ def register(parameter: BaseURISchema):
     The user needs to be admin.
     """
     username = get_jwt_identity()
-    base_uri = parameter['base_uri']
-
-    try:
-        user = get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
-        abort(404)
-
-    # Non admin users should see 404.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
         abort(404)
 
     # Make it idempotent.
+    base_uri = parameter['base_uri']
     if base_uri_exists(base_uri):
         return "", 201
 
@@ -60,13 +52,7 @@ def base_uri_list(pagination_parameters):
     The user needs to be admin.
     """
     username = get_jwt_identity()
-    try:
-        user = get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
-        abort(404)
-    # Non admin users should see 404.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
         abort(404)
 
     query = BaseURI.query.filter_by()

@@ -10,6 +10,7 @@ from flask_smorest import Blueprint
 
 from dtool_lookup_server import AuthenticationError
 import dtool_lookup_server.utils
+import dtool_lookup_server.utils_auth
 
 from .schemas import UserResponseSchema
 
@@ -27,15 +28,13 @@ def get_user_info(username):
     """
     token_username = get_jwt_identity()
 
-    try:
-        user = dtool_lookup_server.utils.get_user_obj(token_username)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(token_username):
         # Unregistered users should see 404.
         abort(404)
 
     # Return 404 if the user is not admin and the token username
     # does not match up with the username in the URL.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(token_username):
         if token_username != username:
             abort(404)
 

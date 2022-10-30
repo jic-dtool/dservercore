@@ -6,6 +6,7 @@ from flask_jwt_extended import (
 from flask_smorest import Blueprint
 
 import dtool_lookup_server.utils
+import dtool_lookup_server.utils_auth
 from dtool_lookup_server import (
     AuthenticationError,
     ValidationError
@@ -25,15 +26,8 @@ def permission_info(data: BaseUriSchema):
     The user needs to be admin.
     """
     username = get_jwt_identity()
-
-    try:
-        user = dtool_lookup_server.utils.get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
-        abort(404)
-
-    # Non admin users should see 404.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
+        # Non admin should see 404.
         abort(404)
 
     base_uri = data["base_uri"]
@@ -54,15 +48,8 @@ def update_on_base_uri(permissions: UriPermissionSchema):
     """
 
     username = get_jwt_identity()
-
-    try:
-        user = dtool_lookup_server.utils.get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
-        abort(404)
-
-    # Non admin users should see 404.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
+        # Non admin should see 404.
         abort(404)
 
     # TODO: is it safe to pass this information straight through without
