@@ -2,6 +2,7 @@ from flask import (
     abort,
     jsonify,
 )
+import dtool_lookup_server
 
 from flask_jwt_extended import (
     jwt_required,
@@ -9,8 +10,7 @@ from flask_jwt_extended import (
 )
 from flask_smorest import Blueprint
 
-from dtool_lookup_server import AuthenticationError
-
+import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import config_to_dict
 
 
@@ -22,11 +22,11 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 def server_config():
     """Return the JSON-serialized server configuration."""
 
-    # NOTE: dummy, no authentication implemented here so far.
     username = get_jwt_identity()
-
-    try:
-        config = config_to_dict(username)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
+
+    config = config_to_dict()
+
     return jsonify(config)

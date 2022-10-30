@@ -77,10 +77,7 @@ def _get_base_uri_obj(base_uri):
 #############################################################################
 
 
-def config_to_dict(username):
-    # Authenticate the user.
-    get_user_obj(username)
-
+def config_to_dict():
     core_config = Config.to_dict()
     plugin_config = {}
 
