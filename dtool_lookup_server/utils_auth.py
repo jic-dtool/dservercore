@@ -40,6 +40,10 @@ def may_search(username, base_uri):
         return False
     return base_uri in user.search_base_uris
 
+def may_access(username, uri):
+    """Return True if user has priviliges to access the dataset URI."""
+    base_uri = uri.rsplit("/", 1)[0]
+    return may_search(username, base_uri)
 
 def may_register(username, base_uri):
     """Return True if user has priviliges to register on the base URI."""
