@@ -34,10 +34,9 @@ from dtool_lookup_server.schemas import (
     SearchDatasetSchema,
     SummarySchema,
 )
+import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
     dataset_info_is_valid,
-    get_base_uri_obj,
-    get_user_obj,
     summary_of_datasets_by_user,
     list_datasets_by_user,
     lookup_datasets_by_user_and_uuid,
@@ -57,10 +56,10 @@ bp = Blueprint("dataset", __name__, url_prefix="/dataset")
 def summary_of_datasets():
     """Global summary of the datasets a user has access to."""
     username = get_jwt_identity()
-    try:
-        summary = summary_of_datasets_by_user(username)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
+    summary = summary_of_datasets_by_user(username)
     return summary
 
 
@@ -71,10 +70,10 @@ def summary_of_datasets():
 def list_datasets(pagination_parameters: PaginationParameters):
     """List the datasets a user has access to."""
     username = get_jwt_identity()
-    try:
-        datasets = list_datasets_by_user(username)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
+    datasets = list_datasets_by_user(username)
     pagination_parameters.item_count = len(datasets)
     return jsonify(
         datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
@@ -88,10 +87,10 @@ def list_datasets(pagination_parameters: PaginationParameters):
 def lookup_datasets(pagination_parameters: PaginationParameters, uuid):
     """List all instances of a dataset in any base_uris the user has access to."""
     username = get_jwt_identity()
-    try:
-        datasets = lookup_datasets_by_user_and_uuid(username, uuid)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
+    datasets = lookup_datasets_by_user_and_uuid(username, uuid)
     pagination_parameters.item_count = len(datasets)
     return jsonify(
         datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
@@ -108,10 +107,10 @@ def search_datasets(
 ):
     """List datasets the user has access to matching the query."""
     username = get_jwt_identity()
-    try:
-        datasets = search_datasets_by_user(username, query)
-    except AuthenticationError:
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
+    datasets = search_datasets_by_user(username, query)
     pagination_parameters.item_count = len(datasets)
     return jsonify(
         datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
@@ -125,28 +124,24 @@ def search_datasets(
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
     username = get_jwt_identity()
-    dataset_info = dataset
-
-    try:
-        user = get_user_obj(username)
-    except AuthenticationError:
-        # User not registered in system.
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
         abort(401)
 
-    if not dataset_info_is_valid(dataset_info):
+    if not dataset_info_is_valid(dataset):
         abort(409)
 
-    try:
-        base_uri = get_base_uri_obj(dataset_info["base_uri"])
-    except ValidationError:
-        abort(409)
-
-    if base_uri not in user.register_base_uris:
+    if not dtool_lookup_server.utils_auth.may_register(username, dataset["base_uri"]):
         abort(401)
 
-    dataset_uri = register_dataset(dataset_info)
+    dataset_uri = register_dataset(dataset)
     return {"uri": dataset_uri}
 
+
+## CONTINUE HERE...
+# The below looks like it needs
+# - user_exists
+# - may_search
 
 @bp.route("/manifest", methods=["POST"])
 @bp.arguments(UriSchema)
@@ -154,21 +149,19 @@ def register(dataset: RegisterDatasetSchema):
 def manifest(query: UriSchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
+        abort(401)
+
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
+    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+        # Authorization errors should return 400.
+        abort(400)
 
     try:
         manifest_ = get_manifest_from_uri_by_user(username, uri)
-    except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
-        abort(401)
-    except AuthorizationError:
-        current_app.logger.info("AuthorizationError")
-        abort(400)
-    except UnknownBaseURIError:
-        current_app.logger.info("UnknownBaseURIError")
-        abort(400)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(400)
@@ -182,21 +175,19 @@ def manifest(query: UriSchema):
 def readme(query: UriSchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
+        abort(401)
+
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
+    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+        # Authorization errors should return 400.
+        abort(400)
 
     try:
         readme_ = get_readme_from_uri_by_user(username, uri)
-    except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
-        abort(401)
-    except AuthorizationError:
-        current_app.logger.info("AuthorizationError")
-        abort(400)
-    except UnknownBaseURIError:
-        current_app.logger.info("UnknownBaseURIError")
-        abort(400)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(400)
@@ -211,21 +202,19 @@ def readme(query: UriSchema):
 def annotations(query: UriSchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
+        abort(401)
+
     if "uri" not in query:
         abort(400)
     uri = query["uri"]
+    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+        # Authorization errors should return 400.
+        abort(400)
 
     try:
         annotations_ = get_annotations_from_uri_by_user(username, uri)
-    except AuthenticationError:
-        current_app.logger.info("AuthenticaitonError")
-        abort(401)
-    except AuthorizationError:
-        current_app.logger.info("AuthorizationError")
-        abort(400)
-    except UnknownBaseURIError:
-        current_app.logger.info("UnknownBaseURIError")
-        abort(400)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(400)
