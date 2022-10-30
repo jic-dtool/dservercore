@@ -81,6 +81,11 @@ def create_dataset_info(base_uri, name, readme, items_content, tags, annotations
         return ds_info
 
 
+class _MockApp(object):
+    "Class to mock a Flask app to hold a config dict."
+    pass
+
+
 ##############################################################################
 # Here are the tests
 ##############################################################################
@@ -102,11 +107,14 @@ def test_lookup_uris(tmp_mongo_db):  # NOQA
     both_base_uris = ["s3://store1", "s3://store2"]
     only_store2 = ["s3://store2"]
 
-    mongo_search = MongoSearch(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_search = MongoSearch()
+    app = _MockApp()
+    app.config = {
+        "SEARCH_MONGO_URI": MONGO_URI,
+        "SEARCH_MONGO_DB": tmp_mongo_db,
+        "SEARCH_MONGO_COLLECTION": "datasets"
+    }
+    mongo_search.init_app(app)
 
     # Should be empty. Nothing registered yet.
     assert mongo_search.lookup_uris(uuid, both_base_uris) == []
@@ -153,11 +161,14 @@ def test_register_basic(tmp_mongo_db):  # NOQA
         creator="farmer"
     )
 
-    mongo_search = MongoSearch(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_search = MongoSearch()
+    app = _MockApp()
+    app.config = {
+        "SEARCH_MONGO_URI": MONGO_URI,
+        "SEARCH_MONGO_DB": tmp_mongo_db,
+        "SEARCH_MONGO_COLLECTION": "datasets"
+    }
+    mongo_search.init_app(app)
 
     # Should be empty. Nothing registered yet.
     assert len(mongo_search.search({"base_uris": ["s3://store"]})) == 0
@@ -190,11 +201,14 @@ def test_register_raises_when_metadata_too_large(tmp_mongo_db):  # NOQA
         "farmer"
     )
 
-    mongo_search = MongoSearch(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_search = MongoSearch()
+    app = _MockApp()
+    app.config = {
+        "SEARCH_MONGO_URI": MONGO_URI,
+        "SEARCH_MONGO_DB": tmp_mongo_db,
+        "SEARCH_MONGO_COLLECTION": "datasets"
+    }
+    mongo_search.init_app(app)
 
     with pytest.raises(ValidationError):
         mongo_search.register_dataset(ds_info)
@@ -202,11 +216,14 @@ def test_register_raises_when_metadata_too_large(tmp_mongo_db):  # NOQA
 
 def test_search_free_text(tmp_mongo_db):
 
-    mongo_search = MongoSearch(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_search = MongoSearch()
+    app = _MockApp()
+    app.config = {
+        "SEARCH_MONGO_URI": MONGO_URI,
+        "SEARCH_MONGO_DB": tmp_mongo_db,
+        "SEARCH_MONGO_COLLECTION": "datasets"
+    }
+    mongo_search.init_app(app)
 
     # Add datasets.
     mongo_search.register_dataset(

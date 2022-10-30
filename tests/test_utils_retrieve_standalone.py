@@ -78,6 +78,11 @@ def create_dataset_info(base_uri, name, readme, items_content, tags, annotations
         return ds_info
 
 
+class _MockApp(object):
+    "Class to mock a Flask app to hold a config dict."
+    pass
+    
+
 ##############################################################################
 # Here are the tests
 ##############################################################################
@@ -101,11 +106,14 @@ def test_functional(tmp_mongo_db):  # NOQA
         creator="farmer"
     )
 
-    mongo_retreive = MongoRetrieve(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_retreive = MongoRetrieve()
+    app = _MockApp()
+    app.config = {
+        "RETRIEVE_MONGO_URI": MONGO_URI,
+        "RETRIEVE_MONGO_DB": tmp_mongo_db,
+        "RETRIEVE_MONGO_COLLECTION": "datasets"
+    }
+    mongo_retreive.init_app(app)
 
     uri = ds_info["uri"]
 
@@ -152,11 +160,14 @@ def test_register_raises_when_metadata_too_large(tmp_mongo_db):  # NOQA
         "farmer"
     )
 
-    mongo_retreive = MongoRetrieve(
-        mongo_uri=MONGO_URI,
-        mongo_db=tmp_mongo_db,
-        mongo_collection="datasets"
-    )
+    mongo_retreive = MongoRetrieve()
+    app = _MockApp()
+    app.config = {
+        "RETRIEVE_MONGO_URI": MONGO_URI,
+        "RETRIEVE_MONGO_DB": tmp_mongo_db,
+        "RETRIEVE_MONGO_COLLECTION": "datasets"
+    }
+    mongo_retreive.init_app(app)
 
     with pytest.raises(ValidationError):
         mongo_retreive.register_dataset(ds_info)

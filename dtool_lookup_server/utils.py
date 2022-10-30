@@ -11,6 +11,8 @@ import dtoolcore.utils
 
 from dtool_lookup_server import (
     sql_db,
+    search,
+    retrieve,
     AuthenticationError,
     AuthorizationError,
     ValidationError,
@@ -22,14 +24,6 @@ from dtool_lookup_server.sql_models import (
     Dataset,
 )
 from dtool_lookup_server.config import Config
-
-from dtool_lookup_server.mongo_utils import (
-    search_datasets_mongo,
-    register_dataset_descriptive_metadata_mongo,
-    get_readme_from_uri_mongo,
-    get_annotations_from_uri_mongo,
-    get_manifest_from_uri_mongo,
-)
 
 
 from dtool_lookup_server.date_utils import (
@@ -343,7 +337,7 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
-    return search_datasets_mongo(query)
+    return search.search(query)
 
 
 def summary_of_datasets_by_user(username):
@@ -553,7 +547,8 @@ def register_dataset(dataset_info):
     # Take a copy as register_dataset_descriptive_metadata makes
     # changes to the dictionary, in particular it changes the
     # types of the dates to datetime objects.
-    register_dataset_descriptive_metadata_mongo(dataset_info.copy())
+    search.register_dataset(dataset_info.copy())
+    retrieve.register_dataset(dataset_info.copy())
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)
@@ -608,7 +603,7 @@ def get_readme_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return get_readme_from_uri_mongo(uri)
+    return retrieve.get_readme(uri)
 
 
 def get_manifest_from_uri_by_user(username, uri):
@@ -633,7 +628,7 @@ def get_manifest_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return get_manifest_from_uri_mongo(uri)
+    return retrieve.get_manifest(uri)
 
 
 def get_annotations_from_uri_by_user(username, uri):
@@ -658,4 +653,4 @@ def get_annotations_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return get_annotations_from_uri_mongo(uri)
+    return retrieve.get_annotations(uri)

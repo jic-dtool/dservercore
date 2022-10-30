@@ -48,7 +48,7 @@ def tmp_dir():
 @pytest.fixture
 def tmp_app(request):
 
-    from dtool_lookup_server import create_app, mongo, sql_db
+    from dtool_lookup_server import create_app, sql_db, retrieve, search
 
     tmp_mongo_db_name = random_string()
 
@@ -72,7 +72,12 @@ def tmp_app(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
+        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
+        "RETRIEVE_MONGO_COLLECTION": "datasets",
+        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_DB": tmp_mongo_db_name,
+        "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "JWT_ALGORITHM": "RS256",
         "JWT_PUBLIC_KEY": JWT_PUBLIC_KEY,
@@ -91,7 +96,8 @@ def tmp_app(request):
 
     @request.addfinalizer
     def teardown():
-        mongo.cx.drop_database(tmp_mongo_db_name)
+        retrieve.client.drop_database(tmp_mongo_db_name)
+        search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -100,7 +106,7 @@ def tmp_app(request):
 @pytest.fixture
 def tmp_app_with_users(request):
 
-    from dtool_lookup_server import create_app, mongo, sql_db
+    from dtool_lookup_server import create_app, sql_db, retrieve, search
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
@@ -116,7 +122,12 @@ def tmp_app_with_users(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
+        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
+        "RETRIEVE_MONGO_COLLECTION": "datasets",
+        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_DB": tmp_mongo_db_name,
+        "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "JWT_ALGORITHM": "RS256",
         "JWT_PUBLIC_KEY": JWT_PUBLIC_KEY,
@@ -152,7 +163,8 @@ def tmp_app_with_users(request):
 
     @request.addfinalizer
     def teardown():
-        mongo.cx.drop_database(tmp_mongo_db_name)
+        retrieve.client.drop_database(tmp_mongo_db_name)
+        search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -161,7 +173,7 @@ def tmp_app_with_users(request):
 @pytest.fixture
 def tmp_app_with_data(request):
 
-    from dtool_lookup_server import create_app, mongo, sql_db
+    from dtool_lookup_server import create_app, sql_db, retrieve, search
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
@@ -177,7 +189,12 @@ def tmp_app_with_data(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
+        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
+        "RETRIEVE_MONGO_COLLECTION": "datasets",
+        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_DB": tmp_mongo_db_name,
+        "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "JWT_ALGORITHM": "RS256",
         "JWT_PUBLIC_KEY": JWT_PUBLIC_KEY,
@@ -270,7 +287,8 @@ def tmp_app_with_data(request):
 
     @request.addfinalizer
     def teardown():
-        mongo.cx.drop_database(tmp_mongo_db_name)
+        retrieve.client.drop_database(tmp_mongo_db_name)
+        search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -279,7 +297,7 @@ def tmp_app_with_data(request):
 @pytest.fixture
 def tmp_cli_runner(request):
 
-    from dtool_lookup_server import create_app, mongo, sql_db
+    from dtool_lookup_server import create_app, sql_db, retrieve, search
 
     tmp_mongo_db_name = random_string()
 
@@ -289,7 +307,12 @@ def tmp_cli_runner(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "MONGO_URI": "mongodb://localhost:27017/{}".format(tmp_mongo_db_name),
+        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
+        "RETRIEVE_MONGO_COLLECTION": "datasets",
+        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_DB": tmp_mongo_db_name,
+        "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "SECRET_KEY": "dev"
     }
@@ -304,7 +327,8 @@ def tmp_cli_runner(request):
 
     @request.addfinalizer
     def teardown():
-        mongo.cx.drop_database(tmp_mongo_db_name)
+        retrieve.client.drop_database(tmp_mongo_db_name)
+        search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_cli_runner()

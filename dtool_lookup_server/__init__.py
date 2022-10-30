@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from pkg_resources import iter_entry_points
 
 from flask import Flask, request
-from flask_pymongo import PyMongo
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
@@ -118,7 +117,11 @@ class RetrieveABC(ABC):
 sql_db = SQLAlchemy()
 jwt = JWTManager()
 ma = Marshmallow()
-mongo = PyMongo()
+
+from dtool_lookup_server.utils_retrieve import MongoRetrieve
+from dtool_lookup_server.utils_search import MongoSearch
+retrieve = MongoRetrieve()
+search = MongoSearch()
 
 
 def create_app(test_config=None):
@@ -133,10 +136,8 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    mongo.init_app(app)
-
-    # Enable full text searching.
-    mongo.db[MONGO_COLLECTION].create_index([("$**", pymongo.TEXT)])
+    retrieve.init_app(app)
+    search.init_app(app)
 
     sql_db.init_app(app)
     Migrate(app, sql_db)

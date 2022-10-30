@@ -57,37 +57,24 @@ def _register_dataset_descriptive_metadata(collection, dataset_info):
 class MongoRetrieve(RetrieveABC):
     """Mongo implementation of the retrieve module."""
 
-    # The intput arguments to the below are only there to make it easier to
-    # test the code. When plugged into the dtool-lookup-server these variables
-    # will be parsed from the environment variables named:
-    # MONGO_URI, MONGO_DB, and MONGO_COLLECTION.
-    def __init__(self, mongo_uri=None, mongo_db=None, mongo_collection=None):
-        if mongo_uri is None:
-            try:
-                self._mongo_uri = os.environ["MONGO_URI"]
-                self.client = MongoClient(self._mongo_uri)
-            except KeyError:
-                raise(RuntimeError("Please set the MONGO_URI environment variable"))  # NOQA
-        else:
-            self.client = MongoClient(mongo_uri)
+    def init_app(self, app):
+        try:
+            self._mongo_uri = app.config["RETRIEVE_MONGO_URI"]
+            self.client = MongoClient(self._mongo_uri)
+        except KeyError:
+            raise(RuntimeError("Please set the RETRIEVE_MONGO_URI environment variable"))  # NOQA
 
-        if mongo_db is None:
-            try:
-                self._mongo_db = os.environ["MONGO_DB"]
-                self.db = self.client[self._mongo_db]
-            except KeyError:
-                raise(RuntimeError("Please set the MONGO_DB environment variable"))  # NOQA
-        else:
-            self.db = self.client[mongo_db]
+        try:
+            self._mongo_db = app.config["RETRIEVE_MONGO_DB"]
+            self.db = self.client[self._mongo_db]
+        except KeyError:
+            raise(RuntimeError("Please set the RETRIEVE_MONGO_DB environment variable"))  # NOQA
 
-        if mongo_collection is None:
-            try:
-                self._mongo_collection = os.environ["MONGO_COLLECTION"]
-                self.collection = self.db[self._mongo_collection]
-            except KeyError:
-                raise(RuntimeError("Please set the MONGO_COLLECTION environment variable"))  # NOQA
-        else:
-            self.collection = self.db[mongo_collection]
+        try:
+            self._mongo_collection = app.config["RETRIEVE_MONGO_COLLECTION"]
+            self.collection = self.db[self._mongo_collection]
+        except KeyError:
+            raise(RuntimeError("Please set the RETRIEVE_MONGO_COLLECTION environment variable"))  # NOQA
 
     def register_dataset(self, dataset_info):
         try:
