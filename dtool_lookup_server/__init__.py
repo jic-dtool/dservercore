@@ -119,10 +119,19 @@ jwt = JWTManager()
 ma = Marshmallow()
 
 from dtool_lookup_server.utils_retrieve import MongoRetrieve
-from dtool_lookup_server.utils_search import MongoSearch
-retrieve = MongoRetrieve()
-search = MongoSearch()
 
+# Load the search plugin.
+search_entrypoints = []
+for entrypoint in iter_entry_points("dtool_lookup_server.search"):
+    print(entrypoint)
+    search_entrypoints.append(entrypoint.load())
+if len(search_entrypoints) < 1:
+    raise(RuntimeError("Please install a search plugin"))
+elif len(search_entrypoints) > 1:
+    raise(RuntimeError("Too many search plugins; there can be only one"))
+search = search_entrypoints[0]()
+
+retrieve = MongoRetrieve()
 
 def create_app(test_config=None):
     app = Flask(__name__)
