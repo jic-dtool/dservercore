@@ -118,7 +118,6 @@ sql_db = SQLAlchemy()
 jwt = JWTManager()
 ma = Marshmallow()
 
-from dtool_lookup_server.utils_retrieve import MongoRetrieve
 
 # Load the search plugin.
 search_entrypoints = []
@@ -131,7 +130,17 @@ elif len(search_entrypoints) > 1:
     raise(RuntimeError("Too many search plugins; there can be only one"))
 search = search_entrypoints[0]()
 
-retrieve = MongoRetrieve()
+# Load the retrieve plugin.
+retrieve_entrypoints = []
+for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
+    print(entrypoint)
+    retrieve_entrypoints.append(entrypoint.load())
+if len(retrieve_entrypoints) < 1:
+    raise(RuntimeError("Please install a retrieve plugin"))
+elif len(retrieve_entrypoints) > 1:
+    raise(RuntimeError("Too many retrieve plugins; there can be only one"))
+retrieve = retrieve_entrypoints[0]()
+
 
 def create_app(test_config=None):
     app = Flask(__name__)
