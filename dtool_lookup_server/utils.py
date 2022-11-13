@@ -13,6 +13,7 @@ from dtool_lookup_server import (
     sql_db,
     search,
     retrieve,
+    extensions,
     AuthenticationError,
     AuthorizationError,
     ValidationError,
@@ -549,6 +550,8 @@ def register_dataset(dataset_info):
     # types of the dates to datetime objects.
     search.register_dataset(dataset_info.copy())
     retrieve.register_dataset(dataset_info.copy())
+    for ex in extensions:
+        ex.register_dataset(dataset_info.copy())
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)

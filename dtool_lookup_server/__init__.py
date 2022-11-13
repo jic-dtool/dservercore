@@ -114,6 +114,24 @@ class RetrieveABC(ABC):
         pass
 
 
+
+class ExtensionABC(ABC):
+
+    @abstractmethod
+    def register_dataset(self, dataset_info):
+        """Register a dataset.
+
+        The base URI is in the dataset_info. It is assumed that preflight checks
+        have been made to ensure that the base URI has been registered and that
+        the user has permissions to perform the action.
+        """
+        pass
+
+    @abstractmethod
+    def get_blueprint(self):
+        """Return the Flask blueprint to be used for the extension."""
+
+
 sql_db = SQLAlchemy()
 jwt = JWTManager()
 ma = Marshmallow()
@@ -140,6 +158,13 @@ if len(retrieve_entrypoints) < 1:
 elif len(retrieve_entrypoints) > 1:
     raise(RuntimeError("Too many retrieve plugins; there can be only one"))
 retrieve = retrieve_entrypoints[0]()
+
+# Load any extension plugins.
+extensions = []
+for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
+    print(entrypoint)
+    ep = entrypoint.load()
+    extensions.append(ep())
 
 
 def create_app(test_config=None):
@@ -180,9 +205,9 @@ def create_app(test_config=None):
     api.register_blueprint(user_admin_routes.bp)
     api.register_blueprint(permission_routes.bp)
 
-    # Load dtool-lookup-server plugin blueprints.
-    for entrypoint in iter_entry_points("dtool_lookup_server.blueprints"):
-        bp = entrypoint.load()
+    # Load dtool-lookup-server extension plugin blueprints.
+    for ex in extensions:
+        bp = ex.get_blueprint()
         if not isinstance(bp, Blueprint):
             print(
                 "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
