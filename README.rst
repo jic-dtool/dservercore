@@ -63,6 +63,14 @@ Install the dtool lookup server::
 
     $ pip install dtool-lookup-server
 
+For a minimal setup, the lookup server requires search and retrieve plugins.
+Pick search and retrieve plugins of your choice and install those. Here, the
+``dtool-lookup-server-search-plugin-mongo`` and ``dtool-lookup-server-retrieve-plugin-mongo``
+serve as default for demonstration::
+
+    $ pip install dtool-lookup-server-search-plugin-mongo
+    $ pip install dtool-lookup-server-retrieve-plugin-mongo
+
 Setup and configuration
 -----------------------
 
@@ -73,6 +81,39 @@ The dtool lookup server is a Flask app. Flask needs to know where to look for
 the app. One therefore needs to define the ``FLASK_APP`` environment variable::
 
     $ export FLASK_APP=dtool_lookup_server
+
+Configure search and retrieve plugins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The dtool lookup server is agnostic of how descriptive data is stored and
+searched. The implementation is delegated to search and retrieve plugins.
+Refer to their documentation for details on their configuration.
+
+In the sample case of ``dtool-lookup-server-search-plugin-mongo`` and
+``dtool-lookup-server-retrieve-plugin-mongo``, the same Mongo database
+can be used for both search and information retrieval.
+
+Create a directory where the MongoDB data will be stored::
+
+    $ mkdir data
+
+Start Mongo DB, for example using docker::
+
+    $ docker run -d -p 27017:27017 -v `pwd`/data:/data/db mongo
+
+Configure the search plugin with::
+
+    export SEARCH_MONGO_URI="mongodb://localhost:27017/"
+    export SEARCH_MONGO_DB="dtool_lookup_server"
+    export SEARCH_MONGO_COLLECTION="datasets"
+
+and the retrieve plugin with::
+
+    export RETRIEVE_MONGO_URI="mongodb://localhost:27017/"
+    export RETRIEVE_MONGO_DB="dtool_lookup_server"
+    export RETRIEVE_MONGO_COLLECTION="datasets"
+
+This must happen before issuing any ``flask`` commands as below.
 
 Configure the SQL database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -94,21 +135,6 @@ Populate the SQL database with tables using the commands below::
     $ flask db init
     $ flask db migrate
     $ flask db upgrade
-
-Configure the Mongo database
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The dtool lookup server stores descriptive data in a Mongo database. This is
-used for free text searching.
-
-Create a directory where the MongoDB data will be stored::
-
-    $ mkdir data
-
-Start Mongo DB, for example using docker::
-
-    $ docker run -d -p 27017:27017 -v `pwd`/data:/data/db mongo
-
 
 Configure a public and private key pair
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
