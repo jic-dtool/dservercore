@@ -9,9 +9,6 @@ from flask_jwt_extended import (
 from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
-from dtool_lookup_server import (
-    AuthenticationError,
-)
 from dtool_lookup_server.schemas import RegisterUserSchema
 from dtool_lookup_server.sql_models import (
     User,
@@ -62,5 +59,7 @@ def list_users(pagination_parameters: PaginationParameters):
     query = User.query.filter_by()
     pagination_parameters.item_count = query.count()
     return query.paginate(
-        pagination_parameters.page, pagination_parameters.page_size, True
+        page=pagination_parameters.page,
+        per_page=pagination_parameters.page_size,
+        error_out=True
     ).items
