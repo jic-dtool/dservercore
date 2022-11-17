@@ -37,7 +37,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade setuptools wheel setuptools-scm[toml] importlib-metadata
         pip install flake8 pytest pytest-cov
-        pip install dtool-lookup-server==${{ matrix.dtool-lookup-server-version }}
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install .
         pip list
