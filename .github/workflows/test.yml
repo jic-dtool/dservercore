@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+      - main
+      - "mongo-refactor"
     tags:
       - '*'
   pull_request:
