@@ -65,10 +65,10 @@ class Config(object):
                 "bearerAuth": {
                     "type": "http",
                     "scheme": "bearer",
-                    "bearerFormat": "JWT",
+                    "bearerFormat": "JWT"
                 }
             }
-        },
+        }
     }"""))
 
     @classmethod
