@@ -22,7 +22,15 @@ class Config(object):
         "sqlite:///{}".format(os.path.join(_HERE, "..", "app.db")),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/dtool_info")
+
+    SEARCH_MONGO_URI = os.environ.get("SEARCH_MONGO_URI", "mongodb://localhost:27017/")
+    SEARCH_MONGO_DB = os.environ.get("SEARCH_MONGO_DB", "dtool_info")
+    SEARCH_MONGO_COLLECTION = os.environ.get("SEARCH_MONGO_COLLECTION", "datasets")
+
+    RETRIEVE_MONGO_URI = os.environ.get("RETRIEVE_MONGO_URI", "mongodb://localhost:27017/")
+    RETRIEVE_MONGO_DB = os.environ.get("RETRIEVE_MONGO_DB", "dtool_info")
+    RETRIEVE_MONGO_COLLECTION = os.environ.get("RETRIEVE_MONGO_COLLECTION", "datasets")
+
     JWT_ALGORITHM = "RS256"
     JWT_TOKEN_LOCATION = "headers"
     JWT_HEADER_NAME = "Authorization"

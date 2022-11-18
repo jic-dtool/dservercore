@@ -1,6 +1,7 @@
 from flask import (
     abort,
 )
+import dtool_lookup_server
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
@@ -8,18 +9,13 @@ from flask_jwt_extended import (
 from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
-from dtool_lookup_server import (
-    AuthenticationError,
-)
 from dtool_lookup_server.schemas import RegisterUserSchema
 from dtool_lookup_server.sql_models import (
     User,
     UserSchema
 )
-from dtool_lookup_server.utils import (
-    get_user_obj,
-    register_users,
-)
+import  dtool_lookup_server.utils_auth
+from dtool_lookup_server.utils import register_users
 
 bp = Blueprint("user_admin", __name__, url_prefix="/admin/user")
 
@@ -33,15 +29,7 @@ def register(data: RegisterUserSchema):
     The user in the Authorization token needs to be admin.
     """
     username = get_jwt_identity()
-
-    try:
-        user = get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
-        abort(404)
-
-    # Non admin users should see 404.
-    if not user.is_admin:
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
         abort(404)
 
     #   # Make it idempotent.
@@ -65,18 +53,13 @@ def list_users(pagination_parameters: PaginationParameters):
     The user in the Authorization token needs to be admin.
     """
     username = get_jwt_identity()
-
-    try:
-        user = get_user_obj(username)
-    except AuthenticationError:
-        # Unregistered users should see 404.
+    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
         abort(404)
 
-    # Non admin users should see 404.
-    if not user.is_admin:
-        abort(404)
     query = User.query.filter_by()
     pagination_parameters.item_count = query.count()
     return query.paginate(
-        pagination_parameters.page, pagination_parameters.page_size, True
+        page=pagination_parameters.page,
+        per_page=pagination_parameters.page_size,
+        error_out=True
     ).items
