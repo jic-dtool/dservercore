@@ -80,7 +80,3 @@ class UserResponseSchema(Schema):
     is_admin = Boolean()
     register_permissions_on_base_uris = List(String)
     search_permissions_on_base_uris = List(String)
-
-
-class AnnotationsSchema(Schema):
-    pass

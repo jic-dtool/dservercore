@@ -28,7 +28,6 @@ from dtool_lookup_server import (
     ValidationError,
 )
 from dtool_lookup_server.schemas import (
-    AnnotationsSchema,
     URISchema,
     RegisterDatasetSchema,
     SearchDatasetSchema,
@@ -197,7 +196,6 @@ def readme(query: URISchema):
 
 @bp.route("/annotations", methods=["POST"])
 @bp.arguments(URISchema)
-@bp.response(200, AnnotationsSchema)
 @jwt_required()
 def annotations(query: URISchema):
     """Request the dataset annotations."""
