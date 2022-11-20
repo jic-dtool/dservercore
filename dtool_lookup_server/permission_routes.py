@@ -11,7 +11,8 @@ from dtool_lookup_server import (
     AuthenticationError,
     ValidationError
 )
-from dtool_lookup_server.schemas import BaseUriSchema, UriPermissionSchema
+from dtool_lookup_server.schemas import UriPermissionSchema
+from dtool_lookup_server.sql_models import BaseURISchema
 
 bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 

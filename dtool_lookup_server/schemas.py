@@ -15,10 +15,6 @@ class UriSchema(Schema):
     uri = String()
 
 
-class BaseUriSchema(Schema):
-    base_uri = String()
-
-
 class RegisterUserSchema(Schema):
     username = String()
     is_admin = Boolean()
