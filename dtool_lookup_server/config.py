@@ -68,7 +68,7 @@ class Config(object):
                     "bearerFormat": "JWT"
                 }
             }
-        },
+        }
     }"""))
 
     @classmethod
