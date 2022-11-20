@@ -11,7 +11,7 @@ from marshmallow.fields import (
 )
 
 
-class UriSchema(Schema):
+class URISchema(Schema):
     uri = String()
 
 

@@ -21,7 +21,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 @bp.arguments(BaseURISchema)
 @bp.response(200, URIPermissionSchema)
 @jwt_required()
-def permission_info(data: BaseUriSchema):
+def permission_info(data: BaseURISchema):
     """Get information about the permissions on a base URI.
 
     The user needs to be admin.

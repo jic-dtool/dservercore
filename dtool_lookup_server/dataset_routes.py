@@ -118,7 +118,7 @@ def search_datasets(
 
 @bp.route("/register", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
-@bp.response(201, UriSchema)
+@bp.response(201, URISchema)
 @jwt_required()
 def register(dataset: RegisterDatasetSchema):
     """Register a dataset. The user needs to have register permissions on the base_uri."""
@@ -143,9 +143,9 @@ def register(dataset: RegisterDatasetSchema):
 # - may_search
 
 @bp.route("/manifest", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def manifest(query: UriSchema):
+def manifest(query: URISchema):
     """Request the dataset manifest."""
     username = get_jwt_identity()
     if not dtool_lookup_server.utils_auth.user_exists(username):
@@ -169,9 +169,9 @@ def manifest(query: UriSchema):
 
 
 @bp.route("/readme", methods=["POST"])
-@bp.arguments(UriSchema)
+@bp.arguments(URISchema)
 @jwt_required()
-def readme(query: UriSchema):
+def readme(query: URISchema):
     """Request the dataset readme."""
     username = get_jwt_identity()
     if not dtool_lookup_server.utils_auth.user_exists(username):
@@ -197,7 +197,7 @@ def readme(query: UriSchema):
 @bp.route("/annotations", methods=["POST"])
 @bp.arguments(URISchema)
 @jwt_required()
-def annotations(query: UriSchema):
+def annotations(query: URISchema):
     """Request the dataset annotations."""
     username = get_jwt_identity()
     if not dtool_lookup_server.utils_auth.user_exists(username):
