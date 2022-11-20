@@ -11,7 +11,7 @@ from dtool_lookup_server import (
     AuthenticationError,
     ValidationError
 )
-from dtool_lookup_server.schemas import UriPermissionSchema
+from dtool_lookup_server.schemas import URIPermissionSchema
 from dtool_lookup_server.sql_models import BaseURISchema
 
 bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
@@ -19,7 +19,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 @bp.route("/info", methods=["POST"])
 @bp.arguments(BaseURISchema)
-@bp.response(200, UriPermissionSchema)
+@bp.response(200, URIPermissionSchema)
 @jwt_required()
 def permission_info(data: BaseURISchema):
     """Get information about the permissions on a base URI.
@@ -40,9 +40,9 @@ def permission_info(data: BaseURISchema):
 
 
 @bp.route("/update_on_base_uri", methods=["POST"])
-@bp.arguments(UriPermissionSchema)
+@bp.arguments(URIPermissionSchema)
 @jwt_required()
-def update_on_base_uri(permissions: UriPermissionSchema):
+def update_on_base_uri(permissions: URIPermissionSchema):
     """Update the permissions on a base URI.
 
     The user needs to be admin.
