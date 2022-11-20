@@ -84,7 +84,3 @@ class UserResponseSchema(Schema):
 
 class AnnotationsSchema(Schema):
     pass
-
-
-class ConfigSchema(Schema):
-    pass
