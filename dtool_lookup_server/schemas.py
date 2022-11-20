@@ -34,7 +34,7 @@ class ManifestSchema(Schema):
 
 
 class RegisterDatasetSchema(Schema):
-    uuid = String()
+    uuid = UUID()
     base_uri = String()
     uri = String()
     # dtoolcore_version should be included when storing (based on current version) but not required on the request
@@ -61,9 +61,8 @@ class SearchDatasetSchema(Schema):
     free_text = String()
     creator_usernames = List(String)
     base_uris = List(String)
-    uuids = List(String)
+    uuids = List(UUID)
     tags = List(String)
-
 
 class SummarySchema(Schema):
     number_of_datasets = Integer()
