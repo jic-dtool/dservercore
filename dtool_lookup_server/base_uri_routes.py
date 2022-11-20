@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 )
 from flask_smorest import Blueprint
 
-from dtool_lookup_server.sql_models import BaseURISQLAlchemySchema, BaseURI
+from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
     base_uri_exists,
@@ -18,9 +18,9 @@ bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])
-@bp.arguments(BaseURISQLAlchemySchema, required=True)
+@bp.arguments(BaseURISchema, required=True)
 @jwt_required()
-def register(parameter: BaseURISQLAlchemySchema):
+def register(parameter: BaseURISchema):
     """Register a base URI.
 
     The user needs to be admin.
@@ -41,7 +41,7 @@ def register(parameter: BaseURISQLAlchemySchema):
 
 @bp.route("/list", methods=["GET"])
 @bp.paginate()
-@bp.response(200, BaseURISQLAlchemySchema(many=True))
+@bp.response(200, BaseURISchema(many=True))
 @jwt_required()
 def base_uri_list(pagination_parameters):
     """List all base_uris.

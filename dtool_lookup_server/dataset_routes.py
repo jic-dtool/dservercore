@@ -12,7 +12,6 @@ from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
 from .sql_models import (
-    BaseURISQLAlchemySchema,
     DatasetSchema
 )
 

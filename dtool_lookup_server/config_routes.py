@@ -18,7 +18,6 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
-@bp.response(200)
 @jwt_required()
 def server_config():
     """Return the JSON-serialized server configuration."""

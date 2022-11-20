@@ -112,7 +112,7 @@ class Dataset(db.Model):
         }
 
 
-class BaseURISQLAlchemySchema(ma.SQLAlchemyAutoSchema):
+class BaseURISchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
         fields = ('base_uri',)
