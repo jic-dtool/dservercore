@@ -16,7 +16,7 @@ def extract_created_at_as_datetime(admin_metadata):
     return datetime.utcfromtimestamp(created_at)
 
 
-def extract_frozen_at_as_datatime(admin_metadata):
+def extract_frozen_at_as_datetime(admin_metadata):
     frozen_at = admin_metadata["frozen_at"]
     frozen_at = float(frozen_at)
     return datetime.utcfromtimestamp(frozen_at)
