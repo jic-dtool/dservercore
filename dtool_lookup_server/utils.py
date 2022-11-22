@@ -48,6 +48,11 @@ DATASET_INFO_REQUIRED_KEYS = (
 )
 
 
+# These entrypoints might point to plugin or extension modules with
+# config objects to be serialized as part of the global server config:
+DTOOL_LOOKUP_SERVER_ENTRYPOINTS = ['blueprints', 'extension', 'retrieve', 'search']
+
+
 #############################################################################
 # Private helper functions.
 #############################################################################
@@ -79,22 +84,34 @@ def config_to_dict():
     # Iterate over all registered blueprints
     # and get per-plugin configs if implemented.
     # All plugins are expected to be top-level modules.
-    for ep in iter_entry_points("dtool_lookup_server.blueprints"):
-        module_name = ep.module_name.split(".")[0]
-        if module_name not in plugin_config:
-            try:
-                plugin_module = importlib.import_module(module_name)
-            except ImportError as exc:
-                # plugin import failed, this should not happen
-                plugin_config[module_name] = str(exc)
-                continue
+    for ep_group in DTOOL_LOOKUP_SERVER_ENTRYPOINTS:
+        for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
+            module_name = ep.module_name.split(".")[0]
+            if module_name not in plugin_config:
 
-            try:
-                plugin_config[module_name] = plugin_module.config.Config.to_dict()  # NOQA
-            except AttributeError as exc:
-                # plugin did not implement config.Config.to_dict properly
-                plugin_config[module_name] = str(exc)
-                continue
+                # import module
+                try:
+                    importlib.import_module(module_name)
+                except ImportError as exc:
+                    # plugin import failed, this should not happen
+                    plugin_config[module_name] = str(exc)
+                    continue
+
+                # import config submodule
+                try:
+                    plugin_config_module = importlib.import_module('.'.join([module_name, 'config']))
+                except ImportError as exc:
+                    # plugin import failed, this should not happen
+                    plugin_config[module_name] = str(exc)
+                    continue
+
+                # serialize Config object in config submodule
+                try:
+                    plugin_config[module_name] = plugin_config_module.Config.to_dict()  # NOQA
+                except AttributeError as exc:
+                    # plugin did not implement config.Config.to_dict properly
+                    plugin_config[module_name] = str(exc)
+                    continue
 
     # check for overlap between core config keys and plugin names
     if len(set(core_config.keys()) & set(plugin_config.keys())) > 0:
