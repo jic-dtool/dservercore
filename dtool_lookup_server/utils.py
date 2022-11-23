@@ -18,6 +18,7 @@ from dtool_lookup_server import (
     AuthorizationError,
     ValidationError,
     UnknownBaseURIError,
+    __version__
 )
 from dtool_lookup_server.sql_models import (
     User,
@@ -127,6 +128,33 @@ def config_to_dict():
     if len(plugin_config) > 0:
         all_config.update(plugin_config)
     return all_config
+
+
+def versions_to_dict():
+    """Dumps installed components and their versions to dictionary, i.e.
+
+        {
+            'dtool_lookup_server': '0.17.2',
+            'dtool_lookup_server_retrieve_plugin_mongo': '0.1.0',
+            'dtool_lookup_server_search_plugin_mongo': '0.1.0'
+        }
+   """
+
+    versions_dict = {'dtool_lookup_server': __version__}
+    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
+        for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
+            module_name = ep.module_name.split(".")[0]
+
+            # import module
+            try:
+                plugin_module = importlib.import_module(module_name)
+            except ImportError as exc:
+                # plugin import failed, this should not happen
+                continue
+
+            versions_dict[module_name] = getattr(plugin_module, '__version__', None)
+
+    return versions_dict
 
 
 def generate_dataset_info(dataset, base_uri):
