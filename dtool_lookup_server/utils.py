@@ -58,6 +58,15 @@ DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 # Private helper functions.
 #############################################################################
 
+def _serializable(obj):
+    """Return string representation of object if object itself not json-serializable."""
+    try:
+        json.dumps(obj)
+    except TypeError:
+        return str(obj)
+    else:
+        return obj
+
 
 def _json_serial(obj):
     if isinstance(obj, (datetime, date)):
@@ -74,8 +83,17 @@ def _get_base_uri_obj(base_uri):
 
 
 #############################################################################
-# Generally useful dtool helper functions.
+# Public helper functions.
 #############################################################################
+
+def obj_to_dict(obj, exclusions=[]):
+    """Convert all-upper-case entries in dict-like object to dict and exclude certain keys. """
+    d = dict()
+    for k, v in obj.items():
+        # select only capitalized fields
+        if k.upper() == k and k not in exclusions:
+            d[k.lower()] = _serializable(v)
+    return d
 
 
 def config_to_dict():
@@ -156,6 +174,10 @@ def versions_to_dict():
 
     return versions_dict
 
+
+#############################################################################
+# Generally useful dtool helper functions.
+#############################################################################
 
 def generate_dataset_info(dataset, base_uri):
     """Return dictionary with dataset info."""
