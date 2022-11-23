@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from abc import ABC, abstractmethod
@@ -14,13 +15,11 @@ from flask_smorest import (
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
-import pymongo
-
 from dtool_lookup_server.config import Config
 
 __version__ = "0.17.2"
 
-MONGO_COLLECTION = "datasets"
+logger = logging.getLogger(__name__)
 
 
 class ValidationError(ValueError):
@@ -187,7 +186,7 @@ ma = Marshmallow()
 # Load the search plugin.
 search_entrypoints = []
 for entrypoint in iter_entry_points("dtool_lookup_server.search"):
-    print(entrypoint)
+    logger.info("Discovered search plugin entrypoint %s", entrypoint)
     search_entrypoints.append(entrypoint.load())
 if len(search_entrypoints) < 1:
     raise(RuntimeError("Please install a search plugin"))
@@ -198,7 +197,7 @@ search = search_entrypoints[0]()
 # Load the retrieve plugin.
 retrieve_entrypoints = []
 for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
-    print(entrypoint)
+    logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
     retrieve_entrypoints.append(entrypoint.load())
 if len(retrieve_entrypoints) < 1:
     raise(RuntimeError("Please install a retrieve plugin"))
@@ -209,11 +208,12 @@ retrieve = retrieve_entrypoints[0]()
 # Load any extension plugins.
 extensions = []
 for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
-    print(entrypoint)
+    logger.info("Discovered extension plugin entrypoint %s", entrypoint)
     ep = entrypoint.load()
     extensions.append(ep())
 
-
+# For certain aspects below, search plugin, retrieve plugin, and other extension
+# plugins can be treated on the same level
 plugins = [search, retrieve, *extensions]
 
 

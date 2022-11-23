@@ -48,9 +48,9 @@ DATASET_INFO_REQUIRED_KEYS = (
 )
 
 
-# These entrypoints might point to plugin or extension modules with
+# These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
-DTOOL_LOOKUP_SERVER_ENTRYPOINTS = ['blueprints', 'extension', 'retrieve', 'search']
+DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 
 
 #############################################################################
@@ -78,13 +78,17 @@ def _get_base_uri_obj(base_uri):
 
 
 def config_to_dict():
+    """Dumps core config and plugin configs to dictionary.
+
+    ATTENTION: This utility function uses legacy config discovery mechanism
+    and nests plugins configs within core config."""
     core_config = Config.to_dict()
     plugin_config = {}
 
     # Iterate over all registered blueprints
     # and get per-plugin configs if implemented.
     # All plugins are expected to be top-level modules.
-    for ep_group in DTOOL_LOOKUP_SERVER_ENTRYPOINTS:
+    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
         for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
             module_name = ep.module_name.split(".")[0]
             if module_name not in plugin_config:
