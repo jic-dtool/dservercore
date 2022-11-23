@@ -158,15 +158,17 @@ class ExtensionABC(ABC):
     An extension MAY implement
       - an init_app(self, app, *args, **kwargs):
 
-    An extension SHOULD:
+    The app factory will inject extension config parameters into the global
+    Flask app config.
+
+    An extension SHOULD hnce:
+      - prefix their config parameter keys uniquely, for example with their
+        capitalized module name
       - retrieve config parameters in a Flask-typical fashion, i.e.
         from the environment or from file as done within the core at
         dtool_lookup_server.config.Config
       - provide these parameters via the get_config method.
       - access at runtime via global Flask config, i.e. app.config
-
-    The app factory will inject extension config parameters into global
-    Flask app config.
     """
 
     @abstractmethod
