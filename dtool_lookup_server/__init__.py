@@ -60,10 +60,9 @@ class PluginABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_config(self):
         """Return the Config object of the retrieve plugin."""
-        pass
+        return dict()
 
 
 class SearchABC(PluginABC):
@@ -156,12 +155,11 @@ class ExtensionABC(ABC):
         single blueprint.
 
     An extension MAY implement
-      - an init_app(self, app, *args, **kwargs):
+      - an init_app(self, app, *args, **kwargs) method to be called
+        from app factory.
 
     The app factory will inject extension config parameters into the global
-    Flask app config.
-
-    An extension SHOULD hnce:
+    Flask app config. An extension SHOULD hence:
       - prefix their config parameter keys uniquely, for example with their
         capitalized module name
       - retrieve config parameters in a Flask-typical fashion, i.e.
