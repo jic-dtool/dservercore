@@ -12,7 +12,7 @@ from . import (
 )
 
 
-def test_config_route(tmp_app_with_users):  # NOQA
+def test_config_info_route(tmp_app_with_users):  # NOQA
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users.get(
