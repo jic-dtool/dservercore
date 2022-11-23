@@ -114,7 +114,7 @@ class RetrieveABC(ABC):
     @abstractmethod
     def get_annotations(self, uri):
         """Return the dataset annotations.
-y
+
         It is assumed that preflight checks have been made to ensure that the
         user has permissions to access the URI.
         """
