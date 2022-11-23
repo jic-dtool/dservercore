@@ -169,6 +169,39 @@ file::
 
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
 
+Inspectng the flask app configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Inspect the Flask app configuration with::
+
+    $ flask config show
+    {
+      "env": "production",
+      "debug": false,
+      "testing": false,
+      "propagate_exceptions": null,
+      ...
+      "search_mongo_collection": "datasets",
+      "search_mongo_db": "dtool_info",
+      "search_mongo_uri": "mongodb://localhost:27017/",
+      "retrieve_mongo_collection": "datasets",
+      "retrieve_mongo_db": "dtool_info",
+      "retrieve_mongo_uri": "mongodb://localhost:27017/",
+      ...
+    }
+
+The output is JSON-formatted with lower-case keys and will include plugin
+configuraton paramaters as well.
+
+Inspect the installed dtool-lookup-server components with::
+
+    $ flask config versions
+    {
+      "dtool_lookup_server": "0.17.2",
+      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
+      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+    }
+
 Starting the flask app
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -436,8 +469,6 @@ datasets with "apples" in the "s3://snow-white" bucket created by either
 Accessing a dataset's readme, annotations and manifest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 The command below retrieves the readme for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
@@ -686,6 +717,19 @@ in the response as shown for the dummy ``dtool_lookup_server_plugin_scaffolding`
 plugin above. See ``dtool_lookup_server.config.Config`` and 
 ``dtool_lookup_server.utils.config_to_dict`` for more information.
 
+
+The request::
+
+    $ curl http://localhost:5000/config/versions
+
+will return all components, i.e. server corce, search, retrieve
+and extension plugins with their versions, i.e.::
+
+    {
+      "dtool_lookup_server": "0.17.2",
+      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
+      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+    }
 
 Creating a plugin
 -----------------
