@@ -29,7 +29,7 @@ from dtool_lookup_server.config import Config
 
 from dtool_lookup_server.date_utils import (
     extract_created_at_as_datetime,
-    extract_frozen_at_as_datatime,
+    extract_frozen_at_as_datetime,
 )
 
 
@@ -508,7 +508,7 @@ def register_dataset_admin_metadata(admin_metadata):
     """Register the admin metadata in the dataset SQL table."""
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
-    frozen_at = extract_frozen_at_as_datatime(admin_metadata)
+    frozen_at = extract_frozen_at_as_datetime(admin_metadata)
     created_at = extract_created_at_as_datetime(admin_metadata)
 
     try:

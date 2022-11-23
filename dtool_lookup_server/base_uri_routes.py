@@ -7,9 +7,6 @@ from flask_jwt_extended import (
 )
 from flask_smorest import Blueprint
 
-from dtool_lookup_server import (
-    AuthenticationError,
-)
 from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (

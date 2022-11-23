@@ -11,12 +11,8 @@ from marshmallow.fields import (
 )
 
 
-class UriSchema(Schema):
+class URISchema(Schema):
     uri = String()
-
-
-class BaseUriSchema(Schema):
-    base_uri = String()
 
 
 class RegisterUserSchema(Schema):
@@ -55,7 +51,7 @@ class RegisterDatasetSchema(Schema):
     size_in_bytes = Integer()
 
 
-class UriPermissionSchema(Schema):
+class URIPermissionSchema(Schema):
     base_uri = String()
     users_with_register_permissions = List(String)
     users_with_search_permissions = List(String)
