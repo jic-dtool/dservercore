@@ -82,3 +82,29 @@ def test_config_versions_route(tmp_app):
     for k, v in expected_content.items():
         assert k in response
         assert v == response[k]
+
+
+def test_config_flat_route(tmp_app_with_users):  # NOQA
+
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users.get(
+        "/config/flat",
+        headers=headers,
+    )
+    assert r.status_code == 200
+
+    # NOTE: If the configuration grows in the future, this text must adapt or
+    # will fail otherwise.
+    expected_content = {
+        'jwt_algorithm': 'RS256',
+        'jwt_header_name': 'Authorization',
+        'jwt_header_type': 'Bearer',
+        'jwt_token_location': 'headers',
+        'sqlalchemy_track_modifications': False,
+    }
+
+    response = json.loads(r.data.decode("utf-8"))
+
+    for k, v in expected_content.items():
+        assert k in response
+        assert v == response[k]
