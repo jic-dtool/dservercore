@@ -43,8 +43,14 @@ class UnknownURIError(KeyError):
     pass
 
 
-class SearchABC(ABC):
+class PluginABC(ABC):
+    """Common base class for all plugins.
 
+    There are different groups of plugins, i.e. search plugin, retrieve plugin,
+    and extension plugins. These groups differ on where within this lookup
+    server core they are hooked to. All of them are discovered via the
+    python entrypoints mechanism.
+    """
     @abstractmethod
     def register_dataset(self, dataset_info):
         """Register a dataset.
@@ -54,6 +60,15 @@ class SearchABC(ABC):
         the user has permissions to perform the action.
         """
         pass
+
+    @abstractmethod
+    def get_config(self):
+        """Return the Config object of the retrieve plugin."""
+        pass
+
+
+class SearchABC(PluginABC):
+    """Any search plugin must inherit from this base class."""
 
     @abstractmethod
     def search(self, query):
@@ -72,19 +87,11 @@ class SearchABC(ABC):
         It is assumed that preflight checks will be performed to provide
         a list of base URIs that the user is allowed to search through.
         """
+        pass
 
 
 class RetrieveABC(ABC):
-
-    @abstractmethod
-    def register_dataset(self, dataset_info):
-        """Register a dataset.
-
-        The base URI is in the dataset_info. It is assumed that preflight checks
-        have been made to ensure that the base URI has been registered and that
-        the user has permissions to perform the action.
-        """
-        pass
+    """Any retrieve plugin must inherit from this base class."""
 
     @abstractmethod
     def get_readme(self, uri):
@@ -107,29 +114,43 @@ class RetrieveABC(ABC):
     @abstractmethod
     def get_annotations(self, uri):
         """Return the dataset annotations.
-
+y
         It is assumed that preflight checks have been made to ensure that the
         user has permissions to access the URI.
         """
         pass
 
 
-
 class ExtensionABC(ABC):
+    """Any extension plugin must inherit from this base class.
 
-    @abstractmethod
-    def register_dataset(self, dataset_info):
-        """Register a dataset.
+    An extension MUST implement:
+      - a register_dataset(self, dataset_info) method.
+      - a get_config() method.
+      - a get_blueprint() method. This also means the extension MUST provide a
+        single blueprint.
 
-        The base URI is in the dataset_info. It is assumed that preflight checks
-        have been made to ensure that the base URI has been registered and that
-        the user has permissions to perform the action.
-        """
-        pass
+    An extension MAY implement
+      - an init_app(self, app, *args, **kwargs):
+
+    An extension SHOULD:
+      - retrieve config parameters in a Flask-typical fashion, i.e.
+        from the environment or from file as done within the core at
+        dtool_lookup_server.config.Config
+      - provide these parameters via the get_config method.
+      - access at runtime via global Flask config, i.e. app.config
+
+    The app factory will inject extension config parameters into global
+    Flask app config.
+    """
 
     @abstractmethod
     def get_blueprint(self):
         """Return the Flask blueprint to be used for the extension."""
+
+    def init_app(self, app, *args, **kwargs):
+        """Called by Flask app factory."""
+        pass
 
 
 sql_db = SQLAlchemy()
@@ -167,6 +188,9 @@ for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
     extensions.append(ep())
 
 
+plugins = [search, retrieve, *extensions]
+
+
 def create_app(test_config=None):
     app = Flask(__name__)
 
@@ -175,12 +199,18 @@ def create_app(test_config=None):
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_object(Config)
+
+        # any plugin may provide its own config
+        for plugin in plugins:
+            # if applicable, plugin config is mapped into global flask config
+            app.config.from_object(plugin.get_config())
+
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    retrieve.init_app(app)
-    search.init_app(app)
+    for plugin in plugins:
+        plugin.init_app(app)
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
