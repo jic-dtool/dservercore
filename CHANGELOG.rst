@@ -21,6 +21,11 @@ Added
 - Defined schemas for endpoint arguments
 - Missing and improved docstrings for endpoints
 - Replaces get_json() uses for the use of request's arguments
+- Flask CLI commands for inspectin app configuration
+- ``/config/versions`` route
+- ``/config/flat`` route
+- Entrypoints ``extensions``, ``search``, ``retrieve`` for plugins
+- Abstract base classes for plugins
 
 Changed
 ^^^^^^^
@@ -34,6 +39,8 @@ Changed
 Deprecated
 ^^^^^^^^^^
 
+- ``/config/flat`` will be renamed and take the place of the ``/config/info```route
+- ``plugins`` entrypoint
 
 Removed
 ^^^^^^^
