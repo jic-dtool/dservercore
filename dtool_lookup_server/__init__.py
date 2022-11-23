@@ -77,6 +77,32 @@ class SearchABC(PluginABC):
         It is assumed that preflight checks have been made to ensure that the
         user has permissions to perform the action and that the base URIs in the
         query have been limited to those the user has permissions to search.
+
+        The search method is hooked into utils.search_datasets_by_user and
+        MUST process a query argument adhering to SearchDatasetSchema,
+        meaning
+
+            {
+              "base_uris": [
+                "string"
+              ],
+              "free_text": "string",
+              "uuids": [
+                "string"
+              ],
+              "creator_usernames": [
+                "string"
+              ],
+              "tags": [
+                "string"
+              ]
+            }
+
+        at the time of writing.
+
+        The search plugin SHOULD make use of "OR" logic for the items in
+        "base_uris" and "creator_usernames" lists, but use "AND" logic for
+        filtering the search based on the items in the tags list.
         """
         pass
 
