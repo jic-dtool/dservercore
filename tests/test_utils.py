@@ -1,9 +1,8 @@
+"""Test app instance-independent utility functions."""
 
-# from . import tmp_app_with_users  # NOQA
 from dtool_lookup_server import __version__
 
 from dtool_lookup_server.utils import (
-    config_to_dict,
     versions_to_dict
 )
 

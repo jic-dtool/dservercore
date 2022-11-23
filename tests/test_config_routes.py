@@ -3,7 +3,7 @@
 import json
 import dtool_lookup_server
 
-from . import tmp_app_with_users  # NOQA
+from . import tmp_app, tmp_app_with_users  # NOQA
 
 from . import (
     snowwhite_token,
@@ -64,3 +64,21 @@ def test_config_info_route_authorization(tmp_app_with_users):  # NOQA
         headers=headers,
     )
     assert r.status_code == 401
+
+
+# from dtool_lookup_server import __version__
+
+def test_config_versions_route(tmp_app):
+
+    r = tmp_app.get("/config/versions")
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode("utf-8"))
+
+    expected_content = {
+        'dtool_lookup_server': dtool_lookup_server.__version__,
+    }
+
+    for k, v in expected_content.items():
+        assert k in response
+        assert v == response[k]
