@@ -169,7 +169,7 @@ file::
 
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
 
-Inspectng the flask app configuration
+Inspecting the flask app configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Inspect the Flask app configuration with::
@@ -191,7 +191,7 @@ Inspect the Flask app configuration with::
     }
 
 The output is JSON-formatted with lower-case keys and will include plugin
-configuraton paramaters as well.
+configuration parameters as well.
 
 Inspect the installed dtool-lookup-server components with::
 
@@ -336,8 +336,8 @@ The command below can be used to remove admin privileges from an existing user::
 The dtool lookup server API
 ---------------------------
 
-The dtool lookup server makes use of the Authrized header to pass through the
-JSON web token for authrization. Below we create environment variables for the
+The dtool lookup server makes use of the authorized header to pass through the
+JSON web token for authorization. Below we create environment variables for the
 token and the header used in the ``curl`` commands::
 
     $ TOKEN=$(flask user token olssont)
@@ -514,7 +514,6 @@ Response content::
       "username": "olssont"
     }
 
-
 Data champion user usage
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -671,8 +670,8 @@ Note that the request below can be used to clear all existing permissions::
         http://localhost:5000/admin/permission/update_on_base_uri
 
 
-Getting informations about the permissions on a base URI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Getting information about the permissions on a base URI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An admin user can get information about the permissions on a base URI::
 
@@ -716,7 +715,7 @@ The request::
 
     $ curl http://localhost:5000/config/versions
 
-will return all components, i.e. server corce, search, retrieve
+will return all components, i.e. server core, search, retrieve
 and extension plugins with their versions, i.e.::
 
     {
