@@ -4,6 +4,13 @@ import dtool_lookup_server
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
+# config parameters to exclude from any config dump
+CONFIG_EXCLUSIONS = [
+                        "JWT_PRIVATE_KEY",
+                        "SECRET_KEY",
+                        "SQLALCHEMY_DATABASE_URI",
+                    ]
+
 
 def _get_file_content(key, default=""):
     file_path = os.environ.get(key, "")
@@ -65,15 +72,10 @@ class Config(object):
     @classmethod
     def to_dict(cls):
         """Convert server configuration into dict."""
-        exclusions = [
-            "JWT_PRIVATE_KEY",
-            "MONGO_URI",
-            "SECRET_KEY",
-            "SQLALCHEMY_DATABASE_URI",
-        ]  # config keys to exclude
         d = {"version": dtool_lookup_server.__version__}
         for k, v in cls.__dict__.items():
             # select only capitalized fields
-            if k.upper() == k and k not in exclusions:
+            if k.upper() == k and k not in CONFIG_EXCLUSIONS:
                 d[k.lower()] = v
         return d
+
