@@ -96,58 +96,6 @@ def obj_to_dict(obj, exclusions=[]):
     return d
 
 
-def config_to_dict():
-    """Dumps core config and plugin configs to dictionary.
-
-    ATTENTION: This utility function uses legacy config discovery mechanism
-    and nests plugins configs within core config."""
-    core_config = Config.to_dict()
-    plugin_config = {}
-
-    # Iterate over all registered blueprints
-    # and get per-plugin configs if implemented.
-    # All plugins are expected to be top-level modules.
-    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
-        for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
-            module_name = ep.module_name.split(".")[0]
-            if module_name not in plugin_config:
-
-                # import module
-                try:
-                    importlib.import_module(module_name)
-                except ImportError as exc:
-                    # plugin import failed, this should not happen
-                    plugin_config[module_name] = str(exc)
-                    continue
-
-                # import config submodule
-                try:
-                    plugin_config_module = importlib.import_module('.'.join([module_name, 'config']))
-                except ImportError as exc:
-                    # plugin import failed, this should not happen
-                    plugin_config[module_name] = str(exc)
-                    continue
-
-                # serialize Config object in config submodule
-                try:
-                    plugin_config[module_name] = plugin_config_module.Config.to_dict()  # NOQA
-                except AttributeError as exc:
-                    # plugin did not implement config.Config.to_dict properly
-                    plugin_config[module_name] = str(exc)
-                    continue
-
-    # check for overlap between core config keys and plugin names
-    if len(set(core_config.keys()) & set(plugin_config.keys())) > 0:
-        raise ValueError(
-            "Plugin module names and core server config keys must not overlap."
-        )
-
-    all_config = core_config
-    if len(plugin_config) > 0:
-        all_config.update(plugin_config)
-    return all_config
-
-
 def versions_to_dict():
     """Dumps installed components and their versions to dictionary, i.e.
 

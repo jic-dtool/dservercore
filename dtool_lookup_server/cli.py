@@ -28,7 +28,6 @@ from dtool_lookup_server.utils import (
     register_dataset,
     generate_dataset_info,
     obj_to_dict,
-    config_to_dict,
     versions_to_dict
 )
 from dtool_lookup_server.config import CONFIG_EXCLUSIONS
@@ -219,17 +218,10 @@ def index_base_uri(base_uri):
         click.secho("Registered: {}".format(r), fg="green")
 
 
-@config_cli.command(name="flat")
-def config_flat():
-    """Print JSON-formatted Flask app config."""
-    publishable_config = obj_to_dict(current_app.config, exclusions=CONFIG_EXCLUSIONS)
-    click.secho(json.dumps(publishable_config, indent=2))
-
-
 @config_cli.command(name="show")
 def config_show():
-    """Print JSON-formatted config."""
-    publishable_config = config_to_dict()
+    """Print JSON-formatted Flask app config."""
+    publishable_config = obj_to_dict(current_app.config, exclusions=CONFIG_EXCLUSIONS)
     click.secho(json.dumps(publishable_config, indent=2))
 
 
