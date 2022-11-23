@@ -58,5 +58,7 @@ def base_uri_list(pagination_parameters):
     query = BaseURI.query.filter_by()
     pagination_parameters.item_count = query.count()
     return query.paginate(
-        pagination_parameters.page, pagination_parameters.page_size, True
+        page=pagination_parameters.page,
+        per_page=pagination_parameters.page_size,
+        error_out=True
     ).items
