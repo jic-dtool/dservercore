@@ -21,9 +21,8 @@ Added
 - Defined schemas for endpoint arguments
 - Missing and improved docstrings for endpoints
 - Replaces get_json() uses for the use of request's arguments
-- Flask CLI commands for inspectin app configuration
+- Flask CLI commands for inspecting app configuration
 - ``/config/versions`` route
-- ``/config/flat`` route
 - Entrypoints ``extensions``, ``search``, ``retrieve`` for plugins
 - Abstract base classes for plugins
 
@@ -35,15 +34,16 @@ Changed
   shall happen in the API client.
 - When registering a dataset the readme should now be provided as a string
   (text) rather than as a dictionary of key value entries
+- The ``/config/info```route now provides a dump of the actual Flask app config
 
 Deprecated
 ^^^^^^^^^^
 
-- ``/config/flat`` will be renamed and take the place of the ``/config/info```route
-- ``plugins`` entrypoint
 
 Removed
 ^^^^^^^
+
+- ``plugins`` entrypoint
 
 
 Fixed

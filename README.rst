@@ -725,6 +725,8 @@ and extension plugins with their versions, i.e.::
       "dtool_lookup_server_search_plugin_mongo": "0.1.0"
     }
 
+This request does not require any authorization.
+
 Creating a plugin
 -----------------
 
