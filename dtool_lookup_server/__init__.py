@@ -60,15 +60,13 @@ class PluginABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_config(self):
         """Return the Config object of the retrieve plugin."""
-        pass
+        return dict()
 
-    @abstractmethod
     def get_config_secrets_to_obfuscate(self):
         """Return a list of config keys never to be exposed in clear text."""
-        pass
+        return list()
 
 
 class SearchABC(PluginABC):
