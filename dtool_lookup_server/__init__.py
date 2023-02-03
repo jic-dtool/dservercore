@@ -170,14 +170,14 @@ for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
 def create_app(test_config=None):
     app = Flask(__name__)
 
-    CORS(app)
-
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_object(Config)
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+
+    CORS(app)
 
     retrieve.init_app(app)
     search.init_app(app)

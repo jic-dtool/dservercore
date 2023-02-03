@@ -49,6 +49,23 @@ class Config(object):
 
     API_TITLE = "dtool-lookup-server API"
     API_VERSION = "v1"
+
+    # flask_smorest.Blueprint.paginate embeds pagination information like
+    # {
+    #     'total': 1000, 'total_pages': 200,
+    #     'page': 2, 'first_page': 1, 'last_page': 200,
+    #     'previous_page': 1, 'next_page': 3,
+    # }
+    # in the response header 'X-Pagination', see
+    #    https://flask-smorest.readthedocs.io/en/latest/pagination.html#pagination-header
+    # To make client request frameworks like axios expose these data to the
+    # actual app, e.g. the dtool-lookup-webapp, the server needs to indicate
+    # the wish to do so, see
+    #     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
+    # With flask, this is achieved by configuring flask-cors as follows, see
+    #     https://flask-cors.readthedocs.io/en/latest/configuration.html#configuration-options
+    CORS_EXPOSE_HEADERS = ["X-Pagination"]
+
     OPENAPI_VERSION = "3.0.2"
     OPENAPI_URL_PREFIX = os.environ.get("OPENAPI_URL_PREFIX", "/doc")
     OPENAPI_REDOC_PATH = os.environ.get("OPENAPI_REDOC_PATH", "/redoc")
