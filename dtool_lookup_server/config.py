@@ -23,6 +23,8 @@ def _get_file_content(key, default=""):
 
 
 class Config(object):
+    CONFIG_SECRETS_TO_OBFUSCATE = CONFIG_EXCLUSIONS
+
     SECRET_KEY = os.environ.get("SECRET_KEY", "you-will-never-guess")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "SQLALCHEMY_DATABASE_URI",

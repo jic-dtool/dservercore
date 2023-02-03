@@ -94,6 +94,8 @@ def obj_to_dict(obj, exclusions=[]):
         # select only capitalized fields
         if k.upper() == k and k not in exclusions:
             d[k] = _serializable(v)
+        elif k.upper() == k and k in exclusions:
+            d[k] = "***" # obfuscate secret
     return d
 
 

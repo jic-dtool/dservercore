@@ -1,4 +1,3 @@
-import json
 from flask import (
     abort,
     current_app,
@@ -29,7 +28,9 @@ def server_config():
         # Unregistered users should see 401.
         abort(401)
 
-    return jsonify(obj_to_lowercase_key_dict(current_app.config))
+    return jsonify(obj_to_lowercase_key_dict(
+        current_app.config,
+        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"]))
 
 
 @bp.route("/versions", methods=["GET"])

@@ -65,6 +65,11 @@ class PluginABC(ABC):
         """Return the Config object of the retrieve plugin."""
         pass
 
+    @abstractmethod
+    def get_config_secrets_to_obfuscate(self):
+        """Return a list of config keys never to be exposed in clear text."""
+        pass
+
 
 class SearchABC(PluginABC):
     """Any search plugin must inherit from this base class."""
@@ -229,6 +234,8 @@ def create_app(test_config=None):
         for plugin in plugins:
             # if applicable, plugin config is mapped into global flask config
             app.config.from_object(plugin.get_config())
+            app.config["CONFIG_SECRETS_TO_OBFUSCATE"].extend(
+                plugin.get_config_secrets_to_obfuscate())
 
     else:
         # load the test config if passed in
