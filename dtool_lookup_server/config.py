@@ -1,3 +1,4 @@
+import json
 import os
 
 import dtool_lookup_server
@@ -47,27 +48,51 @@ class Config(object):
 
     API_TITLE = "dtool-lookup-server API"
     API_VERSION = "v1"
+
+    # flask_smorest.Blueprint.paginate embeds pagination information like
+    # {
+    #     'total': 1000, 'total_pages': 200,
+    #     'page': 2, 'first_page': 1, 'last_page': 200,
+    #     'previous_page': 1, 'next_page': 3,
+    # }
+    # in the response header 'X-Pagination', see
+    #    https://flask-smorest.readthedocs.io/en/latest/pagination.html#pagination-header
+    # To make client request frameworks like axios expose these data to the
+    # actual app, e.g. the dtool-lookup-webapp, the server needs to indicate
+    # the wish to do so, see
+    #     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
+    # With flask, this is achieved by configuring flask-cors as follows, see
+    #     https://flask-cors.readthedocs.io/en/latest/configuration.html#configuration-options
+    CORS_EXPOSE_HEADERS = ["X-Pagination"]
+
     OPENAPI_VERSION = "3.0.2"
-    OPENAPI_URL_PREFIX = "/doc"
-    OPENAPI_REDOC_PATH = "/redoc"
-    OPENAPI_REDOC_URL = (
+    OPENAPI_URL_PREFIX = os.environ.get("OPENAPI_URL_PREFIX", "/doc")
+    OPENAPI_REDOC_PATH = os.environ.get("OPENAPI_REDOC_PATH", "/redoc")
+    OPENAPI_REDOC_URL = os.environ.get("OPENAPI_REDOC_URL",
         "https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
     )
-    OPENAPI_SWAGGER_UI_PATH = "/swagger"
-    OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    API_SPEC_OPTIONS = {
-        "x-internal-id": "2",
-        "security": [{"bearerAuth": []}],
-        "components": {
-            "securitySchemes": {
-                "bearerAuth": {
-                    "type": "http",
-                    "scheme": "bearer",
-                    "bearerFormat": "JWT",
+    OPENAPI_SWAGGER_UI_PATH = os.environ.get("OPENAPI_SWAGGER_UI_PATH", "/swagger")
+    OPENAPI_SWAGGER_UI_URL = os.environ.get("OPENAPI_SWAGGER_UI_URL", "https://cdn.jsdelivr.net/npm/swagger-ui-dist/")
+
+    # give API_SPEC_OPTIONS priority over API_SPEC_OPTIONS_FILE over default value
+    if os.environ.get("API_SPEC_OPTIONS"):
+        API_SPEC_OPTIONS = json.loads(os.environ.get("API_SPEC_OPTIONS"))
+    elif os.environ.get("API_SPEC_OPTIONS_FILE"):
+        API_SPEC_OPTIONS = json.loads(_get_file_content("API_SPEC_OPTIONS_FILE"))
+    else:
+        API_SPEC_OPTIONS = {
+            "x-internal-id": "2",
+            "security": [{"bearerAuth": []}],
+            "components": {
+                "securitySchemes": {
+                    "bearerAuth": {
+                        "type": "http",
+                        "scheme": "bearer",
+                        "bearerFormat": "JWT"
+                    }
                 }
             }
-        },
-    }
+        }
 
     @classmethod
     def to_dict(cls):
