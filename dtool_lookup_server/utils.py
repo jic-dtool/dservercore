@@ -87,13 +87,21 @@ def _get_base_uri_obj(base_uri):
 #############################################################################
 
 def obj_to_dict(obj, exclusions=[]):
-    """Convert all-upper-case entries in dict-like object to dict and exclude certain keys. """
+    """Convert all-upper-case entries in dict-like object to dict and exclude
+       certain keys. """
     d = dict()
     for k, v in obj.items():
         # select only capitalized fields
         if k.upper() == k and k not in exclusions:
-            d[k.lower()] = _serializable(v)
+            d[k] = _serializable(v)
     return d
+
+
+def obj_to_lowercase_key_dict(obj, exclusions=[]):
+    """Convert all-upper-case keys in dict-like object to all-lower-case keys
+       dict and exclude certain keys. """
+    d = obj_to_dict(obj, exclusions=exclusions)
+    return {k.lower(): v for k, v in d.items()}
 
 
 def versions_to_dict():
