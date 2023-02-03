@@ -60,9 +60,10 @@ class PluginABC(ABC):
         """
         pass
 
+    @abstractmethod
     def get_config(self):
         """Return the Config object of the retrieve plugin."""
-        return dict()
+        pass
 
 
 class SearchABC(PluginABC):
