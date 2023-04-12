@@ -142,6 +142,11 @@ Configure a public and private key pair
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The dtool lookup server implements authentication using JSON Web Tokens.
+Private and public key can for example be generated with::
+
+    openssl genrsa -out /path/to/private/jwt_key 2048
+    openssl rsa -in /path/to/private/jwt_key -pubout -outform PEM -out /path/to/public/jwt_key.pub
+
 It is possible to delegate the generation of JSON Web Tokens to a different
 service as long as one has access to the public key::
 
