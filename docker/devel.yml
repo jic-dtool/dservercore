@@ -10,8 +10,8 @@ volumes:
 services:
   dtool_lookup_server:
     build:
-      context: .
-      dockerfile: ./dtool_lookup_server_devel/Dockerfile
+      context: ..
+      dockerfile: ./docker/dtool_lookup_server_devel/Dockerfile
     image: local_dtool_lookup_server
     depends_on:
       postgres:
@@ -30,7 +30,13 @@ services:
       - key_data:/keys
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://admin:secret12@postgres:5432/dtool
-      - MONGO_URI=mongodb://mongo:27017/dtool_info
+      # - MONGO_URI=mongodb://mongo:27017/dtool_info
+      - SEARCH_MONGO_URI=mongodb://mongo:27017/
+      - SEARCH_MONGO_DB=dtool_info
+      - SEARCH_MONGO_COLLECTION=datasets
+      - RETRIEVE_MONGO_URI=mongodb://mongo:27017/
+      - RETRIEVE_MONGO_DB=dtool_info
+      - RETRIEVE_MONGO_COLLECTION=datasets
       - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
       - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
       - SSL_CERT_FILE=/certs/dtool-lookup-server.crt

@@ -2,25 +2,22 @@ FROM python:3.10-bullseye
 
 RUN adduser --disabled-password --gecos '' dtool_lookup_server
 
-RUN pip install -U pip  && \
-    pip install gunicorn  && \
-    pip install 'flask<2.0' pymongo alembic flask-sqlalchemy flask-migrate flask-pymongo flask-cors \
-        'dtoolcore>=3.18.0' dtool-cli dtool-info dtool-create dtool-s3 'flask-jwt-extended[asymmetric_crypto]>=4.0' \
-        pyyaml psycopg2 && \
-    rm -rf /root/.cache/pip
-
-ENV FLASK_APP=dtool_lookup_server
-
-#COPY --chown=dtool_lookup_server . /app
-#RUN rm -Rf app/venv app/.idea app/.pytest_cache app/.git app/__pycache__
-
-RUN mkdir /app && chown dtool_lookup_server /app
-
-COPY dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
+COPY --chown=dtool_lookup_server . /app
 
 WORKDIR /app
 
-COPY dtool_lookup_server_devel/boot.sh  /
+ENV FLASK_APP=dtool_lookup_server
+
+RUN pip install -U pip  && \
+    pip install gunicorn  psycopg2 && \
+    pip install -r requirements.txt && \
+    pip install git+https://github.com/jotelha/dtool-lookup-server-retrieve-plugin-mongo.git@2022-11-23-config && \
+    pip install git+https://github.com/jotelha/dtool-lookup-server-search-plugin-mongo.git@2022-11-22-config && \
+    rm -rf /root/.cache/pip
+
+COPY docker/dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
+
+COPY docker/dtool_lookup_server_devel/boot.sh  /
 RUN chmod +x /boot.sh
 
 RUN mkdir /keys && chown dtool_lookup_server /keys
