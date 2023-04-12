@@ -23,6 +23,8 @@ def _get_file_content(key, default=""):
 
 
 class Config(object):
+    CONFIG_SECRETS_TO_OBFUSCATE = CONFIG_EXCLUSIONS
+
     SECRET_KEY = os.environ.get("SECRET_KEY", "you-will-never-guess")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "SQLALCHEMY_DATABASE_URI",
@@ -48,6 +50,23 @@ class Config(object):
 
     API_TITLE = "dtool-lookup-server API"
     API_VERSION = "v1"
+
+    # flask_smorest.Blueprint.paginate embeds pagination information like
+    # {
+    #     'total': 1000, 'total_pages': 200,
+    #     'page': 2, 'first_page': 1, 'last_page': 200,
+    #     'previous_page': 1, 'next_page': 3,
+    # }
+    # in the response header 'X-Pagination', see
+    #    https://flask-smorest.readthedocs.io/en/latest/pagination.html#pagination-header
+    # To make client request frameworks like axios expose these data to the
+    # actual app, e.g. the dtool-lookup-webapp, the server needs to indicate
+    # the wish to do so, see
+    #     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
+    # With flask, this is achieved by configuring flask-cors as follows, see
+    #     https://flask-cors.readthedocs.io/en/latest/configuration.html#configuration-options
+    CORS_EXPOSE_HEADERS = ["X-Pagination"]
+
     OPENAPI_VERSION = "3.0.2"
     OPENAPI_URL_PREFIX = os.environ.get("OPENAPI_URL_PREFIX", "/doc")
     OPENAPI_REDOC_PATH = os.environ.get("OPENAPI_REDOC_PATH", "/redoc")
@@ -76,14 +95,4 @@ class Config(object):
                 }
             }
         }
-
-    @classmethod
-    def to_dict(cls):
-        """Convert server configuration into dict."""
-        d = {"version": dtool_lookup_server.__version__}
-        for k, v in cls.__dict__.items():
-            # select only capitalized fields
-            if k.upper() == k and k not in CONFIG_EXCLUSIONS:
-                d[k.lower()] = v
-        return d
 

@@ -64,6 +64,10 @@ class PluginABC(ABC):
         """Return the Config object of the retrieve plugin."""
         return dict()
 
+    def get_config_secrets_to_obfuscate(self):
+        """Return a list of config keys never to be exposed in clear text."""
+        return list()
+
 
 class SearchABC(PluginABC):
     """Any search plugin must inherit from this base class."""
@@ -220,8 +224,6 @@ plugins = [search, retrieve, *extensions]
 def create_app(test_config=None):
     app = Flask(__name__)
 
-    CORS(app)
-
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_object(Config)
@@ -230,13 +232,20 @@ def create_app(test_config=None):
         for plugin in plugins:
             # if applicable, plugin config is mapped into global flask config
             app.config.from_object(plugin.get_config())
+            app.config["CONFIG_SECRETS_TO_OBFUSCATE"].extend(
+                plugin.get_config_secrets_to_obfuscate())
 
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
+    CORS(app)
+
     for plugin in plugins:
         plugin.init_app(app)
+
+    retrieve.init_app(app)
+    search.init_app(app)
 
     sql_db.init_app(app)
     Migrate(app, sql_db)

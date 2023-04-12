@@ -1,4 +1,3 @@
-import json
 from flask import (
     abort,
     current_app,
@@ -13,7 +12,7 @@ from flask_smorest import Blueprint
 
 import dtool_lookup_server
 import dtool_lookup_server.utils_auth
-from dtool_lookup_server.utils import versions_to_dict, obj_to_dict
+from dtool_lookup_server.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
 bp = Blueprint("config", __name__, url_prefix="/config")
@@ -29,7 +28,9 @@ def server_config():
         # Unregistered users should see 401.
         abort(401)
 
-    return jsonify(obj_to_dict(current_app.config))
+    return jsonify(obj_to_lowercase_key_dict(
+        current_app.config,
+        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"]))
 
 
 @bp.route("/versions", methods=["GET"])
