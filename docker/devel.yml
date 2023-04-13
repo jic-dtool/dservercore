@@ -103,6 +103,8 @@ services:
     depends_on:
       ldap:
         condition: service_started
+      dtool_lookup_server:
+        condition: service_started
     environment:
       - FLASK_APP=app.py
       - FLASK_CONFIG_FILE=production.cfg
