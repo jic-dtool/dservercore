@@ -4,7 +4,6 @@ volumes:
   postgres_data: {}
   mongo_data: {}
   minio_data: {}
-  cert_data: {}
   key_data: {}
 
 services:
@@ -20,13 +19,10 @@ services:
         condition: service_started
       minio:
         condition: service_started
-      omgwtfssl:
-        condition: service_completed_successfully
       minio-create-buckets:
         condition: service_completed_successfully
     volumes:
       - ..:/app
-      - cert_data:/certs
       - key_data:/keys
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://admin:secret12@postgres:5432/dtool
@@ -39,8 +35,8 @@ services:
       - RETRIEVE_MONGO_COLLECTION=datasets
       - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
       - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
-      - SSL_CERT_FILE=/certs/dtool-lookup-server.crt
-      - SSL_KEY_FILE=/certs/dtool-lookup-server.key
+      - DUMP_HTTP_REQUESTS=True
+      - LOGLEVEL=DEBUG
     ports:
       - "5000:5000"
 
@@ -99,8 +95,32 @@ services:
         exit 0;
         "
 
-  omgwtfssl:
-    image: paulczar/omgwtfssl
-    restart: "no"
+  token_generator_ldap:
+    hostname: token-generator-ldap
+    image: jotelha/dtool-token-generator-ldap:latest
+    restart: always
+    command: /start
     volumes:
-      - cert_data:/certs
+      - key_data:/keys
+    depends_on:
+      ldap:
+        condition: service_started
+      dtool_lookup_server:
+        condition: service_started
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_CONFIG_FILE=production.cfg
+      - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
+      - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
+      - JWT_ACCESS_TOKEN_EXPIRES=3600
+    ports:
+      - "5001:5001"
+
+  ldap:
+    image: bitnami/openldap:latest
+    restart: always
+    expose:
+      - "1389"
+    environment:
+      - LDAP_USERS=test-user
+      - LDAP_PASSWORDS=test-password

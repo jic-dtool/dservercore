@@ -11,6 +11,7 @@ ENV FLASK_APP=dtool_lookup_server
 RUN pip install -U pip  && \
     pip install gunicorn  psycopg2 && \
     pip install -r requirements.txt && \
+    pip install dtool-cli dtool-info dtool-create dtool-s3 && \
     pip install git+https://github.com/jotelha/dtool-lookup-server-retrieve-plugin-mongo.git@2022-11-23-config && \
     pip install git+https://github.com/jotelha/dtool-lookup-server-search-plugin-mongo.git@2022-11-22-config && \
     rm -rf /root/.cache/pip
