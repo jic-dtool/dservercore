@@ -35,6 +35,8 @@ services:
       - RETRIEVE_MONGO_COLLECTION=datasets
       - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
       - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
+      - DUMP_HTTP_REQUESTS=True
+      - LOGLEVEL=DEBUG
     ports:
       - "5000:5000"
 

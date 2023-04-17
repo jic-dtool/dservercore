@@ -66,4 +66,4 @@ echo "-> Index base URI..."
 flask base_uri index s3://test-bucket
 
 echo "-> Starting gunicorn..."
-exec gunicorn -b :5000 --access-logfile - --error-logfile - "dtool_lookup_server:create_app()"
+exec gunicorn -b :5000 --access-logfile - --error-logfile - --log-level ${LOGLEVEL} wsgi:app
