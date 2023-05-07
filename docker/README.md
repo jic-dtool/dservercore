@@ -34,3 +34,18 @@ The LDAP allows authentification of this user with password `test-password`.
 
 `docker/dtool.json` contains a sample dtool configuration for accessing lookup
 server and token generator from localhost.
+
+## Development dependencies
+
+Similar to the development setup, but only provides all services the lookup
+server depends on, not the lookup server itsels. Useful for playing with
+different plugin constellations.
+
+Build the compose environment with
+```
+docker compose -f docker/env.yml build
+```
+and start it with
+```
+docker compose -f docker/env.yml up
+```

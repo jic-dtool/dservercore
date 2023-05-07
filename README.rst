@@ -124,7 +124,8 @@ setting the ``SQLALCHEMY_DATABASE_URI``, i.e using something along the lines of:
 
     export SQLALCHEMY_DATABASE_URI=mysql://username:password@server/db
 
-Importantly, you will need an according Python connector for whatever SQL database you decide to use, e.g. `psycopg2` for PostgreSQL or `mysqlclient` for MySQL.
+Importantly, you will need an according Python connector for whatever SQL database
+you decide to use, e.g. `psycopg2` for PostgreSQL or `mysqlclient` for MySQL.
 
 For more information see `flask-SQLAlchemy
 <http://flask-sqlalchemy.pocoo.org>`_.
