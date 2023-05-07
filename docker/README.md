@@ -29,3 +29,8 @@ token for this user, run
 ```
 docker compose -f docker/devel.yml exec dtool_lookup_server flask user token test-user
 ```
+
+The LDAP allows authentification of this user with password `test-password`.
+
+`docker/dtool.json` contains a sample dtool configuration for accessing lookup
+server and token generator from localhost.
