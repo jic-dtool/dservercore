@@ -2,20 +2,19 @@ import logging
 import sys
 
 from abc import ABC, abstractmethod
-from pkg_resources import iter_entry_points
 
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_marshmallow import Marshmallow
 from flask_smorest import (
     Api,
     Blueprint
 )
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
 
 from dtool_lookup_server.config import Config
+from dtool_lookup_server.extensions import sql_db, jwt, ma
+
+from pkg_resources import iter_entry_points
 
 __version__ = "0.17.2"
 
@@ -182,54 +181,48 @@ class ExtensionABC(ABC):
         pass
 
 
-sql_db = SQLAlchemy()
-jwt = JWTManager()
-ma = Marshmallow()
-
-
-# Load the search plugin.
-search_entrypoints = []
-for entrypoint in iter_entry_points("dtool_lookup_server.search"):
-    logger.info("Discovered search plugin entrypoint %s", entrypoint)
-    search_entrypoints.append(entrypoint.load())
-if len(search_entrypoints) < 1:
-    raise(RuntimeError("Please install a search plugin"))
-elif len(search_entrypoints) > 1:
-    raise(RuntimeError("Too many search plugins; there can be only one"))
-search = search_entrypoints[0]()
-
-# Load the retrieve plugin.
-retrieve_entrypoints = []
-for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
-    logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
-    retrieve_entrypoints.append(entrypoint.load())
-if len(retrieve_entrypoints) < 1:
-    raise(RuntimeError("Please install a retrieve plugin"))
-elif len(retrieve_entrypoints) > 1:
-    raise(RuntimeError("Too many retrieve plugins; there can be only one"))
-retrieve = retrieve_entrypoints[0]()
-
-# Load any extension plugins.
-extensions = []
-for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
-    logger.info("Discovered extension plugin entrypoint %s", entrypoint)
-    ep = entrypoint.load()
-    extensions.append(ep())
-
-# For certain aspects below, search plugin, retrieve plugin, and other extension
-# plugins can be treated on the same level
-plugins = [search, retrieve, *extensions]
-
-
 def create_app(test_config=None):
     app = Flask(__name__)
+
+    # Load the search plugin.
+    search_entrypoints = []
+    for entrypoint in iter_entry_points("dtool_lookup_server.search"):
+        logger.info("Discovered search plugin entrypoint %s", entrypoint)
+        search_entrypoints.append(entrypoint.load())
+    if len(search_entrypoints) < 1:
+        raise (RuntimeError("Please install a search plugin"))
+    elif len(search_entrypoints) > 1:
+        raise (RuntimeError("Too many search plugins; there can be only one"))
+    app.search = search_entrypoints[0]()
+
+    # Load the retrieve plugin.
+    retrieve_entrypoints = []
+    for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
+        logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
+        retrieve_entrypoints.append(entrypoint.load())
+    if len(retrieve_entrypoints) < 1:
+        raise (RuntimeError("Please install a retrieve plugin"))
+    elif len(retrieve_entrypoints) > 1:
+        raise (RuntimeError("Too many retrieve plugins; there can be only one"))
+    app.retrieve = retrieve_entrypoints[0]()
+
+    # Load any extension plugins.
+    app.custom_extensions = []
+    for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
+        logger.info("Discovered extension plugin entrypoint %s", entrypoint)
+        ep = entrypoint.load()
+        app.custom_extensions.append(ep())
+
+    # For certain aspects below, search plugin, retrieve plugin, and other extension
+    # plugins can be treated on the same level
+    app.plugins = [app.search, app.retrieve, *app.custom_extensions]
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_object(Config)
 
         # any plugin may provide its own config
-        for plugin in plugins:
+        for plugin in app.plugins:
             # if applicable, plugin config is mapped into global flask config
             app.config.from_object(plugin.get_config())
             app.config["CONFIG_SECRETS_TO_OBFUSCATE"].extend(
@@ -241,11 +234,11 @@ def create_app(test_config=None):
 
     CORS(app)
 
-    for plugin in plugins:
+    for plugin in app.plugins:
         plugin.init_app(app)
 
-    retrieve.init_app(app)
-    search.init_app(app)
+    app.retrieve.init_app(app)
+    app.search.init_app(app)
 
     sql_db.init_app(app)
     Migrate(app, sql_db)
@@ -271,7 +264,7 @@ def create_app(test_config=None):
     api.register_blueprint(permission_routes.bp)
 
     # Load dtool-lookup-server extension plugin blueprints.
-    for ex in extensions:
+    for ex in app.custom_extensions:
         bp = ex.get_blueprint()
         if not isinstance(bp, Blueprint):
             print(
