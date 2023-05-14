@@ -25,6 +25,8 @@ Added
 - ``/config/versions`` route
 - Entrypoints ``extensions``, ``search``, ``retrieve`` for plugins
 - Abstract base classes for plugins
+- Plugins provied a metho ``get_config_secrets_to_obfuscate`` that tells the core app which configuration parameters are not to be reported clear text
+- Sample ``wsgi.py`` script for wrapping Flask app and dumping all HTTP requests and responses
 
 Changed
 ^^^^^^^
@@ -35,6 +37,7 @@ Changed
 - When registering a dataset the readme should now be provided as a string
   (text) rather than as a dictionary of key value entries
 - The ``/config/info```route now provides a dump of the actual Flask app config
+- Epoxe ``X-Pagination`` headers per default.
 
 Deprecated
 ^^^^^^^^^^
