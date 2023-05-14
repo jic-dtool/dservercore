@@ -15,6 +15,7 @@ env*
 .pytest_cache/*
 .tox/*
 dist/*
+keys/*
 venv/*
 old-provision/*
 jwt-spike/*

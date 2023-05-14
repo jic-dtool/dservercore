@@ -48,11 +48,13 @@ def tmp_dir():
 @pytest.fixture
 def tmp_app(request):
 
-    from dtool_lookup_server import create_app, sql_db, retrieve, search
+    from flask import current_app
+    from dtool_lookup_server import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 
     config = {
+        "CONFIG_SECRETS_TO_OBFUSCATE": [],
         "API_TITLE": 'dtool-lookup-server API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
@@ -96,8 +98,8 @@ def tmp_app(request):
 
     @request.addfinalizer
     def teardown():
-        retrieve.client.drop_database(tmp_mongo_db_name)
-        search.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -106,7 +108,9 @@ def tmp_app(request):
 @pytest.fixture
 def tmp_app_with_users(request):
 
-    from dtool_lookup_server import create_app, sql_db, retrieve, search
+    from flask import current_app
+
+    from dtool_lookup_server import create_app, sql_db
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
@@ -116,6 +120,7 @@ def tmp_app_with_users(request):
     tmp_mongo_db_name = random_string()
 
     config = {
+        "CONFIG_SECRETS_TO_OBFUSCATE": [],
         "API_TITLE": 'dtool-lookup-server API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
@@ -163,8 +168,8 @@ def tmp_app_with_users(request):
 
     @request.addfinalizer
     def teardown():
-        retrieve.client.drop_database(tmp_mongo_db_name)
-        search.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -173,7 +178,9 @@ def tmp_app_with_users(request):
 @pytest.fixture
 def tmp_app_with_data(request):
 
-    from dtool_lookup_server import create_app, sql_db, retrieve, search
+    from flask import current_app
+
+    from dtool_lookup_server import create_app, sql_db
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
@@ -287,8 +294,8 @@ def tmp_app_with_data(request):
 
     @request.addfinalizer
     def teardown():
-        retrieve.client.drop_database(tmp_mongo_db_name)
-        search.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_client()
@@ -297,7 +304,9 @@ def tmp_app_with_data(request):
 @pytest.fixture
 def tmp_cli_runner(request):
 
-    from dtool_lookup_server import create_app, sql_db, retrieve, search
+    from flask import current_app
+
+    from dtool_lookup_server import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 
@@ -327,8 +336,8 @@ def tmp_cli_runner(request):
 
     @request.addfinalizer
     def teardown():
-        retrieve.client.drop_database(tmp_mongo_db_name)
-        search.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.drop_database(tmp_mongo_db_name)
         sql_db.session.remove()
 
     return app.test_cli_runner()

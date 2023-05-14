@@ -64,6 +64,7 @@ class SearchDatasetSchema(Schema):
     uuids = List(UUID)
     tags = List(String)
 
+
 class SummarySchema(Schema):
     number_of_datasets = Integer()
     creator_usernames = List(String)
