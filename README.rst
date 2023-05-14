@@ -5,13 +5,9 @@ Dtool Lookup Server
    :target: http://badge.fury.io/py/dtool-lookup-server
    :alt: PyPi package
 
-.. image:: https://travis-ci.org/jic-dtool/dtool-lookup-server.svg?branch=master
-   :target: https://travis-ci.org/jic-dtool/dtool-lookup-server
-   :alt: Travis CI build status (Linux)
-
-.. image:: https://codecov.io/github/jic-dtool/dtool-lookup-server/coverage.svg?branch=master
-   :target: https://codecov.io/github/jic-dtool/dtool-lookup-server?branch=master
-   :alt: Code Coverage
+.. image:: https://img.shields.io/github/actions/workflow/status/jotelha/dtool-lookup-server/test.yml?branch=main
+    :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
+    :alt: GitHub Workflow Status
 
 - GitHub: https://github.com/jic-dtool/dtool-lookup-server
 - PyPI: https://pypi.python.org/pypi/dtool-lookup-server
