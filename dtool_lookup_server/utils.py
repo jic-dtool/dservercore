@@ -5,19 +5,18 @@ import importlib
 import json
 from pkg_resources import iter_entry_points
 
+from flask import current_app
 from sqlalchemy.sql import exists
 
 import dtoolcore.utils
 
 from dtool_lookup_server import (
     sql_db,
-    search,
-    retrieve,
-    extensions,
     AuthenticationError,
     AuthorizationError,
     ValidationError,
     UnknownBaseURIError,
+    __version__
 )
 from dtool_lookup_server.sql_models import (
     User,
@@ -48,14 +47,23 @@ DATASET_INFO_REQUIRED_KEYS = (
 )
 
 
-# These entrypoints might point to plugin or extension modules with
+# These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
-DTOOL_LOOKUP_SERVER_ENTRYPOINTS = ['blueprints', 'extension', 'retrieve', 'search']
+DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 
 
 #############################################################################
 # Private helper functions.
 #############################################################################
+
+def _serializable(obj):
+    """Return string representation of object if object itself not json-serializable."""
+    try:
+        json.dumps(obj)
+    except TypeError:
+        return str(obj)
+    else:
+        return obj
 
 
 def _json_serial(obj):
@@ -73,57 +81,59 @@ def _get_base_uri_obj(base_uri):
 
 
 #############################################################################
-# Generally useful dtool helper functions.
+# Public helper functions.
 #############################################################################
 
+def obj_to_dict(obj, exclusions=[]):
+    """Convert all-upper-case entries in dict-like object to dict and exclude
+       certain keys. """
+    d = dict()
+    for k, v in obj.items():
+        # select only capitalized fields
+        if k.upper() == k and k not in exclusions:
+            d[k] = _serializable(v)
+        elif k.upper() == k and k in exclusions:
+            d[k] = "***" # obfuscate secret
+    return d
 
-def config_to_dict():
-    core_config = Config.to_dict()
-    plugin_config = {}
 
-    # Iterate over all registered blueprints
-    # and get per-plugin configs if implemented.
-    # All plugins are expected to be top-level modules.
-    for ep_group in DTOOL_LOOKUP_SERVER_ENTRYPOINTS:
+def obj_to_lowercase_key_dict(obj, exclusions=[]):
+    """Convert all-upper-case keys in dict-like object to all-lower-case keys
+       dict and exclude certain keys. """
+    d = obj_to_dict(obj, exclusions=exclusions)
+    return {k.lower(): v for k, v in d.items()}
+
+
+def versions_to_dict():
+    """Dumps installed components and their versions to dictionary, i.e.
+
+        {
+            'dtool_lookup_server': '0.17.2',
+            'dtool_lookup_server_retrieve_plugin_mongo': '0.1.0',
+            'dtool_lookup_server_search_plugin_mongo': '0.1.0'
+        }
+   """
+
+    versions_dict = {'dtool_lookup_server': __version__}
+    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
         for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
             module_name = ep.module_name.split(".")[0]
-            if module_name not in plugin_config:
 
-                # import module
-                try:
-                    importlib.import_module(module_name)
-                except ImportError as exc:
-                    # plugin import failed, this should not happen
-                    plugin_config[module_name] = str(exc)
-                    continue
+            # import module
+            try:
+                plugin_module = importlib.import_module(module_name)
+            except ImportError as exc:
+                # plugin import failed, this should not happen
+                continue
 
-                # import config submodule
-                try:
-                    plugin_config_module = importlib.import_module('.'.join([module_name, 'config']))
-                except ImportError as exc:
-                    # plugin import failed, this should not happen
-                    plugin_config[module_name] = str(exc)
-                    continue
+            versions_dict[module_name] = getattr(plugin_module, '__version__', None)
 
-                # serialize Config object in config submodule
-                try:
-                    plugin_config[module_name] = plugin_config_module.Config.to_dict()  # NOQA
-                except AttributeError as exc:
-                    # plugin did not implement config.Config.to_dict properly
-                    plugin_config[module_name] = str(exc)
-                    continue
+    return versions_dict
 
-    # check for overlap between core config keys and plugin names
-    if len(set(core_config.keys()) & set(plugin_config.keys())) > 0:
-        raise ValueError(
-            "Plugin module names and core server config keys must not overlap."
-        )
 
-    all_config = core_config
-    if len(plugin_config) > 0:
-        all_config.update(plugin_config)
-    return all_config
-
+#############################################################################
+# Generally useful dtool helper functions.
+#############################################################################
 
 def generate_dataset_info(dataset, base_uri):
     """Return dictionary with dataset info."""
@@ -355,7 +365,7 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
-    return search.search(query)
+    return current_app.search.search(query)
 
 
 def summary_of_datasets_by_user(username):
@@ -565,9 +575,9 @@ def register_dataset(dataset_info):
     # Take a copy as register_dataset_descriptive_metadata makes
     # changes to the dictionary, in particular it changes the
     # types of the dates to datetime objects.
-    search.register_dataset(dataset_info.copy())
-    retrieve.register_dataset(dataset_info.copy())
-    for ex in extensions:
+    current_app.search.register_dataset(dataset_info.copy())
+    current_app.retrieve.register_dataset(dataset_info.copy())
+    for ex in current_app.custom_extensions:
         ex.register_dataset(dataset_info.copy())
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
@@ -623,7 +633,7 @@ def get_readme_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return retrieve.get_readme(uri)
+    return current_app.retrieve.get_readme(uri)
 
 
 def get_manifest_from_uri_by_user(username, uri):
@@ -648,7 +658,7 @@ def get_manifest_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return retrieve.get_manifest(uri)
+    return current_app.retrieve.get_manifest(uri)
 
 
 def get_annotations_from_uri_by_user(username, uri):
@@ -673,4 +683,4 @@ def get_annotations_from_uri_by_user(username, uri):
     if base_uri not in user.search_base_uris:
         raise (AuthorizationError())
 
-    return retrieve.get_annotations(uri)
+    return current_app.retrieve.get_annotations(uri)

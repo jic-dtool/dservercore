@@ -1,6 +1,7 @@
 """Test command line utilities."""
 
 import json
+import dtool_lookup_server
 
 from operator import itemgetter
 
@@ -234,3 +235,20 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
         ["noone", base_uri_str])
     assert result.exit_code != 0
     assert "User 'noone' not registered" in result.output
+
+
+def test_cli_config_versions(tmp_cli_runner):  # NOQA
+    from dtool_lookup_server.cli import config_versions
+
+    result = tmp_cli_runner.invoke(config_versions, [])
+    assert result.exit_code == 0
+
+    response = json.loads(result.output)
+
+    expected_content = {
+        'dtool_lookup_server': dtool_lookup_server.__version__,
+    }
+
+    for k, v in expected_content.items():
+        assert k in response
+        assert response[k] == v

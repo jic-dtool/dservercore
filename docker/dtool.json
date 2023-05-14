@@ -1,0 +1,10 @@
+{
+  "DTOOL_S3_ENDPOINT_test-bucket": "http://localhost:9000",
+  "DTOOL_S3_ACCESS_KEY_ID_test-bucket": "admin",
+  "DTOOL_S3_SECRET_ACCESS_KEY_test-bucket": "secret12",
+  "DTOOL_LOOKUP_SERVER_TOKEN_GENERATOR_URL": "http://localhost:5001/token",
+  "DTOOL_LOOKUP_SERVER_URL": "http://localhost:5000",
+  "DTOOL_LOOKUP_SERVER_USERNAME": "test-user",
+  "DTOOL_LOOKUP_SERVER_PASSWORD": "test-password",
+  "DTOOL_LOOKUP_SERVER_VERIFY_SSL": "false"
+}

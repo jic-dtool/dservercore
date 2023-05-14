@@ -1,4 +1,8 @@
 #!/bin/sh
+echo "-> Creating keys..."
+openssl genrsa -out /keys/jwt_key 2048
+openssl rsa -in /keys/jwt_key -pubout -outform PEM -out /keys/jwt_key.pub
+
 python3 -m pip install -e .
 
 echo "-> Listing dtool datasets"
@@ -61,9 +65,5 @@ flask user search_permission test-user s3://test-bucket
 echo "-> Index base URI..."
 flask base_uri index s3://test-bucket
 
-echo "-> Creating keys..."
-openssl genrsa -out /keys/jwt_key 2048
-openssl rsa -in /keys/jwt_key -pubout -outform PEM -out /keys/jwt_key.pub
-
 echo "-> Starting gunicorn..."
-exec gunicorn -b :5000 --access-logfile - --error-logfile - "dtool_lookup_server:create_app()"
+exec gunicorn -b :5000 --access-logfile - --error-logfile - --log-level ${LOGLEVEL} wsgi:app

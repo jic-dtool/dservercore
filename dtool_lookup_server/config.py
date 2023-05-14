@@ -5,6 +5,13 @@ import dtool_lookup_server
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
+# config parameters to exclude from any config dump
+CONFIG_EXCLUSIONS = [
+                        "JWT_PRIVATE_KEY",
+                        "SECRET_KEY",
+                        "SQLALCHEMY_DATABASE_URI",
+                    ]
+
 
 def _get_file_content(key, default=""):
     file_path = os.environ.get(key, "")
@@ -16,20 +23,14 @@ def _get_file_content(key, default=""):
 
 
 class Config(object):
+    CONFIG_SECRETS_TO_OBFUSCATE = CONFIG_EXCLUSIONS
+
     SECRET_KEY = os.environ.get("SECRET_KEY", "you-will-never-guess")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "SQLALCHEMY_DATABASE_URI",
         "sqlite:///{}".format(os.path.join(_HERE, "..", "app.db")),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    SEARCH_MONGO_URI = os.environ.get("SEARCH_MONGO_URI", "mongodb://localhost:27017/")
-    SEARCH_MONGO_DB = os.environ.get("SEARCH_MONGO_DB", "dtool_info")
-    SEARCH_MONGO_COLLECTION = os.environ.get("SEARCH_MONGO_COLLECTION", "datasets")
-
-    RETRIEVE_MONGO_URI = os.environ.get("RETRIEVE_MONGO_URI", "mongodb://localhost:27017/")
-    RETRIEVE_MONGO_DB = os.environ.get("RETRIEVE_MONGO_DB", "dtool_info")
-    RETRIEVE_MONGO_COLLECTION = os.environ.get("RETRIEVE_MONGO_COLLECTION", "datasets")
 
     JWT_ALGORITHM = "RS256"
     JWT_TOKEN_LOCATION = "headers"
@@ -49,6 +50,23 @@ class Config(object):
 
     API_TITLE = "dtool-lookup-server API"
     API_VERSION = "v1"
+
+    # flask_smorest.Blueprint.paginate embeds pagination information like
+    # {
+    #     'total': 1000, 'total_pages': 200,
+    #     'page': 2, 'first_page': 1, 'last_page': 200,
+    #     'previous_page': 1, 'next_page': 3,
+    # }
+    # in the response header 'X-Pagination', see
+    #    https://flask-smorest.readthedocs.io/en/latest/pagination.html#pagination-header
+    # To make client request frameworks like axios expose these data to the
+    # actual app, e.g. the dtool-lookup-webapp, the server needs to indicate
+    # the wish to do so, see
+    #     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
+    # With flask, this is achieved by configuring flask-cors as follows, see
+    #     https://flask-cors.readthedocs.io/en/latest/configuration.html#configuration-options
+    CORS_EXPOSE_HEADERS = ["X-Pagination"]
+
     OPENAPI_VERSION = "3.0.2"
     OPENAPI_URL_PREFIX = os.environ.get("OPENAPI_URL_PREFIX", "/doc")
     OPENAPI_REDOC_PATH = os.environ.get("OPENAPI_REDOC_PATH", "/redoc")
@@ -57,32 +75,23 @@ class Config(object):
     )
     OPENAPI_SWAGGER_UI_PATH = os.environ.get("OPENAPI_SWAGGER_UI_PATH", "/swagger")
     OPENAPI_SWAGGER_UI_URL = os.environ.get("OPENAPI_SWAGGER_UI_URL", "https://cdn.jsdelivr.net/npm/swagger-ui-dist/")
-    API_SPEC_OPTIONS = json.loads(os.environ.get("API_SPEC_OPTIONS", """{
-        "x-internal-id": "2",
-        "security": [{"bearerAuth": []}],
-        "components": {
-            "securitySchemes": {
-                "bearerAuth": {
-                    "type": "http",
-                    "scheme": "bearer",
-                    "bearerFormat": "JWT"
+
+    # give API_SPEC_OPTIONS priority over API_SPEC_OPTIONS_FILE over default value
+    if os.environ.get("API_SPEC_OPTIONS"):
+        API_SPEC_OPTIONS = json.loads(os.environ.get("API_SPEC_OPTIONS"))
+    elif os.environ.get("API_SPEC_OPTIONS_FILE"):
+        API_SPEC_OPTIONS = json.loads(_get_file_content("API_SPEC_OPTIONS_FILE"))
+    else:
+        API_SPEC_OPTIONS = {
+            "x-internal-id": "2",
+            "security": [{"bearerAuth": []}],
+            "components": {
+                "securitySchemes": {
+                    "bearerAuth": {
+                        "type": "http",
+                        "scheme": "bearer",
+                        "bearerFormat": "JWT"
+                    }
                 }
             }
         }
-    }"""))
-
-    @classmethod
-    def to_dict(cls):
-        """Convert server configuration into dict."""
-        exclusions = [
-            "JWT_PRIVATE_KEY",
-            "MONGO_URI",
-            "SECRET_KEY",
-            "SQLALCHEMY_DATABASE_URI",
-        ]  # config keys to exclude
-        d = {"version": dtool_lookup_server.__version__}
-        for k, v in cls.__dict__.items():
-            # select only capitalized fields
-            if k.upper() == k and k not in exclusions:
-                d[k.lower()] = v
-        return d
