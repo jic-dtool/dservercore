@@ -19,3 +19,6 @@ keys/*
 venv/*
 old-provision/*
 jwt-spike/*
+keys/*
+
+.idea/*
