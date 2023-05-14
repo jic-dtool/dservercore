@@ -7,7 +7,9 @@ See `docker/README.md`.
 
 `env.rc` provides flask app configuration in form of environment varables.
 
-`init.sh` creates test datasets ad prepares the lookup server.
+`create_test_data.sh` creates test data sets and copis them to test s3 bucket.
+
+`init.sh` prepares the lookup server.
 
 `run.sh` launches the lookup server with `gunicorn`.
 
