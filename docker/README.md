@@ -41,11 +41,23 @@ Similar to the development setup, but only provides all services the lookup
 server depends on, not the lookup server itsels. Useful for playing with
 different plugin constellations.
 
+To share keys between containerized token generator and the host environment,
+keys are generated on a bind mount when launchingthe composition.
+
+Prepare an empty folder `keys` within this direcotry (meaning at `docker/keys`
+relative to the repository root) before launching any container composition.
+
+Otherwise, `docker compose` will not launch.
+
 Build the compose environment with
 ```
 docker compose -f docker/env.yml build
 ```
 and start it with
 ```
-docker compose -f docker/env.yml up
+docker compose -f docker/env.yml up -d
 ```
+
+Make keys generated at container launch readible by current user on host with
+
+    sudo chown -R ${USER}:${USER} docker/keys
