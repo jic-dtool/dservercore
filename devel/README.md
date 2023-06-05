@@ -5,6 +5,9 @@ Helper components of a simple development setup.
 Provide necessary services with docker composition `docker/env.yml`. 
 See `docker/README.md`.
 
+`dtool.json` provides a minimal configuration for a lookup server launched as
+described in the following. Place it at `${HOME}/.config/dtool/dtool.json`.
+
 `env.rc` provides flask app configuration in form of environment varables.
 
 `create_test_data.sh` creates test data sets and copis them to test s3 bucket.
