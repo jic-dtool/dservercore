@@ -18,10 +18,10 @@ See `docker/README.md`.
 Create a virtual environment with
 
 ```bash
-python3 -m venv vev
+python3 -m venv venv
 source venv/bin/activate
 
-pip install gunicorn psycopg2 setuptools_scm
+pip install gunicorn psycopg2 setuptools_scm wheel
 pip install -r requirements.txt
 pip install dtool-cli dtool-info dtool-create dtool-s3
 pip install git+https://github.com/jotelha/dtool-lookup-server-retrieve-plugin-mongo.git@main
