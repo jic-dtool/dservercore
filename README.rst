@@ -178,7 +178,7 @@ file::
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
 
 Inspecting the flask app configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Inspect the Flask app configuration with::
 
