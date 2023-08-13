@@ -4,6 +4,7 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+
 [Unreleased]
 ------------
 
@@ -12,6 +13,34 @@ TODO
 
 - Simplify code cleaning up created_at and frozen_at types
 - Create response schemas
+
+Added
+^^^^^
+
+
+Changed
+^^^^^^^
+
+
+Deprecated
+^^^^^^^^^^
+
+
+Removed
+^^^^^^^
+
+
+Fixed
+^^^^^
+
+
+Security
+^^^^^^^^
+
+
+[0.18.0] - 2023-08-13
+---------------------
+
 
 Added
 ^^^^^
@@ -39,22 +68,11 @@ Changed
 - The ``/config/info```route now provides a dump of the actual Flask app config
 - Epoxe ``X-Pagination`` headers per default.
 
-Deprecated
-^^^^^^^^^^
-
 
 Removed
 ^^^^^^^
 
 - ``plugins`` entrypoint
-
-
-Fixed
-^^^^^
-
-
-Security
-^^^^^^^^
 
 
 
