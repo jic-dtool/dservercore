@@ -124,6 +124,9 @@ setting the ``SQLALCHEMY_DATABASE_URI``, i.e using something along the lines of:
 
     export SQLALCHEMY_DATABASE_URI=mysql://username:password@server/db
 
+Importantly, you will need an according Python connector for whatever SQL database
+you decide to use, e.g. `psycopg2` for PostgreSQL or `mysqlclient` for MySQL.
+
 For more information see `flask-SQLAlchemy
 <http://flask-sqlalchemy.pocoo.org>`_.
 
@@ -140,6 +143,11 @@ Configure a public and private key pair
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The dtool lookup server implements authentication using JSON Web Tokens.
+Private and public key can for example be generated with::
+
+    openssl genrsa -out /path/to/private/jwt_key 2048
+    openssl rsa -in /path/to/private/jwt_key -pubout -outform PEM -out /path/to/public/jwt_key.pub
+
 It is possible to delegate the generation of JSON Web Tokens to a different
 service as long as one has access to the public key::
 
@@ -168,6 +176,39 @@ use configure the server using the pubic key directly rather than the public key
 file::
 
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
+
+Inspecting the flask app configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Inspect the Flask app configuration with::
+
+    $ flask config show
+    {
+      "env": "production",
+      "debug": false,
+      "testing": false,
+      "propagate_exceptions": null,
+      ...
+      "search_mongo_collection": "datasets",
+      "search_mongo_db": "dtool_info",
+      "search_mongo_uri": "mongodb://localhost:27017/",
+      "retrieve_mongo_collection": "datasets",
+      "retrieve_mongo_db": "dtool_info",
+      "retrieve_mongo_uri": "mongodb://localhost:27017/",
+      ...
+    }
+
+The output is JSON-formatted with lower-case keys and will include plugin
+configuration parameters as well.
+
+Inspect the installed dtool-lookup-server components with::
+
+    $ flask config versions
+    {
+      "dtool_lookup_server": "0.17.2",
+      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
+      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+    }
 
 Starting the flask app
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -303,8 +344,8 @@ The command below can be used to remove admin privileges from an existing user::
 The dtool lookup server API
 ---------------------------
 
-The dtool lookup server makes use of the Authrized header to pass through the
-JSON web token for authrization. Below we create environment variables for the
+The dtool lookup server makes use of the authorized header to pass through the
+JSON web token for authorization. Below we create environment variables for the
 token and the header used in the ``curl`` commands::
 
     $ TOKEN=$(flask user token olssont)
@@ -436,8 +477,6 @@ datasets with "apples" in the "s3://snow-white" bucket created by either
 Accessing a dataset's readme, annotations and manifest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
 The command below retrieves the readme for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
@@ -482,7 +521,6 @@ Response content::
       ],
       "username": "olssont"
     }
-
 
 Data champion user usage
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -640,8 +678,8 @@ Note that the request below can be used to clear all existing permissions::
         http://localhost:5000/admin/permission/update_on_base_uri
 
 
-Getting informations about the permissions on a base URI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Getting information about the permissions on a base URI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An admin user can get information about the permissions on a base URI::
 
@@ -667,25 +705,34 @@ The request::
 will return the current server configuration with all keys in lowercase, i.e.::
 
     {
-      "jsonify_prettyprint_regular": true,
-      "jwt_algorithm": "RS256",
-      "jwt_header_name": "Authorization",
-      "jwt_header_type": "Bearer",
-      "jwt_public_key": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n",
-      "jwt_token_location": "headers",
-      "sqlalchemy_track_modifications": false,
-      "version": "0.14.1",
-      "dtool_lookup_server_plugin_scaffolding": {
-        "some_public_plugin_specific_setting": "public",
-        "version": "0.1.2"
-      }
+      "env": "production",
+      "debug": false,
+      "testing": false,
+      "propagate_exceptions": null,
+      ...
+      "search_mongo_collection": "datasets",
+      "search_mongo_db": "dtool_info",
+      "search_mongo_uri": "mongodb://localhost:27017/",
+      "retrieve_mongo_collection": "datasets",
+      "retrieve_mongo_db": "dtool_info",
+      "retrieve_mongo_uri": "mongodb://localhost:27017/",
+      ...
     }
 
-If any dtool server plugins are installed,  their configuration is embedded 
-in the response as shown for the dummy ``dtool_lookup_server_plugin_scaffolding``
-plugin above. See ``dtool_lookup_server.config.Config`` and 
-``dtool_lookup_server.utils.config_to_dict`` for more information.
+The request::
 
+    $ curl http://localhost:5000/config/versions
+
+will return all components, i.e. server core, search, retrieve
+and extension plugins with their versions, i.e.::
+
+    {
+      "dtool_lookup_server": "0.17.2",
+      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
+      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+    }
+
+This request does not require any authorization.
 
 Creating a plugin
 -----------------

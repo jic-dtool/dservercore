@@ -1,0 +1,13 @@
+.coverage
+.gitignore
+.travis.yml
+.idea
+.git
+.github
+.pytest_cache
+app.db
+data
+keys
+tests
+venv
+**__pycache__

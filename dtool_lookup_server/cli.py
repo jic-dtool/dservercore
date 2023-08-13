@@ -6,7 +6,7 @@ import sys
 import click
 import dtoolcore
 import dtoolcore.utils
-from flask import Flask
+from flask import Flask, current_app
 from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 
@@ -27,12 +27,16 @@ from dtool_lookup_server.utils import (
     update_permissions,
     register_dataset,
     generate_dataset_info,
+    obj_to_dict,
+    versions_to_dict
 )
+from dtool_lookup_server.config import CONFIG_EXCLUSIONS
 
 app = Flask(__name__)
 
 user_cli = AppGroup("user", help="User management commands.")
 base_uri_cli = AppGroup("base_uri", help="Base URI management commands.")
+config_cli = AppGroup("config", help="Config inspection commands.")
 
 
 @user_cli.command(name="add")
@@ -214,5 +218,19 @@ def index_base_uri(base_uri):
         click.secho("Registered: {}".format(r), fg="green")
 
 
+@config_cli.command(name="show")
+def config_show():
+    """Print JSON-formatted Flask app config."""
+    publishable_config = obj_to_dict(current_app.config, exclusions=CONFIG_EXCLUSIONS)
+    click.secho(json.dumps(publishable_config, indent=2))
+
+
+@config_cli.command(name="versions")
+def config_versions():
+    """Print JSON-formatted lookup server components and versions."""
+    click.secho(json.dumps(versions_to_dict(), indent=2))
+
+
 app.cli.add_command(user_cli)
 app.cli.add_command(base_uri_cli)
+app.cli.add_command(config_cli)
