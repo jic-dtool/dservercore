@@ -16,7 +16,7 @@ from dtool_lookup_server.extensions import sql_db, jwt, ma
 
 from pkg_resources import iter_entry_points
 
-__version__ = "0.17.2"
+__version__ = "0.18.0"
 
 logger = logging.getLogger(__name__)
 
