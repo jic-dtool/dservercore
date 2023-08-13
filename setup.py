@@ -9,6 +9,7 @@ setup(
     packages=["dtool_lookup_server"],
     description="Web API to register/lookup/search for dtool dataset metadata",
     long_description=readme,
+    long_description_content_type="text/x-rst",
     package_data={"dtool_lookup_server": ["templates/*"]},
     include_package_data=True,
     author="Tjelvar Olsson",
