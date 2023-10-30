@@ -10,9 +10,6 @@ from flask import Flask, current_app
 from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 
-import yaml.parser
-import yaml.scanner
-
 from dtoolcore import iter_datasets_in_base_uri, DataSet
 import dtool_lookup_server
 import dtool_lookup_server.utils
@@ -199,11 +196,10 @@ def index_base_uri(base_uri):
     for dataset in iter_datasets_in_base_uri(base_uri):
         try:
             dataset_info = generate_dataset_info(dataset, base_uri)
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as message:
+        except Exception as message:
             click.secho(
                 "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red"
             )
-            click.secho("README YAML parsing issue", fg="red")
             click.echo(message)
             continue
 
@@ -234,11 +230,10 @@ def register(uri):
 
     try:
         dataset_info = generate_dataset_info(dataset, base_uri)
-    except (yaml.parser.ParserError, yaml.scanner.ScannerError) as message:
+    except Exception as message:
         click.secho(
             "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red", err=True
         )
-        click.secho("README YAML parsing issue", fg="red", err=True)
         click.echo(message, err=True)
         sys.exit(1)
 
