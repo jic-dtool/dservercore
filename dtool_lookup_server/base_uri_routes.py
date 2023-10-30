@@ -5,8 +5,8 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_smorest import Blueprint
 
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.sql_models import BaseURISchema, BaseURI
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
@@ -14,7 +14,7 @@ from dtool_lookup_server.utils import (
     register_base_uri,
 )
 
-bp = Blueprint("base_uri", __name__, url_prefix="/admin/base_uri")
+bp = Blueprint("base_uris", __name__, url_prefix="/admin/base_uri")
 
 
 @bp.route("/register", methods=["POST"])

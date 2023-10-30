@@ -3,14 +3,11 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_smorest import Blueprint
 
 import dtool_lookup_server.utils
 import dtool_lookup_server.utils_auth
-from dtool_lookup_server import (
-    AuthenticationError,
-    ValidationError
-)
+from dtool_lookup_server import ValidationError
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.schemas import URIPermissionSchema
 from dtool_lookup_server.sql_models import BaseURISchema
 

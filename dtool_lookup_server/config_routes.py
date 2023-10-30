@@ -8,10 +8,10 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_smorest import Blueprint
 
 import dtool_lookup_server
 import dtool_lookup_server.utils_auth
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 

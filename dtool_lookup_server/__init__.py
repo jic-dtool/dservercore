@@ -5,12 +5,10 @@ from abc import ABC, abstractmethod
 
 from flask import Flask, request
 from flask_cors import CORS
-from flask_smorest import (
-    Api,
-    Blueprint
-)
+from flask_smorest import Api
 from flask_migrate import Migrate
 
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.config import Config
 from dtool_lookup_server.extensions import sql_db, jwt, ma
 
@@ -252,7 +250,6 @@ def create_app(test_config=None):
         dataset_routes,
         user_routes,
         base_uri_routes,
-        user_admin_routes,
         permission_routes,
     )
 
@@ -260,7 +257,6 @@ def create_app(test_config=None):
     api.register_blueprint(dataset_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
-    api.register_blueprint(user_admin_routes.bp)
     api.register_blueprint(permission_routes.bp)
 
     # Load dtool-lookup-server extension plugin blueprints.
@@ -268,7 +264,7 @@ def create_app(test_config=None):
         bp = ex.get_blueprint()
         if not isinstance(bp, Blueprint):
             print(
-                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
+                "Please use flask_smorest.blueprint.Blueprint or dtool_lookup_server.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
                 file=sys.stderr,
             )
             sys.exit(1)

@@ -8,25 +8,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-from flask_smorest import Blueprint
 from flask_smorest.pagination import PaginationParameters
 
-from .sql_models import (
-    DatasetSchema
-)
-
-from marshmallow.fields import (
-    String,
-    Dict
-)
-
-from dtool_lookup_server import (
-    AuthenticationError,
-    AuthorizationError,
-    UnknownBaseURIError,
-    UnknownURIError,
-    ValidationError,
-)
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.sql_models import DatasetSchema
 from dtool_lookup_server.schemas import (
     URISchema,
     RegisterDatasetSchema,
@@ -135,86 +120,3 @@ def register(dataset: RegisterDatasetSchema):
 
     dataset_uri = register_dataset(dataset)
     return {"uri": dataset_uri}
-
-
-## CONTINUE HERE...
-# The below looks like it needs
-# - user_exists
-# - may_search
-
-@bp.route("/manifest", methods=["POST"])
-@bp.arguments(URISchema)
-@jwt_required()
-def manifest(query: URISchema):
-    """Request the dataset manifest."""
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
-        # Unregistered users should see 401.
-        abort(401)
-
-    if "uri" not in query:
-        abort(400)
-    uri = query["uri"]
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
-        # Authorization errors should return 400.
-        abort(400)
-
-    try:
-        manifest_ = get_manifest_from_uri_by_user(username, uri)
-    except UnknownURIError:
-        current_app.logger.info("UnknownURIError")
-        abort(400)
-
-    return jsonify(manifest_)
-
-
-@bp.route("/readme", methods=["POST"])
-@bp.arguments(URISchema)
-@jwt_required()
-def readme(query: URISchema):
-    """Request the dataset readme."""
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
-        # Unregistered users should see 401.
-        abort(401)
-
-    if "uri" not in query:
-        abort(400)
-    uri = query["uri"]
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
-        # Authorization errors should return 400.
-        abort(400)
-
-    try:
-        readme_ = get_readme_from_uri_by_user(username, uri)
-    except UnknownURIError:
-        current_app.logger.info("UnknownURIError")
-        abort(400)
-
-    return jsonify(readme_)
-
-
-@bp.route("/annotations", methods=["POST"])
-@bp.arguments(URISchema)
-@jwt_required()
-def annotations(query: URISchema):
-    """Request the dataset annotations."""
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
-        # Unregistered users should see 401.
-        abort(401)
-
-    if "uri" not in query:
-        abort(400)
-    uri = query["uri"]
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
-        # Authorization errors should return 400.
-        abort(400)
-
-    try:
-        annotations_ = get_annotations_from_uri_by_user(username, uri)
-    except UnknownURIError:
-        current_app.logger.info("UnknownURIError")
-        abort(400)
-
-    return jsonify(annotations_)
