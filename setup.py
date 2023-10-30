@@ -21,6 +21,7 @@ setup(
             'base_uri=dtool_lookup_server.cli:base_uri_cli',
             'user=dtool_lookup_server.cli:user_cli',
             'config=dtool_lookup_server.cli:config_cli',
+            'dataset=dtool_lookup_server.cli:dataset_cli',
         ],
     },
     install_requires=[

@@ -13,7 +13,7 @@ from flask_jwt_extended import create_access_token
 import yaml.parser
 import yaml.scanner
 
-from dtoolcore import iter_datasets_in_base_uri
+from dtoolcore import iter_datasets_in_base_uri, DataSet
 import dtool_lookup_server
 import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (
@@ -36,6 +36,7 @@ app = Flask(__name__)
 
 user_cli = AppGroup("user", help="User management commands.")
 base_uri_cli = AppGroup("base_uri", help="Base URI management commands.")
+dataset_cli = AppGroup("dataset", help="Dataset index management commands.")
 config_cli = AppGroup("config", help="Config inspection commands.")
 
 
@@ -218,6 +219,41 @@ def index_base_uri(base_uri):
         click.secho("Registered: {}".format(r), fg="green")
 
 
+@dataset_cli.command(name="register")
+@click.argument("uri")
+def register(uri):
+    """Register specific dataset at URI."""
+    uri = dtoolcore.utils.sanitise_uri(uri)
+
+    dataset = DataSet.from_uri(uri)
+    base_uri = dataset.base_uri
+
+    if not base_uri_exists(base_uri):
+        click.secho("Base URI '{}' not registered".format(base_uri), fg="red", err=True)
+        sys.exit(1)
+
+    try:
+        dataset_info = generate_dataset_info(dataset, base_uri)
+    except (yaml.parser.ParserError, yaml.scanner.ScannerError) as message:
+        click.secho(
+            "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red", err=True
+        )
+        click.secho("README YAML parsing issue", fg="red", err=True)
+        click.echo(message, err=True)
+        sys.exit(1)
+
+    try:
+        r = register_dataset(dataset_info)
+    except dtool_lookup_server.ValidationError as message:
+        click.secho(
+            "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red", err=True
+        )
+        click.echo(message, err=True)
+        sys.exit(1)
+
+    click.secho("Registered: {}".format(r), fg="green")
+
+
 @config_cli.command(name="show")
 def config_show():
     """Print JSON-formatted Flask app config."""
@@ -233,4 +269,5 @@ def config_versions():
 
 app.cli.add_command(user_cli)
 app.cli.add_command(base_uri_cli)
+app.cli.add_command(dataset_cli)
 app.cli.add_command(config_cli)
