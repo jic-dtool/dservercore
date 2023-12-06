@@ -225,6 +225,29 @@ def register_users(users):
     sql_db.session.commit()
 
 
+def register_user(username, data):
+    """Register a single user in the system.
+
+    Example input structure::
+
+        {"is_admin": True}
+
+    If a user is already registered in the system it is skipped. To change the
+    ``is_admin`` status of an existing user use the :func:`.update_users``
+    function. The ``is_admin`` status defaults to False.
+    """
+
+    is_admin = data.get("is_admin", False)
+
+    # Skip existing users.
+    if sql_db.session.query(exists().where(User.username == username)).scalar():  # NOQA
+        return
+
+    user = User(username=username, is_admin=is_admin)
+    sql_db.session.add(user)
+    sql_db.session.commit()
+
+
 def list_users():
     """Return list of users."""
     users = []
@@ -261,6 +284,16 @@ def delete_users(users):
     sql_db.session.commit()
 
 
+def delete_user(username):
+    """Delete a single user from the system."""
+    for sqlalch_user_obj in (
+        sql_db.session.query(User).filter_by(username=username).all()
+    ):  # NOQA
+        sql_db.session.delete(sqlalch_user_obj)
+
+    sql_db.session.commit()
+
+
 def update_users(users):
     """Update a list of users in the system.
 
@@ -284,6 +317,26 @@ def update_users(users):
             sql_db.session.query(User).filter_by(username=username).all()
         ):  # NOQA
             sqlalch_user_obj.is_admin = is_admin
+
+    sql_db.session.commit()
+
+
+def update_user(username, data):
+    """Update a single user in the system.
+
+    Example input structure::
+
+        {"is_admin": True},
+
+    If a user is missing in the system it is skipped. The ``is_admin`` status
+    defaults to False.
+    """
+    is_admin = data.get("is_admin", False)
+
+    for sqlalch_user_obj in (
+        sql_db.session.query(User).filter_by(username=username).all()
+    ):
+        sqlalch_user_obj.is_admin = is_admin
 
     sql_db.session.commit()
 
