@@ -24,7 +24,7 @@ setup(
         ],
     },
     install_requires=[
-        "flask",
+        "flask<3",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",
