@@ -3,6 +3,7 @@
 from datetime import datetime, date
 import importlib
 import json
+import logging
 from pkg_resources import iter_entry_points
 
 from flask import current_app
@@ -50,6 +51,9 @@ DATASET_INFO_REQUIRED_KEYS = (
 # These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
 DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
+
+
+logger = logging.getLogger(__name__)
 
 
 #############################################################################
@@ -575,10 +579,30 @@ def register_dataset(dataset_info):
     # Take a copy as register_dataset_descriptive_metadata makes
     # changes to the dictionary, in particular it changes the
     # types of the dates to datetime objects.
-    current_app.search.register_dataset(dataset_info.copy())
-    current_app.retrieve.register_dataset(dataset_info.copy())
+    # On the core search and retrieve plugins, we are strict. We expect them
+    # to raise ValidationError on failure, we log those, and reraise
+    try:
+        current_app.search.register_dataset(dataset_info.copy())
+    except ValidationError as message:
+        # Instead of reporting the error with the logging module, we will want
+        # to do some bookkeeping on registration errors per URI in the
+        # core SQL db
+        logger.error(message)
+        raise
+
+    try:
+        current_app.retrieve.register_dataset(dataset_info.copy())
+    except ValidationError as message:
+        logger.error(message)
+        raise
+
+    # On any other optional extension, we want to be lenient. We still
+    # want to keep track of any error, but the registration should not fail.
     for ex in current_app.custom_extensions:
-        ex.register_dataset(dataset_info.copy())
+        try:
+            ex.register_dataset(dataset_info.copy())
+        except Exception as message:
+            logger.warning(message)
 
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)
