@@ -72,7 +72,7 @@ class SortMixin:
     DEFAULT_ALLOWED_SORT_FIELDS = []
     DEFAULT_SORT_PARAMETERS = {"sort": ""}
 
-    def sort(self, *, sort=None, allowed_sort_fields = None):
+    def sort(self, *, sort=None, allowed_sort_fields=None):
         """Decorator adding sorting to the endpoint
 
         :param str sort: Default requested sort string
