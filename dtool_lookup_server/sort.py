@@ -5,8 +5,7 @@ Introduces and parses sort parameter for blueprints.
 from copy import deepcopy
 from functools import wraps
 import http
-import json
-import warnings
+import re
 
 from flask import request
 
@@ -20,6 +19,47 @@ ASCENDING = 1
 DESCENDING = -1
 
 
+class CommaSeparatedListFlaskParser(FlaskParser):
+    """Parses nested query args
+
+    This parser handles sort arguments of the comma-separated list format
+        ?sort=+username,-is_admin
+    or similar.
+
+    For example, the URL query params `?sort=+username,-is_admin
+    will yield the following dict:
+
+        {
+            'sort': ['+username', '-is_admin']
+        }
+    """
+
+    def load_querystring(self, req, schema):
+        return _structure_dict(req.args)
+
+
+def _structure_dict(dict_):
+    def key_value_list_pair(r, key, value):
+        m = re.match(r"(\w+),(.*)", value)
+        if m:
+            if r.get(m.group(1)) is not None and key in r:
+                r[key].append(m.group(1))
+            elif r.get(m.group(1)) is not None:
+                r[key] = [m.group(1)]
+            key_value_list_pair(r, key, m.group(2))
+        else:
+            if key not in r:
+                r[key] = value
+            else:
+                r[key].append(value)
+
+
+    r = {}
+    for k, v in dict_.items():
+        import pdb; pdb.set_trace()
+        key_value_list_pair(r, k, v)
+    return r
+
 class SortParameters:
     """Holds sort arguments
 
@@ -27,18 +67,29 @@ class SortParameters:
     :param list of int order: ASCENDING (1) or DESCENDING (-1)
     """
 
-    def __init__(self, sort, order):
+    def __init__(self, sort):
 
         self.sort = sort
-        self.order = order
+        # self.order = order
 
     def __repr__(self):
-        sort_string = ','.join(('+' if o > 0 else '-') + s for s, o in zip(self.sort, self.order))
+        sort_string = ','.join(self.sort)
         return (
             f"{self.__class__.__name__}"
             f"(sort={sort_string!r})"
         )
 
+    def order(self):
+        d = {}
+        for field in self.sort:
+            if field.startswith('-'):
+                d[field[1:]] = DESCENDING
+            elif field.startswith('+'):
+                d[field[1:]] = ASCENDING
+            else:
+                d[field] = ASCENDING
+
+        return d
 
 def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
     """Generate a SortParametersSchema"""
@@ -50,10 +101,10 @@ def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
             ordered = True
             unknown = ma.EXCLUDE
 
-        sort = ma.fields.List(ma.fields.String(
+        sort = ma.fields.String(
             load_default=def_sort, validate=ma.validate.OneOf(
                 [prefix + suffix for prefix in ['+','-',''] for suffix in def_allowed_sort_fields])
-        ))
+        )
 
         @ma.post_load
         def make_sorter(self, data, **kwargs):
@@ -65,12 +116,12 @@ def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
 class SortMixin:
     """Extend Blueprint to add Sort feature"""
 
-    SORT_ARGUMENTS_PARSER = FlaskParser()
+    SORT_ARGUMENTS_PARSER = CommaSeparatedListFlaskParser()
 
     # Global default sort parameters
     # Can be overridden to provide custom defaults
     DEFAULT_ALLOWED_SORT_FIELDS = []
-    DEFAULT_SORT_PARAMETERS = {"sort": ""}
+    DEFAULT_SORT_PARAMETERS = {"sort": []}
 
     def sort(self, *, sort=None, allowed_sort_fields=None):
         """Decorator adding sorting to the endpoint
@@ -94,11 +145,12 @@ class SortMixin:
         if allowed_sort_fields is None:
             allowed_sort_fields = self.DEFAULT_ALLOWED_SORT_FIELDS
 
-        sort_params_schema = _sort_parameters_schema_factory(sort, allowed_sort_fields)
+        sort_params_schema = _sort_parameters_schema_factory(
+            sort, allowed_sort_fields)
 
         parameters = {
             "in": "query",
-            "schema": _sort_parameters_schema_factory,
+            "schema": sort_params_schema,
         }
 
         error_status_code = self.SORT_ARGUMENTS_PARSER.DEFAULT_VALIDATION_STATUS
