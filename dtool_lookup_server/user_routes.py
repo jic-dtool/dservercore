@@ -15,14 +15,15 @@ from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.sort import SortParameters
 from dtool_lookup_server.schemas import RegisterUserSchema, UserResponseSchema
 from dtool_lookup_server.sql_models import User, UserSchema
-from dtool_lookup_server.utils import register_user, update_user, delete_user
+from dtool_lookup_server.utils import register_user, put_user, patch_user, delete_user
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")
 
 
+@bp.route("", methods=["GET"])
 @bp.route("/", methods=["GET"])
-@bp.sort(sort="+username", allowed_sort_fields=["id", "username", "is_admin"])
+@bp.sort(sort=["+username","-is_admin"], allowed_sort_fields=["id", "username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
 @jwt_required()
@@ -36,11 +37,15 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
         abort(404)
 
     query = User.query.filter_by()
-    for sort, order in sort_parameters.sort, sort_parameters.order:
-        if field.startswith('-'):
-            query = query.order_by(getattr(self.model, field[1:]).desc())
-        else:
-            query = query.order_by(getattr(self.model, field))
+    # for sort, order in zip(sort_parameters.sort, sort_parameters.order):
+    print(sort_parameters.order())
+    #sort, order = sort_parameters.sort, sort_parameters.order
+    #print (f"{sort}: {order}")
+        #if field.startswith('-'):
+        #    query = query.order_by(getattr(self.model, field[1:]).desc())
+        #else:
+        #    query = query.order_by(getattr(self.model, field))
+
     pagination_parameters.item_count = query.count()
     return query.paginate(
         page=pagination_parameters.page,
@@ -96,11 +101,11 @@ def register(data: RegisterUserSchema, username):
     return "", 201
 
 
-@bp.route("/<username>", methods=["PUT", "PATCH"])
+@bp.route("/<username>", methods=["PUT"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @jwt_required()
-def update(data: RegisterUserSchema, username):
-    """Update a user in the dtool lookup server.
+def put_update(data: RegisterUserSchema, username):
+    """Update a user in the dtool lookup server by replacing entry.
 
     The user in the Authorization token needs to be admin.
     """
@@ -108,7 +113,24 @@ def update(data: RegisterUserSchema, username):
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(404)
 
-    update_user(username, data)
+    put_user(username, data)
+
+    return "", 200
+
+
+@bp.route("/<username>", methods=["PATCH"])
+@bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
+@jwt_required()
+def patch_update(data: RegisterUserSchema, username):
+    """Update a user in the dtool lookup server by patching fields.
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+        abort(404)
+
+    patch_user(username, data)
 
     return "", 200
 

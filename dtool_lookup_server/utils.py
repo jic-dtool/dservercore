@@ -321,8 +321,8 @@ def update_users(users):
     sql_db.session.commit()
 
 
-def update_user(username, data):
-    """Update a single user in the system.
+def put_user(username, data):
+    """Update a single user in the system by replacing entry.
 
     Example input structure::
 
@@ -339,6 +339,27 @@ def update_user(username, data):
         sqlalch_user_obj.is_admin = is_admin
 
     sql_db.session.commit()
+
+
+def patch_user(username, data):
+    """Update a single user in the system by only updating specified fields.
+
+    Example input structure::
+
+        {"is_admin": True},
+
+    If a user is missing in the system it is skipped.
+    """
+
+    if "is_admin" in data:
+        is_admin = data.get("is_admin", False)
+
+        for sqlalch_user_obj in (
+            sql_db.session.query(User).filter_by(username=username).all()
+        ):
+            sqlalch_user_obj.is_admin = is_admin
+
+        sql_db.session.commit()
 
 
 def get_user_info(username):
