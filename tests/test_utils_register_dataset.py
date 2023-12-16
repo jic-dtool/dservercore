@@ -2,10 +2,8 @@
 
 import pytest
 
-from . import tmp_app  # NOQA
 
-
-def test_register_dataset(tmp_app):   # NOQA
+def test_register_dataset(tmp_app_client):   # NOQA
     from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (
         register_users,
@@ -81,7 +79,7 @@ def test_register_dataset(tmp_app):   # NOQA
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_dataset_without_created_at(tmp_app):   # NOQA
+def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
     from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (
         register_users,
@@ -157,7 +155,7 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQA
+def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client):   # NOQA
     from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (
         register_users,
@@ -231,7 +229,7 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQ
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_too_large_metadata_dataset(tmp_app):  # NOQA
+def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
 
     from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (

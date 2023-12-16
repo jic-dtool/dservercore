@@ -2,10 +2,8 @@
 
 import pytest
 
-from . import tmp_app  # NOQA
 
-
-def test_sql_dataset_helper_functions(tmp_app):  # NOQA
+def test_sql_dataset_helper_functions(tmp_app_client):  # NOQA
 
     from dtool_lookup_server import ValidationError
     from dtool_lookup_server.utils import (

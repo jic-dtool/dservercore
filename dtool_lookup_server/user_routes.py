@@ -12,7 +12,7 @@ import dtool_lookup_server.utils
 import dtool_lookup_server.utils_auth
 
 from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.sort import SortParameters
+from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
 from dtool_lookup_server.schemas import RegisterUserSchema, UserResponseSchema
 from dtool_lookup_server.sql_models import User, UserSchema
 from dtool_lookup_server.utils import register_user, put_user, patch_user, delete_user
@@ -23,7 +23,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 
 @bp.route("", methods=["GET"])
 @bp.route("/", methods=["GET"])
-@bp.sort(sort=["+username","-is_admin"], allowed_sort_fields=["id", "username", "is_admin"])
+@bp.sort(sort=["+id"], allowed_sort_fields=["id", "username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
 @jwt_required()
@@ -36,16 +36,16 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(404)
 
-    query = User.query.filter_by()
-    # for sort, order in zip(sort_parameters.sort, sort_parameters.order):
-    print(sort_parameters.order())
-    #sort, order = sort_parameters.sort, sort_parameters.order
-    #print (f"{sort}: {order}")
-        #if field.startswith('-'):
-        #    query = query.order_by(getattr(self.model, field[1:]).desc())
-        #else:
-        #    query = query.order_by(getattr(self.model, field))
+    order_by_args = []
+    for field, order in sort_parameters.order().items():
+        if not hasattr(User, field):
+            continue
+        if order == DESCENDING:
+            order_by_args.append(getattr(User, field).desc())
+        else:  # ascending
+            order_by_args.append(getattr(User, field))
 
+    query = User.query.order_by(*order_by_args).filter_by()
     pagination_parameters.item_count = query.count()
     return query.paginate(
         page=pagination_parameters.page,

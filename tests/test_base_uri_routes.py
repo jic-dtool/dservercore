@@ -2,17 +2,12 @@
 
 import json
 
-from . import tmp_app_with_users, tmp_app_with_data  # NOQA
 
-from . import (
-    snowwhite_token,
-    grumpy_token,
-    noone_token,
-)
-
-
-def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
-
+def test_base_uri_regsiter_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
     from dtool_lookup_server.utils import base_uri_exists
 
     base_uri = "s3://snow-white-again"
@@ -20,7 +15,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
 
     data = {"base_uri": base_uri}
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
@@ -31,7 +26,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
 
     # Ensure idempotent.
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
@@ -43,7 +38,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     # Only admins allowed. However, don't give away that URL exists to
     # non-admins.
     headers = dict(Authorization="Bearer " + grumpy_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
@@ -52,7 +47,7 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     assert r.status_code == 404
 
     headers = dict(Authorization="Bearer " + noone_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/base_uri/register",
         headers=headers,
         data=json.dumps(data),
@@ -61,10 +56,13 @@ def test_base_uri_regsiter_route(tmp_app_with_users):  # NOQA
     assert r.status_code == 404
 
 
-def test_base_uri_list_route(tmp_app_with_data):  # NOQA
-
+def test_base_uri_list_route(
+        tmp_app_with_data_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_data.get(
+    r = tmp_app_with_data_client.get(
         "/admin/base_uri/list",
         headers=headers,
     )
@@ -72,14 +70,14 @@ def test_base_uri_list_route(tmp_app_with_data):  # NOQA
     assert len(json.loads(r.data.decode("utf-8"))) == 2
 
     headers = dict(Authorization="Bearer " + grumpy_token)
-    r = tmp_app_with_data.get(
+    r = tmp_app_with_data_client.get(
         "/admin/base_uri/list",
         headers=headers,
     )
     assert r.status_code == 404
 
     headers = dict(Authorization="Bearer " + noone_token)
-    r = tmp_app_with_data.get(
+    r = tmp_app_with_data_client.get(
         "/admin/base_uri/list",
         headers=headers,
     )

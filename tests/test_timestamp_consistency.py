@@ -1,8 +1,7 @@
 """Test that the timestamps returned from sql and mongo databases match."""
 
-from . import tmp_app_with_data  # NOQA
 
-def test_timestamp_consistency(tmp_app_with_data):  # NOQA
+def test_timestamp_consistency(tmp_app_with_data_client):  # NOQA
     from dtool_lookup_server.utils import (
         lookup_datasets_by_user_and_uuid,
         search_datasets_by_user,

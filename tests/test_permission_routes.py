@@ -2,21 +2,17 @@
 
 import json
 
-from . import tmp_app_with_users  # NOQA
 
-from . import (
-    snowwhite_token,
-    grumpy_token,
-    noone_token,
-)
-
-
-def test_permission_info_route(tmp_app_with_users):  # NOQA
+def test_permission_info_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
 
     base_uri = "s3://snow-white"
     data = {"base_uri": base_uri}
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/info",
         headers=headers,
         data=json.dumps(data),
@@ -33,7 +29,7 @@ def test_permission_info_route(tmp_app_with_users):  # NOQA
 
     # Unregistered user should see 404.
     headers = dict(Authorization="Bearer " + noone_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/info",
         headers=headers,
         data=json.dumps(data),
@@ -43,7 +39,7 @@ def test_permission_info_route(tmp_app_with_users):  # NOQA
 
     # Non-admin user should see 404.
     headers = dict(Authorization="Bearer " + grumpy_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/info",
         headers=headers,
         data=json.dumps(data),
@@ -52,7 +48,11 @@ def test_permission_info_route(tmp_app_with_users):  # NOQA
     assert r.status_code == 404
 
 
-def test_permission_update_all_route(tmp_app_with_users):  # NOQA
+def test_permission_update_all_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
 
     from dtool_lookup_server.utils import get_permission_info
     base_uri = "s3://snow-white"
@@ -72,7 +72,7 @@ def test_permission_update_all_route(tmp_app_with_users):  # NOQA
 
     # Unregistered user should see 404.
     headers = dict(Authorization="Bearer " + noone_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/update_on_base_uri",
         headers=headers,
         data=json.dumps(data),
@@ -82,7 +82,7 @@ def test_permission_update_all_route(tmp_app_with_users):  # NOQA
 
     # Non-admin user should see 404.
     headers = dict(Authorization="Bearer " + grumpy_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/update_on_base_uri",
         headers=headers,
         data=json.dumps(data),
@@ -92,7 +92,7 @@ def test_permission_update_all_route(tmp_app_with_users):  # NOQA
 
     # Finally change the permission.
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_users.post(
+    r = tmp_app_with_users_client.post(
         "/admin/permission/update_on_base_uri",
         headers=headers,
         data=json.dumps(data),

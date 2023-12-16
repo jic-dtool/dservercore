@@ -1,9 +1,7 @@
 """Test utils.list_datasets_by_user() helper function."""
 
-from . import tmp_app  # NOQA
 
-
-def test_list_datasets_by_user(tmp_app):  # NOQA
+def test_list_datasets_by_user(tmp_app_client):  # NOQA
 
     from dtool_lookup_server.utils import (
         register_users,

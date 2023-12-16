@@ -40,25 +40,25 @@ class CommaSeparatedListFlaskParser(FlaskParser):
 
 def _structure_dict(dict_):
     def key_value_list_pair(r, key, value):
-        m = re.match(r"(\w+),(.*)", value)
+        m = re.match(r"([^,]*),(.*)", value)
         if m:
-            if r.get(m.group(1)) is not None and key in r:
+            if m.group(1) is not None and len(m.group(1)) > 0 and key in r:
                 r[key].append(m.group(1))
-            elif r.get(m.group(1)) is not None:
+            elif m.group(1) is not None and len(m.group(1)) > 0:
                 r[key] = [m.group(1)]
             key_value_list_pair(r, key, m.group(2))
         else:
-            if key not in r:
-                r[key] = value
-            else:
+            if len(value) > 0 and key not in r:
+                r[key] = [value]
+            elif len(value) > 0:
                 r[key].append(value)
 
-
     r = {}
+
     for k, v in dict_.items():
-        import pdb; pdb.set_trace()
         key_value_list_pair(r, k, v)
     return r
+
 
 class SortParameters:
     """Holds sort arguments
@@ -69,11 +69,13 @@ class SortParameters:
 
     def __init__(self, sort):
 
-        self.sort = sort
-        # self.order = order
+        if isinstance(sort, str):
+            self._sort = [sort]
+        else:
+            self._sort = sort
 
     def __repr__(self):
-        sort_string = ','.join(self.sort)
+        sort_string = ','.join(self._sort)
         return (
             f"{self.__class__.__name__}"
             f"(sort={sort_string!r})"
@@ -81,7 +83,7 @@ class SortParameters:
 
     def order(self):
         d = {}
-        for field in self.sort:
+        for field in self._sort:
             if field.startswith('-'):
                 d[field[1:]] = DESCENDING
             elif field.startswith('+'):
@@ -90,6 +92,7 @@ class SortParameters:
                 d[field] = ASCENDING
 
         return d
+
 
 def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
     """Generate a SortParametersSchema"""
@@ -101,10 +104,13 @@ def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
             ordered = True
             unknown = ma.EXCLUDE
 
-        sort = ma.fields.String(
-            load_default=def_sort, validate=ma.validate.OneOf(
-                [prefix + suffix for prefix in ['+','-',''] for suffix in def_allowed_sort_fields])
-        )
+        sort = ma.fields.List(
+            ma.fields.String(
+                validate=ma.validate.OneOf(
+                    [prefix + suffix for prefix in ['+','-',''] for suffix in def_allowed_sort_fields]),
+                ),
+            load_default=def_sort
+            )
 
         @ma.post_load
         def make_sorter(self, data, **kwargs):

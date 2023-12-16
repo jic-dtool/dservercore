@@ -2,10 +2,8 @@
 
 import pytest
 
-from . import tmp_app_with_data  # NOQA
 
-
-def test_lookup_datasets_by_user_and_uuid(tmp_app_with_data):  # NOQA
+def test_lookup_datasets_by_user_and_uuid(tmp_app_with_data_client):  # NOQA
 
     from dtool_lookup_server import AuthenticationError
     from dtool_lookup_server.utils import lookup_datasets_by_user_and_uuid
