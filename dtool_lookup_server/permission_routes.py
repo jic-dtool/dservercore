@@ -8,7 +8,7 @@ import dtool_lookup_server.utils
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server import ValidationError
 from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.schemas import URIPermissionSchema
+from dtool_lookup_server.schemas import UserPermissionsOnBaseURISchema
 from dtool_lookup_server.sql_models import BaseURISchema
 
 bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
@@ -16,7 +16,7 @@ bp = Blueprint("permissions", __name__, url_prefix="/admin/permission")
 
 @bp.route("/info", methods=["POST"])
 @bp.arguments(BaseURISchema)
-@bp.response(200, URIPermissionSchema)
+@bp.response(200, UserPermissionsOnBaseURISchema)
 @jwt_required()
 def permission_info(data: BaseURISchema):
     """Get information about the permissions on a base URI.
@@ -37,9 +37,9 @@ def permission_info(data: BaseURISchema):
 
 
 @bp.route("/update_on_base_uri", methods=["POST"])
-@bp.arguments(URIPermissionSchema)
+@bp.arguments(UserPermissionsOnBaseURISchema)
 @jwt_required()
-def update_on_base_uri(permissions: URIPermissionSchema):
+def update_on_base_uri(permissions: UserPermissionsOnBaseURISchema):
     """Update the permissions on a base URI.
 
     The user needs to be admin.
@@ -52,6 +52,6 @@ def update_on_base_uri(permissions: URIPermissionSchema):
 
     # TODO: is it safe to pass this information straight through without
     #       validation?
-    dtool_lookup_server.utils.update_permissions(permissions)
+    dtool_lookup_server.utils.put_permissions(permissions)
 
     return "", 201

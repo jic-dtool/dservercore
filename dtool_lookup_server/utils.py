@@ -518,6 +518,45 @@ def lookup_datasets_by_user_and_uuid(username, uuid):
 #############################################################################
 
 
+def url_suffix_to_uri(url_suffix):
+    """Translates a URL suffix like
+
+            s3/bucket
+
+    to a valid URI, e.g.
+
+            s3://bucket
+    """
+
+    # first, make sure url_suffix isn't already a valid URI
+    uri = url_suffix
+    index = uri.find('://')
+    if index == -1:  # not found
+        uri = uri.replace('/', '://', 1)
+
+    uri = dtoolcore.utils.sanitise_uri(uri)
+    return uri
+
+
+def uri_to_url_suffix(uri):
+    """Translates a URI like
+
+            s3://bucket
+
+    to a URL suffix like
+
+            s3/bucket
+    """
+    url_suffix = dtoolcore.utils.sanitise_uri(uri)
+
+    # first, make sure uri has the :// separator, then replace with simple /
+    index = url_suffix.find('://')
+    if index != -1:  # not found
+        url_suffix = url_suffix.replace('://', '/', 1)
+
+    return url_suffix
+
+
 def base_uri_exists(base_uri):
     """Return True if the base URI has been registered."""
     if _get_base_uri_obj(base_uri) is None:
@@ -537,7 +576,39 @@ def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     base_uri = BaseURI(base_uri=base_uri)
+
     sql_db.session.add(base_uri)
+    sql_db.session.commit()
+
+
+def patch_base_uri(base_uri):
+    """Patch a base URI in the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+    base_uri = BaseURI(base_uri=base_uri)
+
+    sql_db.session.add(base_uri)
+    sql_db.session.commit()
+
+
+def put_base_uri(base_uri):
+    """Put a base URI and permissions in the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+    base_uri = BaseURI(base_uri=base_uri)
+
+    sql_db.session.add(base_uri)
+    sql_db.session.commit()
+
+
+def delete_base_uri(base_uri):
+    """Delete a base URI from the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+    base_uri = BaseURI(base_uri=base_uri)
+
+    for sqlalch_base_uri_obj in (
+        sql_db.session.query(BaseURI).filter_by(base_uri=base_uri).all()
+    ):  # NOQA
+        sql_db.session.delete(sqlalch_base_uri_obj)
+
     sql_db.session.commit()
 
 
@@ -555,28 +626,53 @@ def list_base_uris():
 
 
 def get_permission_info(base_uri_str):
-    """Return the permissions of on a base URI as a dictionary."""
+    """Return the permissions on a base URI as a dictionary."""
     base_uri = get_base_uri_obj(base_uri_str)
     return base_uri.as_dict()
 
 
-def update_permissions(permissions):
-    """Rewrite permissions."""
-    base_uri = get_base_uri_obj(permissions["base_uri"])
+def patch_permissions(base_uri, permissions):
+    """Patch permissions on base_uri (without clearing previous permissions)."""
+    base_uri = get_base_uri_obj(base_uri)
+
+    # Do not clear existing permissions.
+
+    if "users_with_search_permissions" in permissions:
+        for username in permissions["users_with_search_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                if user not  in base_uri.search_users:
+                    base_uri.search_users.append(user)
+
+    if "users_with_register_permissions" in permissions:
+        for username in permissions["users_with_register_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                if user not in base_uri.register_users:
+                    base_uri.register_users.append(user)
+
+    sql_db.session.commit()
+
+
+def put_permissions(base_uri, permissions):
+    """Put permissions on base_uri."""
+    base_uri = get_base_uri_obj(base_uri)
 
     # Clear all the existing permissions.
     base_uri.search_users = []
     base_uri.register_users = []
 
-    for username in permissions["users_with_search_permissions"]:
-        if user_exists(username):
-            user = get_user_obj(username)
-            base_uri.search_users.append(user)
+    if "users_with_search_permissions" in permissions:
+        for username in permissions["users_with_search_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                base_uri.search_users.append(user)
 
-    for username in permissions["users_with_register_permissions"]:
-        if user_exists(username):
-            user = get_user_obj(username)
-            base_uri.register_users.append(user)
+    if "users_with_register_permissions" in permissions:
+        for username in permissions["users_with_register_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                base_uri.register_users.append(user)
 
     sql_db.session.commit()
 

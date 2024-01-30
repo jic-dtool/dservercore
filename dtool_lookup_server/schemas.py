@@ -20,6 +20,12 @@ class RegisterUserSchema(Schema):
     is_admin = Boolean()
 
 
+class UserPermissionsOnBaseURISchema(Schema):
+    base_uri = String()
+    users_with_search_permissions = List(String)
+    users_with_register_permissions = List(String)
+
+
 class ItemSchema(Schema):
     hash = String()
     relpath = String()
@@ -51,10 +57,10 @@ class RegisterDatasetSchema(Schema):
     size_in_bytes = Integer()
 
 
-class URIPermissionSchema(Schema):
-    base_uri = String()
-    users_with_register_permissions = List(String)
-    users_with_search_permissions = List(String)
+# class URIPermissionSchema(Schema):
+#    base_uri = String()
+#    users_with_register_permissions = List(String)
+#    users_with_search_permissions = List(String)
 
 
 class SearchDatasetSchema(Schema):
