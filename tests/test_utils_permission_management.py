@@ -8,7 +8,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
         register_base_uri,
         list_users,
         list_base_uris,
-        update_permissions,
+        put_permissions,
         get_permission_info,
     )
 
@@ -25,7 +25,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
 
     register_base_uri(base_uri)
     register_users(users)
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
     assert get_permission_info(base_uri) == permissions
 
@@ -64,7 +64,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
         "users_with_search_permissions": [],
         "users_with_register_permissions": [],
     }
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
     assert get_permission_info(base_uri) == permissions
 
     expected_content = [
