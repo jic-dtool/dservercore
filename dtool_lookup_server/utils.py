@@ -581,28 +581,9 @@ def register_base_uri(base_uri):
     sql_db.session.commit()
 
 
-def patch_base_uri(base_uri):
-    """Patch a base URI in the dtool lookup server."""
-    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
-    base_uri = BaseURI(base_uri=base_uri)
-
-    sql_db.session.add(base_uri)
-    sql_db.session.commit()
-
-
-def put_base_uri(base_uri):
-    """Put a base URI and permissions in the dtool lookup server."""
-    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
-    base_uri = BaseURI(base_uri=base_uri)
-
-    sql_db.session.add(base_uri)
-    sql_db.session.commit()
-
-
 def delete_base_uri(base_uri):
     """Delete a base URI from the dtool lookup server."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
-    base_uri = BaseURI(base_uri=base_uri)
 
     for sqlalch_base_uri_obj in (
         sql_db.session.query(BaseURI).filter_by(base_uri=base_uri).all()

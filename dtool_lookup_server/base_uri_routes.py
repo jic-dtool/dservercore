@@ -15,11 +15,8 @@ from dtool_lookup_server.schemas import UserPermissionsOnBaseURISchema
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
     base_uri_exists,
-    get_base_uri_obj,
     get_permission_info,
     register_base_uri,
-    put_base_uri,
-    patch_base_uri,
     delete_base_uri,
     put_permissions,
     patch_permissions,
@@ -44,7 +41,16 @@ def base_uri_list(pagination_parameters : PaginationParameters, sort_parameters 
     if not dtool_lookup_server.utils_auth.has_admin_rights(username):
         abort(404)
 
-    query = BaseURI.query.filter_by()
+    order_by_args = []
+    for field, order in sort_parameters.order().items():
+        if not hasattr(BaseURI, field):
+            continue
+        if order == DESCENDING:
+            order_by_args.append(getattr(BaseURI, field).desc())
+        else:  # ascending
+            order_by_args.append(getattr(BaseURI, field))
+
+    query = BaseURI.query.order_by(*order_by_args).filter_by()
     pagination_parameters.item_count = query.count()
     return query.paginate(
         page=pagination_parameters.page,
@@ -88,13 +94,11 @@ def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
 
     base_uri = url_suffix_to_uri(base_uri)
 
-    # Make it idempotent.
-    # base_uri = parameter['base_uri']
-    if base_uri_exists(base_uri):
-        return "", 201
+    if not base_uri_exists(base_uri):
+        register_base_uri(base_uri)
 
-    register_base_uri(base_uri)
-    put_permissions(base_uri, permissions)
+    # post method not idempotent
+    patch_permissions(base_uri, permissions)
 
     return "", 201
 
@@ -113,10 +117,10 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
     base_uri = url_suffix_to_uri(base_uri)
 
-    if base_uri_exists(base_uri):
-        return "", 200
+    if not base_uri_exists(base_uri):
+        register_base_uri(base_uri)
 
-    put_base_uri(base_uri)
+    # put method idempotent
     put_permissions(base_uri, permissions)
 
     return "", 200
@@ -136,7 +140,10 @@ def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
     base_uri = url_suffix_to_uri(base_uri)
 
-    patch_base_uri(base_uri)
+    # patch only updates existing resources, but does not create
+    if not base_uri_exists(base_uri):
+        abort(404)
+
     patch_permissions(base_uri, permissions)
 
     return "", 200
