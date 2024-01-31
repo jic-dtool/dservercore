@@ -132,7 +132,7 @@ def give_search_permission(username, base_uri):
         sys.exit(1)
 
     permissions["users_with_search_permissions"].append(username)
-    put_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
 
 @user_cli.command(name="register_permission")
@@ -160,7 +160,7 @@ def give_register_permission(username, base_uri):
         sys.exit(1)
 
     permissions["users_with_register_permissions"].append(username)
-    put_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
 
 @user_cli.command(name="token")

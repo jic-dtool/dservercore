@@ -250,14 +250,12 @@ def create_app(test_config=None):
         dataset_routes,
         user_routes,
         base_uri_routes,
-        permission_routes,
     )
 
     api.register_blueprint(config_routes.bp)
     api.register_blueprint(dataset_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
-    api.register_blueprint(permission_routes.bp)
 
     # Load dtool-lookup-server extension plugin blueprints.
     for ex in app.custom_extensions:
