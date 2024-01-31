@@ -6,11 +6,14 @@ from abc import ABC, abstractmethod
 from flask import Flask, request
 from flask_cors import CORS
 from flask_smorest import Api
+from flask_smorest.pagination import PaginationParameters
 from flask_migrate import Migrate
 
 from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.config import Config
 from dtool_lookup_server.extensions import sql_db, jwt, ma
+from dtool_lookup_server.sort import SortParameters
+
 
 from pkg_resources import iter_entry_points
 
@@ -70,7 +73,9 @@ class SearchABC(PluginABC):
     """Any search plugin must inherit from this base class."""
 
     @abstractmethod
-    def search(self, query):
+    def search(self, query,
+               pagination_parameters: PaginationParameters = None,
+               sort_parameters: SortParameters = None):
         """Search for datasets.
 
         It is assumed that preflight checks have been made to ensure that the
@@ -102,6 +107,9 @@ class SearchABC(PluginABC):
         The search plugin SHOULD make use of "OR" logic for the items in
         "base_uris" and "creator_usernames" lists, but use "AND" logic for
         filtering the search based on the items in the tags list.
+
+        If pagination and sorting parameters are supplied, the plugin SHOULD
+        provide the desired subset of datasets.
         """
         pass
 
@@ -247,13 +255,15 @@ def create_app(test_config=None):
 
     from dtool_lookup_server import (
         config_routes,
-        dataset_routes,
+        uri_routes,
+        uuid_routes,
         user_routes,
         base_uri_routes,
     )
 
     api.register_blueprint(config_routes.bp)
-    api.register_blueprint(dataset_routes.bp)
+    api.register_blueprint(uri_routes.bp)
+    api.register_blueprint(uuid_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
 

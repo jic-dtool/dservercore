@@ -51,20 +51,22 @@ def test_list_datasets_by_user(tmp_app_client):  # NOQA
     register_dataset_admin_metadata(admin_metadata_2)
 
     permissions_1 = {
-        "base_uri": base_uri_1,
+        # "base_uri": base_uri_1,
         "users_with_search_permissions": [username_1],
         "users_with_register_permissions": []
     }
     permissions_2 = {
-        "base_uri": base_uri_2,
+        # "base_uri": base_uri_2,
         "users_with_search_permissions": [username_1, username_2],
         "users_with_register_permissions": []
     }
-    put_permissions(permissions_1)
-    put_permissions(permissions_2)
+    put_permissions(base_uri_1, permissions_1)
+    put_permissions(base_uri_2, permissions_2)
 
     expected_content = [admin_metadata_1, admin_metadata_2]
-    assert list_datasets_by_user(username_1) == expected_content
+    retrieved_content = [ds.as_dict() for ds in list_datasets_by_user(username_1)]
+    assert retrieved_content == expected_content
 
     expected_content = [admin_metadata_2]
-    assert list_datasets_by_user(username_2) == expected_content
+    retrieved_content = [ds.as_dict() for ds in list_datasets_by_user(username_2)]
+    assert retrieved_content == expected_content

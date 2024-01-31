@@ -7,6 +7,7 @@ import logging
 from pkg_resources import iter_entry_points
 
 from flask import current_app
+from flask_smorest.pagination import PaginationParameters
 from sqlalchemy.sql import exists
 
 import dtoolcore.utils
@@ -24,6 +25,7 @@ from dtool_lookup_server.sql_models import (
     BaseURI,
     Dataset,
 )
+from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
 from dtool_lookup_server.config import Config
 
 
@@ -380,19 +382,53 @@ def get_user_info(username):
 #############################################################################
 
 
-def list_datasets_by_user(username):
+def list_datasets_by_user(username,
+                          pagination_parameters: PaginationParameters = None,
+                          sort_parameters: SortParameters = None):
     """List the datasets the user has access to.
+
+    :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
+    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
     Raises AuthenticationError if user is invalid.
     """
-    user = get_user_obj(username)
+
+    # user = get_user_obj(username)
 
     datasets = []
-    for base_uri in user.search_base_uris:
-        for ds in base_uri.datasets:
-            datasets.append(ds.as_dict())
+
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
+    )
+
+    if sort_parameters is not None:
+        order_by_args = []
+        for field, order in sort_parameters.order().items():
+            if not hasattr(Dataset, field):
+                continue
+            if order == DESCENDING:
+                order_by_args.append(getattr(Dataset, field).desc())
+            else:  # ascending
+                order_by_args.append(getattr(Dataset, field))
+
+        query = query.order_by(*order_by_args)
+
+    if pagination_parameters is not None:
+        pagination_parameters.item_count = query.count()
+        queried_items = query.paginate(
+            page=pagination_parameters.page,
+            per_page=pagination_parameters.page_size,
+            error_out=True).items
+    else:
+        queried_items = query.all()
+
+    datasets = [ds for ds, user in queried_items]
+
     return datasets
 
 
@@ -422,7 +458,9 @@ def preprocess_query_base_uris(username, query):
     return _preprocess_privileges(username, query)
 
 
-def search_datasets_by_user(username, query):
+def search_datasets_by_user(username, query,
+                            pagination_parameters: PaginationParameters = None,
+                            sort_parameters: SortParameters = None):
     """Search the datasets the user has access to.
 
     Valid keys for the query are: creator_usernames, base_uris, free_text.  If
@@ -431,6 +469,8 @@ def search_datasets_by_user(username, query):
 
     :param username: username
     :param query: dictionary specifying query
+    :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
+    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
     :returns: List of dicts if user is valid and has access to datasets.
               Empty list if user is valid but has not got access to any
               datasets.
@@ -443,7 +483,9 @@ def search_datasets_by_user(username, query):
     if len(query["base_uris"]) == 0:
         return []
 
-    return current_app.search.search(query)
+    return current_app.search.search(query,
+                                     pagination_parameters=pagination_parameters,
+                                     sort_parameters=sort_parameters)
 
 
 def summary_of_datasets_by_user(username):
@@ -755,6 +797,8 @@ def register_dataset(dataset_info):
         except Exception as message:
             logger.warning(message)
 
+    # this is double bookkeeping, next to delegating dataset registration to
+    # the search plugin, we also store metadata in an sql table
     if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
         register_dataset_admin_metadata(dataset_info)
 
