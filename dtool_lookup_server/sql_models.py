@@ -150,6 +150,6 @@ class DatasetSchema(ma.SQLAlchemyAutoSchema):
             'uri',
             'uuid')
 
-    base_uri = ma.auto_field()
+    base_uri = fields.String(attribute="base_uri.base_uri")
     frozen_at = FloatDateTimeField()
     created_at = FloatDateTimeField()
