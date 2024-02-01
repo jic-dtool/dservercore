@@ -10,16 +10,6 @@ def test_list_uri_route(
         dopey_token,
         noone_token):  # NOQA
 
-    headers = dict(Authorization="Bearer " + grumpy_token)
-    r = tmp_app_with_data_client.get(
-        "/uris",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    hits = json.loads(r.data.decode("utf-8"))
-    assert len(hits) == 3
-
     bad_apples_on_mr_men = {
         'base_uri': 's3://mr-men',
         'created_at': 1536238185.881941,
@@ -48,6 +38,16 @@ def test_list_uri_route(
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
 
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.get(
+        "/uris",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    assert len(hits) == 3
+
     # Make sure that timestamps are returned as float.
     first_entry = hits[0]
     assert isinstance(first_entry["created_at"], float)
@@ -58,6 +58,62 @@ def test_list_uri_route(
     ]
     assert hits == expected_order
 
+    # sorting by name and base uri
+    r = tmp_app_with_data_client.get(
+        "/uris",
+        query_string={'sort': '+name,-base_uri'},
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    expected_order = [
+        bad_apples_on_snow_white, bad_apples_on_mr_men, oranges_on_snow_white,
+    ]
+    assert hits == expected_order
+
+    # sorting by uuid and uri
+    r = tmp_app_with_data_client.get(
+        "/uris",
+        query_string={'sort': '+uuid,-uri'},
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    expected_order = [
+        oranges_on_snow_white, bad_apples_on_snow_white, bad_apples_on_mr_men
+    ]
+    assert hits == expected_order
+
+    # sorting by uuid and uri with pagination
+    r = tmp_app_with_data_client.get(
+        "/uris",
+        query_string={'sort': '-uuid,+uri', 'page': 1, 'page_size': 2},
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    expected_order = [
+        bad_apples_on_mr_men, bad_apples_on_snow_white
+    ]
+    assert hits == expected_order
+
+    r = tmp_app_with_data_client.get(
+        "/uris",
+        query_string={'sort': '-uuid,+uri', 'page': 2, 'page_size': 2},
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    expected_order = [
+        oranges_on_snow_white
+    ]
+    assert hits == expected_order
+
+    # check response for others
     r = tmp_app_with_data_client.get(
         "/uris",
         headers=dict(Authorization="Bearer " + sleepy_token)

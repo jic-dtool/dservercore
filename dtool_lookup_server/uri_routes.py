@@ -36,8 +36,6 @@ DATASET_SORT_FIELDS = [
     "creator_username",
     "frozen_at",
     "name",
-    "number_of_items",
-    "size_in_bytes",
     "uri",
     "uuid"
 ]

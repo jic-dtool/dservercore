@@ -411,10 +411,17 @@ def list_datasets_by_user(username,
         for field, order in sort_parameters.order().items():
             if not hasattr(Dataset, field):
                 continue
+            # special treatment for base_uri:
+            # we want to sort by the string field BaseURI.base_uri, not by
+            # the relationship field Dataset.base_uri
+            if field in ['base_uri']:
+                model = BaseURI
+            else:
+                model = Dataset
             if order == DESCENDING:
-                order_by_args.append(getattr(Dataset, field).desc())
+                order_by_args.append(getattr(model, field).desc())
             else:  # ascending
-                order_by_args.append(getattr(Dataset, field))
+                order_by_args.append(getattr(model, field))
 
         query = query.order_by(*order_by_args)
 
