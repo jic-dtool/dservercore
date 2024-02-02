@@ -32,7 +32,8 @@ bp = Blueprint("base_uris", __name__, url_prefix="/base_uris")
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))
 @jwt_required()
-def base_uri_list(pagination_parameters : PaginationParameters, sort_parameters : SortParameters):
+def base_uri_list(pagination_parameters : PaginationParameters,
+                  sort_parameters : SortParameters):
     """List all base_uris.
 
     The user needs to be admin.
@@ -75,7 +76,6 @@ def get_base_uri(base_uri):
         abort(404)
 
     base_uri = url_suffix_to_uri(base_uri)
-    # base_uri_data = get_base_uri_obj(base_uri)
     base_uri_data = get_permission_info(base_uri)
     return base_uri_data
 

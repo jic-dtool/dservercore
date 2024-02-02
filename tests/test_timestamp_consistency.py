@@ -13,11 +13,11 @@ def test_timestamp_consistency(tmp_app_with_data_client):  # NOQA
 
     lookup_hits = lookup_datasets_by_user_and_uuid(username, uuid)
     assert len(lookup_hits) == 1
-    lookup_hit = lookup_hits[0]
+    lookup_hit = lookup_hits[0].as_dict()
 
     search_hits = search_datasets_by_user(username, {"uuids": [uuid]})
     assert len(search_hits) == 1
-    search_hit = lookup_hits[0]
+    search_hit = lookup_hits[0].as_dict()
 
     for key in ("created_at", "frozen_at"):
         assert lookup_hit[key] == search_hit[key]

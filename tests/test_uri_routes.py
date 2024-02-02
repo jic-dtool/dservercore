@@ -2,6 +2,8 @@
 
 import json
 
+from dtool_lookup_server.utils import uri_to_url_suffix
+
 
 def test_list_uri_route(
         tmp_app_with_data_client,
@@ -126,3 +128,458 @@ def test_list_uri_route(
         headers=dict(Authorization="Bearer " + dopey_token)
     )
     assert r.status_code == 401
+
+
+def test_get_dataset_by_uri_route(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    uri = "s3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    bad_apples_on_mr_men = {
+        'base_uri': 's3://mr-men',
+        'created_at': 1536238185.881941,
+        'creator_username': 'queen',
+        'frozen_at': 1536238185.881941,
+        'name': 'bad-apples',
+        'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
+        'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
+    }
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=headers
+    )
+    assert r.status_code == 200
+    assert json.loads(r.data.decode("utf-8")) == bad_apples_on_mr_men
+
+    # user has no search permission on base uri
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    # user does not have search rights on the base uri;
+    assert r.status_code == 403  # forbidden
+
+    # user does not exist
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401  # unauthorized
+
+    # dataset entry does not exist
+    uri = "s3://mr-men/non-existent-dataset"
+    url_suffix = uri_to_url_suffix(uri)
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=headers
+    )
+
+    # user has search access to base uri, but entry does not exist
+    assert r.status_code == 404  # not found
+
+
+def test_register_dataset_by_uri_route(
+        tmp_app_with_users_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    from dtool_lookup_server.utils import (
+        get_admin_metadata_from_uri,
+        get_readme_from_uri_by_user,
+        lookup_datasets_by_user_and_uuid,
+    )
+
+    base_uri = "s3://snow-white"
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: test dataset",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+
+    url_suffix = uri_to_url_suffix(uri)
+
+    # test for unregistered users and users without register permission
+    for token in [dopey_token, sleepy_token]:
+        headers = dict(Authorization="Bearer " + token)
+        r = tmp_app_with_users_client.post(
+            f"/uris/{url_suffix}",
+            headers=headers,
+            data=json.dumps(dataset_info),
+            content_type="application/json"
+        )
+        assert r.status_code == 401
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201
+
+    assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # Add the same dataset again, but with updated readme info.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: new metadata",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 1536238185.881941,
+    }
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201
+
+    assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
+    assert get_admin_metadata_from_uri(uri) == expected_content
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # URI suffix and dataset uri attribute disagree
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}-diverges",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 409
+
+    # Try to post invalid data.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+    }
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 409
+
+    # Try to post data from user that does not exist in the system.
+    headers = dict(Authorization="Bearer " + noone_token)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: new metadata",
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+    }
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+
+def test_dataset_register_route_when_created_at_is_string(
+        tmp_app_with_users_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    from dtool_lookup_server.utils import (
+        get_admin_metadata_from_uri,
+        lookup_datasets_by_user_and_uuid,
+    )
+
+    base_uri = "s3://snow-white"
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: test dataset",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "created_at": "1536238185.881941",
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+    }
+
+    url_suffix = uri_to_url_suffix(uri)
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+
+### search plugin enabled routes
+
+
+
+def test_dataset_search_route(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {}  # Everything.
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    hits = json.loads(r.data.decode("utf-8"))
+    assert len(json.loads(r.data.decode("utf-8"))) == 3
+
+    # Make sure that timestamps are returned as float.
+    first_entry = hits[0]
+    assert isinstance(first_entry["created_at"], float)
+    assert isinstance(first_entry["frozen_at"], float)
+
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + sleepy_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 0
+
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + dopey_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=dict(Authorization="Bearer " + noone_token),
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    # Search for apples (in README).
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"free_text": "apple"}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
+
+    # Search for U00096 (in manifest).
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"free_text": "U00096"}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
+
+    # Search for crazystuff (in annotaitons).
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    query = {"free_text": "crazystuff"}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
+
+def test_filter_based_on_tags(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    query = {"tags": ["good"]}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
+    query = {"tags": ["good", "evil"]}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 0
+
+    query = {"tags": ["fruit", "evil"]}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 2
+
+
+def test_combination_query(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    query = {"free_text": "crazystuff", "tags": ["good"]}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 1
+
+    query = {"free_text": "crazystuff", "tags": ["evil"]}
+    r = tmp_app_with_data_client.post(
+        "/dataset/search",
+        headers=headers,
+        data=json.dumps(query),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+    assert len(json.loads(r.data.decode("utf-8"))) == 0

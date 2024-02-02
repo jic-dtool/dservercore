@@ -10,6 +10,8 @@ from marshmallow.fields import (
     Float
 )
 
+from dtool_lookup_server.sql_models import DatasetSchema
+
 
 class URISchema(Schema):
     uri = String()

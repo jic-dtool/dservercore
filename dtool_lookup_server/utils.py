@@ -50,6 +50,17 @@ DATASET_INFO_REQUIRED_KEYS = (
 )
 
 
+DATASET_SORT_FIELDS = [
+    "base_uri",
+    "created_at",
+    "creator_username",
+    "frozen_at",
+    "name",
+    "uri",
+    "uuid"
+]
+
+
 # These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
 DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
@@ -381,6 +392,26 @@ def get_user_info(username):
 # Dataset list/search/lookup helper functions.
 #############################################################################
 
+def _dataset_order_by_args(sort_parameters):
+    """Convert SortParameters to SQLAlchemy sort argument for Dataset model."""
+
+    order_by_args = []
+    for field, order in sort_parameters.order().items():
+        if not hasattr(Dataset, field):
+            continue
+        # special treatment for base_uri:
+        # we want to sort by the string field BaseURI.base_uri, not by
+        # the relationship field Dataset.base_uri
+        if field in ['base_uri']:
+            model = BaseURI
+        else:
+            model = Dataset
+        if order == DESCENDING:
+            order_by_args.append(getattr(model, field).desc())
+        else:  # ascending
+            order_by_args.append(getattr(model, field))
+    return order_by_args
+
 
 def list_datasets_by_user(username,
                           pagination_parameters: PaginationParameters = None,
@@ -394,10 +425,7 @@ def list_datasets_by_user(username,
     Returns empty list if user is valid but has not got access to any datasets.
     Raises AuthenticationError if user is invalid.
     """
-
-    # user = get_user_obj(username)
-
-    datasets = []
+    user = get_user_obj(username)  # raises AuthenticationError
 
     query = (
         sql_db.session.query(Dataset, User)
@@ -407,22 +435,7 @@ def list_datasets_by_user(username,
     )
 
     if sort_parameters is not None:
-        order_by_args = []
-        for field, order in sort_parameters.order().items():
-            if not hasattr(Dataset, field):
-                continue
-            # special treatment for base_uri:
-            # we want to sort by the string field BaseURI.base_uri, not by
-            # the relationship field Dataset.base_uri
-            if field in ['base_uri']:
-                model = BaseURI
-            else:
-                model = Dataset
-            if order == DESCENDING:
-                order_by_args.append(getattr(model, field).desc())
-            else:  # ascending
-                order_by_args.append(getattr(model, field))
-
+        order_by_args = _dataset_order_by_args(sort_parameters)
         query = query.order_by(*order_by_args)
 
     if pagination_parameters is not None:
@@ -438,6 +451,118 @@ def list_datasets_by_user(username,
 
     return datasets
 
+
+def summary_of_datasets_by_user(username):
+    """Return summary information of datasets the user has access to.
+
+    Return dictionary of summary information.
+    Raises AuthenticationError if user is invalid.
+    """
+    user = get_user_obj(username)  # raises AuthenticationError
+
+    # Get all the datasets the user has access to.
+    datasets = search_datasets_by_user(username, query={})
+
+    datasets_per_creator = {}
+    datasets_per_base_uri = {}
+    datasets_per_tag = {}
+
+    for ds in datasets:
+        user = ds["creator_username"]
+        uri = ds["base_uri"]
+        datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
+        datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
+
+        # All datasets should have the "tags" key. However, it could be the
+        # case that a dataset in the database prior to version 0.14.0 fails
+        # to be re-indexed. In this case it would be left without having tags
+        # added to it. In the below we therefore check to make sure that it is
+        # present before we try to use it.
+        if "tags" in ds:
+            for tag in ds["tags"]:
+                datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
+
+    summary = {
+        "number_of_datasets": len(datasets),
+        "creator_usernames": sorted(datasets_per_creator.keys()),
+        "base_uris": sorted(datasets_per_base_uri.keys()),
+        "datasets_per_creator": datasets_per_creator,
+        "datasets_per_base_uri": datasets_per_base_uri,
+        "tags": sorted(datasets_per_tag.keys()),
+        "datasets_per_tag": datasets_per_tag,
+    }
+
+    return summary
+
+
+def lookup_datasets_by_user_and_uuid(username, uuid,
+                                     pagination_parameters: PaginationParameters = None,
+                                     sort_parameters: SortParameters = None):
+    """Return list of dataset with matching uuid.
+
+    Returns list of dicts if user is valid and has access to datasets.
+    Returns empty list if user is valid but has not got access to any datasets.
+    Raises AuthenticationError if user is invalid.
+    """
+    user = get_user_obj(username)  # raises AuthenticationError
+
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(Dataset.uuid == uuid)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
+    )
+
+    if sort_parameters is not None:
+        order_by_args = _dataset_order_by_args(sort_parameters)
+        query = query.order_by(*order_by_args)
+
+    if pagination_parameters is not None:
+        pagination_parameters.item_count = query.count()
+        queried_items = query.paginate(
+            page=pagination_parameters.page,
+            per_page=pagination_parameters.page_size,
+            error_out=True).items
+    else:
+        queried_items = query.all()
+
+    datasets = [ds for ds, user in queried_items]
+
+    return datasets
+
+
+def get_dataset_by_user_and_uri(username, uri):
+    """Return single dataset with matching uri if user has rights to see it.
+
+    Returns single Dataset if user is valid and has access to datasets.
+    Returns None if user is valid but has not got access to the dataset.
+    Raises AuthenticationError if user is invalid.
+    """
+
+    # datasets = []
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(Dataset.uri == uri)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
+        .all()
+    )
+
+    datasets = [ds for ds, user in query]
+
+    if len(datasets) > 0:
+        ret = datasets[0]
+    else:
+        ret = None
+
+    return ret
+
+
+#############################################################################
+# Search plugin interface
+#############################################################################
 
 def _preprocess_privileges(username, query):
     """Preprocess a query dict according to per-user privileges."""
@@ -493,73 +618,6 @@ def search_datasets_by_user(username, query,
     return current_app.search.search(query,
                                      pagination_parameters=pagination_parameters,
                                      sort_parameters=sort_parameters)
-
-
-def summary_of_datasets_by_user(username):
-    """Return summary information of datasets the user has access to.
-
-    Return dictionary of summary information.
-    Raises AuthenticationError if user is invalid.
-    """
-
-    # Get all the datasets the user has access to.
-    datasets = search_datasets_by_user(username, query={})
-
-    datasets_per_creator = {}
-    datasets_per_base_uri = {}
-    datasets_per_tag = {}
-
-    for ds in datasets:
-        user = ds["creator_username"]
-        uri = ds["base_uri"]
-        datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
-        datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
-
-        # All datasets should have the "tags" key. However, it could be the
-        # case that a dataset in the database prior to version 0.14.0 fails
-        # to be re-indexed. In this case it would be left without having tags
-        # added to it. In the below we therefore check to make sure that it is
-        # present before we try to use it.
-        if "tags" in ds:
-            for tag in ds["tags"]:
-                datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
-
-    summary = {
-        "number_of_datasets": len(datasets),
-        "creator_usernames": sorted(datasets_per_creator.keys()),
-        "base_uris": sorted(datasets_per_base_uri.keys()),
-        "datasets_per_creator": datasets_per_creator,
-        "datasets_per_base_uri": datasets_per_base_uri,
-        "tags": sorted(datasets_per_tag.keys()),
-        "datasets_per_tag": datasets_per_tag,
-    }
-
-    return summary
-
-
-def lookup_datasets_by_user_and_uuid(username, uuid):
-    """Return list of dataset with matching uuid.
-
-    Returns list of dicts if user is valid and has access to datasets.
-    Returns empty list if user is valid but has not got access to any datasets.
-    Raises AuthenticationError if user is invalid.
-    """
-    user = get_user_obj(username)
-
-    datasets = []
-    query = (
-        sql_db.session.query(Dataset, User)
-        .join(User.search_base_uris)
-        .filter(Dataset.uuid == uuid)
-        .filter(User.username == username)
-        .filter(BaseURI.id == Dataset.base_uri_id)
-        .all()
-    )
-
-    for ds, user in query:
-        datasets.append(ds.as_dict())
-
-    return datasets
 
 
 #############################################################################
@@ -813,7 +871,7 @@ def register_dataset(dataset_info):
 
 
 #############################################################################
-# Dataset information retrieval helper functions.
+# Dataset information retrieval helper functions
 #############################################################################
 
 
@@ -835,6 +893,11 @@ def list_admin_metadata_in_base_uri(base_uri_str):
         return None
 
     return [ds.as_dict() for ds in base_uri.datasets]
+
+
+#############################################################################
+# Retrieve plugin interface
+#############################################################################
 
 
 def get_readme_from_uri_by_user(username, uri):
