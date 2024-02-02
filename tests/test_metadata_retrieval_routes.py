@@ -1,3 +1,7 @@
+"""Test the /manifest, /readme, /annotations blueprint routes."""
+
+import json
+
 
 def test_dataset_manifest_route(
         tmp_app_with_data_client,

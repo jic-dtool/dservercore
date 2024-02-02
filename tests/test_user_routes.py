@@ -1,4 +1,4 @@
-"""Test the /admin/user blueprint routes."""
+"""Test the /users blueprint routes."""
 
 import json
 
