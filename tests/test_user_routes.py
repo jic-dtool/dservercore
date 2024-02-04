@@ -45,8 +45,7 @@ def test_register_user_route(
     assert user_exists("evil-witch")
     assert user_exists("dopey")
 
-    # Only admins allowed. However, don't give away that URL exists to
-    # non-admins.
+    # Only admins allowed.
     headers = dict(Authorization="Bearer " + grumpy_token)
 
     for user in users:
@@ -56,7 +55,7 @@ def test_register_user_route(
             data=json.dumps(user),
             content_type="application/json"
         )
-        assert r.status_code == 404
+        assert r.status_code == 403
 
     headers = dict(Authorization="Bearer " + noone_token)
     for user in users:
@@ -66,7 +65,7 @@ def test_register_user_route(
             data=json.dumps(user),
             content_type="application/json"
         )
-        assert r.status_code == 404
+        assert r.status_code == 401
 
 
 def test_get_user_route(
@@ -153,8 +152,7 @@ def test_get_user_route(
         headers=headers
     )
 
-    print(r)
-    assert r.status_code == 404
+    assert r.status_code == 403
 
 
 def test_patch_user_route(
@@ -249,7 +247,17 @@ def test_patch_user_route(
         headers=headers,
         json={"is_admin": True}
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
+
+    # 5 - check failure for non-registered users
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.put(
+        "/users/grumpy",
+        headers=headers,
+        json={"is_admin": True}
+    )
+    assert r.status_code == 401
 
 
 def test_put_user_route(
@@ -351,7 +359,17 @@ def test_put_user_route(
         headers=headers,
         json={"is_admin": True}
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
+
+    # 5 - check failure for non-registered users
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.put(
+        "/users/grumpy",
+        headers=headers,
+        json={"is_admin": True}
+    )
+    assert r.status_code == 401
 
 
 def test_list_user_route(
@@ -390,21 +408,21 @@ def test_list_user_route(
         {'id': 2, 'is_admin': False, 'username': 'grumpy'}
     ]
 
-    # Only admins allowed. However, don't give away that URL exists to
-    # non-admins.
+    # Only admins allowed.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.get(
         "/users",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
+    # Non-registered users should see 401
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.get(
         "/users",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
 
 def test_dataset_summary_route(
@@ -494,7 +512,7 @@ def test_dataset_summary_route(
         "/users/sleepy/summary",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
     # sleepy (non-admin) checks grumpy
     headers = dict(Authorization="Bearer " + sleepy_token)
@@ -502,7 +520,7 @@ def test_dataset_summary_route(
         "/users/grumpy/summary",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
     # dopey (not registered) checks himself
     r = tmp_app_with_data_client.get(

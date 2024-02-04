@@ -231,16 +231,25 @@ def test_register_dataset_by_uri_route(
 
     url_suffix = uri_to_url_suffix(uri)
 
-    # test for unregistered users and users without register permission
-    for token in [dopey_token, sleepy_token]:
-        headers = dict(Authorization="Bearer " + token)
-        r = tmp_app_with_users_client.post(
-            f"/uris/{url_suffix}",
-            headers=headers,
-            data=json.dumps(dataset_info),
-            content_type="application/json"
-        )
-        assert r.status_code == 401
+    # test for unregistered users
+    headers = dict(Authorization="Bearer " + dopey_token)
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    # test for users without register permission
+    headers = dict(Authorization="Bearer " + sleepy_token)
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 403
 
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.post(
@@ -314,7 +323,7 @@ def test_register_dataset_by_uri_route(
         data=json.dumps(dataset_info),
         content_type="application/json"
     )
-    assert r.status_code == 409
+    assert r.status_code == 400
 
     # Try to post invalid data.
     dataset_info = {
@@ -328,7 +337,7 @@ def test_register_dataset_by_uri_route(
         data=json.dumps(dataset_info),
         content_type="application/json"
     )
-    assert r.status_code == 409
+    assert r.status_code == 400
 
     # Try to post data from user that does not exist in the system.
     headers = dict(Authorization="Bearer " + noone_token)

@@ -56,9 +56,9 @@ def test_dataset_manifest_route(
         f"/manifests/{url_suffix}",
         headers=dict(Authorization="Bearer " + sleepy_token)
     )
-    assert r.status_code == 400
+    assert r.status_code == 403
 
-    # Base URI does not exist.
+    # Not authorized and base URI does not exist.
     uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
     url_suffix = uri_to_url_suffix(uri)
 
@@ -66,7 +66,17 @@ def test_dataset_manifest_route(
         f"/manifests/{url_suffix}",
         headers=dict(Authorization="Bearer " + sleepy_token)
     )
-    assert r.status_code == 400
+    assert r.status_code == 403
+
+    # Authorized and base URI does not exist.
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 403
 
     # URI does not exist.
     uri = "s3://snow-white/dontexist"
@@ -74,9 +84,9 @@ def test_dataset_manifest_route(
 
     r = tmp_app_with_data_client.get(
         f"/manifests/{url_suffix}",
-        headers=dict(Authorization="Bearer " + sleepy_token)
+        headers=dict(Authorization="Bearer " + grumpy_token)
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_dataset_readme_route(

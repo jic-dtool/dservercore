@@ -30,23 +30,23 @@ def test_get_base_uri_route(
     }
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
-    # Unregistered user should see 404.
+    # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.get(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
-    # Non-admin user should see 404.
+    # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.get(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
 
 def test_base_uri_register_route(
@@ -94,23 +94,23 @@ def test_base_uri_register_route(
     }
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
-    # Only admins allowed. However, don't give away that URL exists to
-    # non-admins.
+    # Only admins allowed.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.post(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
+    # Unregistered users should see 401
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.post(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
     # check with non-default permissions
     #
@@ -237,23 +237,23 @@ def test_put_base_uri_route(
     }
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
-    # Unregistered user should see 404.
+    # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.put(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
-    # Non-admin user should see 404.
+    # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.put(
         f"/base_uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
 
 def test_patch_base_uri_route(
@@ -316,21 +316,21 @@ def test_patch_base_uri_route(
     }
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
-    # Unregistered user should see 404.
+    # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.put(
         f"/base_uris/{uri_suffix}",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
-    # Non-admin user should see 404.
+    # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.put(
         f"/base_uris/{uri_suffix}",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
 
 def test_delete_base_uri_route(
@@ -360,21 +360,21 @@ def test_delete_base_uri_route(
     assert r.status_code == 200
     assert not base_uri_exists(base_uri)
 
-    # Unregistered user should see 404.
+    # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.delete(
         f"/base_uris/{uri_suffix}",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
 
-    # Non-admin user should see 404.
+    # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.delete(
         f"/base_uris/{uri_suffix}",
         headers=headers
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
 
 def test_base_uri_list_route(
@@ -467,17 +467,18 @@ def test_base_uri_list_route(
     ]
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
-    # non-authorized users should get 404
+    # non-authorized users should get 401
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_data_client.get(
         "/base_uris",
         headers=headers,
     )
-    assert r.status_code == 404
+    assert r.status_code == 403
 
+    # unregistered users should get 401
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_data_client.get(
         "/base_uris",
         headers=headers,
     )
-    assert r.status_code == 404
+    assert r.status_code == 401
