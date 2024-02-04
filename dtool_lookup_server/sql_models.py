@@ -145,11 +145,17 @@ class DatasetSchema(ma.SQLAlchemyAutoSchema):
             'created_at',
             'creator_username',
             'frozen_at',
-            'created_at',
             'name',
             'uri',
             'uuid')
 
-    base_uri = fields.String(attribute="base_uri.base_uri")
+    base_uri = fields.Method("get_base_uri_string")
     frozen_at = FloatDateTimeField()
     created_at = FloatDateTimeField()
+
+    def get_base_uri_string(self, obj):
+        """Always serialize base_uri as string, no matter whether object is Dataset or simple dict"""
+        if isinstance(obj, Dataset):
+            return obj.base_uri.base_uri
+        elif isinstance(obj, dict):
+            return obj["base_uri"]

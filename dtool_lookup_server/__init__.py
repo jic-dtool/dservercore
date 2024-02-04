@@ -12,7 +12,9 @@ from flask_migrate import Migrate
 from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.config import Config
 from dtool_lookup_server.extensions import sql_db, jwt, ma
+from dtool_lookup_server.schemas import SearchDatasetSchema
 from dtool_lookup_server.sort import SortParameters
+from dtool_lookup_server.sql_models import DatasetSchema
 
 
 from pkg_resources import iter_entry_points
@@ -73,9 +75,9 @@ class SearchABC(PluginABC):
     """Any search plugin must inherit from this base class."""
 
     @abstractmethod
-    def search(self, query,
+    def search(self, query : SearchDatasetSchema,
                pagination_parameters: PaginationParameters = None,
-               sort_parameters: SortParameters = None):
+               sort_parameters: SortParameters = None) -> DatasetSchema(many=True):
         """Search for datasets.
 
         It is assumed that preflight checks have been made to ensure that the
@@ -110,15 +112,6 @@ class SearchABC(PluginABC):
 
         If pagination and sorting parameters are supplied, the plugin SHOULD
         provide the desired subset of datasets.
-        """
-        pass
-
-    @abstractmethod
-    def lookup_uris(self, uuid, base_uris):
-        """Return list of URIs for a dataset defined by a UUID.
-
-        It is assumed that preflight checks will be performed to provide
-        a list of base URIs that the user is allowed to search through.
         """
         pass
 

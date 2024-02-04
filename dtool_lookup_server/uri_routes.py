@@ -32,20 +32,62 @@ bp = Blueprint("uris", __name__, url_prefix="/uris")
 
 @bp.route("", methods=["GET"])
 @bp.route("/", methods=["GET"])
+@bp.arguments(SearchDatasetSchema, location="query")
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
 @jwt_required()
-def list_datasets(pagination_parameters: PaginationParameters,
-                  sort_parameters: SortParameters):
-    """List the datasets a user has access to."""
+def search_datasets(query: SearchDatasetSchema,
+                    pagination_parameters: PaginationParameters,
+                    sort_parameters: SortParameters):
+    """Search the datasets a user has access to."""
     username = get_jwt_identity()
     if not dtool_lookup_server.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
-    datasets = list_datasets_by_user(username,
-                                     pagination_parameters=pagination_parameters,
-                                     sort_parameters=sort_parameters)
+
+    if len(query) == 0:
+        # here, the data source is the dtool-lookup-server-internal sql database
+        datasets = list_datasets_by_user(username,
+                                         pagination_parameters=pagination_parameters,
+                                         sort_parameters=sort_parameters)
+    else:
+        # here, the data source is the search plugin
+        datasets = search_datasets_by_user(username, query,
+                                           pagination_parameters=pagination_parameters,
+                                           sort_parameters=sort_parameters)
+
+    return datasets
+
+
+# We offer search via post method as well in case the URL-embedded query string
+# does not suffice for formulating a complex search query.
+@bp.route("", methods=["POST"])
+@bp.route("/", methods=["POST"])
+@bp.arguments(SearchDatasetSchema)
+@bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
+@bp.paginate()
+@bp.response(200, DatasetSchema(many=True))
+@jwt_required()
+def search_datasets(query: SearchDatasetSchema,
+                   pagination_parameters: PaginationParameters,
+                   sort_parameters: SortParameters):
+    """Search the datasets a user has access to."""
+    username = get_jwt_identity()
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        # Unregistered users should see 401.
+        abort(401)
+
+    if len(query) == 0:
+        # here, the data source is the dtool-lookup-server-internal sql database
+        datasets = list_datasets_by_user(username,
+                                         pagination_parameters=pagination_parameters,
+                                         sort_parameters=sort_parameters)
+    else:
+        # here, the data source is the search plugin
+        datasets = search_datasets_by_user(username, query,
+                                           pagination_parameters=pagination_parameters,
+                                           sort_parameters=sort_parameters)
 
     return datasets
 

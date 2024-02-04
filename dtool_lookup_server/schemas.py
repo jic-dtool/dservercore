@@ -10,12 +10,6 @@ from marshmallow.fields import (
     Float
 )
 
-from dtool_lookup_server.sql_models import DatasetSchema
-
-
-class URISchema(Schema):
-    uri = String()
-
 
 class RegisterUserSchema(Schema):
     username = String()
@@ -57,12 +51,6 @@ class RegisterDatasetSchema(Schema):
     tags = List(String)
     number_of_items = Integer()
     size_in_bytes = Integer()
-
-
-# class URIPermissionSchema(Schema):
-#    base_uri = String()
-#    users_with_register_permissions = List(String)
-#    users_with_search_permissions = List(String)
 
 
 class SearchDatasetSchema(Schema):

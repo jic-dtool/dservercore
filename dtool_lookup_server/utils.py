@@ -26,7 +26,6 @@ from dtool_lookup_server.sql_models import (
     Dataset,
 )
 from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
-from dtool_lookup_server.config import Config
 
 
 from dtool_lookup_server.date_utils import (
