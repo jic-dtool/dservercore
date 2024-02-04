@@ -406,6 +406,7 @@ def test_list_user_route(
     )
     assert r.status_code == 404
 
+
 def test_dataset_summary_route(
         tmp_app_with_data_client,
         snowwhite_token,
