@@ -31,6 +31,8 @@ bp = Blueprint("base_uris", __name__, url_prefix="/base_uris")
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "base_uri"])
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def base_uri_list(pagination_parameters : PaginationParameters,
                   sort_parameters : SortParameters):
@@ -38,9 +40,13 @@ def base_uri_list(pagination_parameters : PaginationParameters,
 
     The user needs to be admin.
     """
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
-        abort(404)
+    identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+        abort(403)
 
     order_by_args = []
     for field, order in sort_parameters.order().items():
@@ -65,15 +71,21 @@ def base_uri_list(pagination_parameters : PaginationParameters,
 # can specify a custom converter for the route parameter, e.g. <path:base_uri>
 @bp.route("/<path:base_uri>", methods=["GET"])
 @bp.response(200, UserPermissionsOnBaseURISchema)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def get_base_uri(base_uri):
     """Return base URI information.
 
     The user needs to be admin.
     """
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
-        abort(404)
+    identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+        abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
     base_uri_data = get_permission_info(base_uri)
@@ -82,15 +94,22 @@ def get_base_uri(base_uri):
 
 @bp.route("/<path:base_uri>", methods=["POST"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
+@bp.response(201)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
     """Register a base URI.
 
     The user needs to be admin.
     """
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(username):
-        abort(404)
+    identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+        abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
 
@@ -105,6 +124,9 @@ def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
 
 @bp.route("/<path:base_uri>", methods=["PUT"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     """Update a user in the dtool lookup server by replacing entry.
@@ -112,8 +134,12 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
 
@@ -128,6 +154,10 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
 @bp.route("/<path:base_uri>", methods=["PATCH"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     """Update a user in the dtool lookup server by patching fields.
@@ -135,8 +165,12 @@ def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
 
@@ -150,6 +184,9 @@ def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
 
 @bp.route("/<path:base_uri>", methods=["DELETE"])
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def delete(base_uri):
     """Delete a user from the dtool lookup server.
@@ -157,8 +194,12 @@ def delete(base_uri):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
 

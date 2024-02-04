@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 
 from dtool_lookup_server import UnknownURIError
 from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.schemas import ManifestSchema
 import dtool_lookup_server.utils_auth
 from dtool_lookup_server.utils import (
     url_suffix_to_uri,
@@ -19,6 +20,10 @@ from dtool_lookup_server.utils import (
 bp = Blueprint("manifests", __name__, url_prefix="/manifests")
 
 @bp.route("/<path:uri>", methods=["GET"])
+@bp.response(200, ManifestSchema)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def manifest(uri):
     """Request the dataset manifest."""
@@ -30,13 +35,13 @@ def manifest(uri):
     uri = url_suffix_to_uri(uri)
     if not dtool_lookup_server.utils_auth.may_access(username, uri):
         # Authorization errors should return 400.
-        abort(400)
+        abort(403)
 
     try:
         manifest_ = get_manifest_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
-        abort(400)
+        abort(404)
 
     return jsonify(manifest_)
 

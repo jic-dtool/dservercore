@@ -26,7 +26,8 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def list_users(pagination_parameters: PaginationParameters, sort_parameters: SortParameters):
     """List the users in the dtool lookup server.
@@ -34,8 +35,12 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     order_by_args = []
     for field, order in sort_parameters.order().items():
@@ -57,7 +62,9 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
 
 @bp.route("/<username>", methods=["GET"])
 @bp.response(200, UserResponseSchema)
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def get_user_info(username):
     """Return a user's information.
@@ -68,22 +75,25 @@ def get_user_info(username):
     identity = get_jwt_identity()
 
     if not dtool_lookup_server.utils_auth.user_exists(identity):
-        # Unregistered users should see 404.
-        abort(404)
+        abort(401)
 
-    # Return 404 if the user is not admin and the token username
+    # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         if identity != username:
-            abort(404)
+            abort(403)
+
+    if not dtool_lookup_server.utils_auth.user_exists(username):
+        abort(404)
 
     return dtool_lookup_server.utils.get_user_info(username)
 
 
 @bp.route("/<username>", methods=["POST"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
-@bp.response(200)
-@bp.alt_response(404)
+@bp.response(201)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def register(data: RegisterUserSchema, username):
     """Register a user in the dtool lookup server.
@@ -91,14 +101,12 @@ def register(data: RegisterUserSchema, username):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
-
-    #   # Make it idempotent.
-    #   if base_uri_exists(base_uri):
-    #       return "", 201
-
-    # There should be some validation of the input here...
+        abort(403)
 
     register_user(username, data)
 
@@ -108,7 +116,9 @@ def register(data: RegisterUserSchema, username):
 @bp.route("/<username>", methods=["PUT"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(200)
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def put_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by replacing entry.
@@ -116,7 +126,14 @@ def put_update(data: RegisterUserSchema, username):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dtool_lookup_server.utils_auth.user_exists(username):
         abort(404)
 
     put_user(username, data)
@@ -127,7 +144,8 @@ def put_update(data: RegisterUserSchema, username):
 @bp.route("/<username>", methods=["PATCH"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(200)
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def patch_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by patching fields.
@@ -135,8 +153,12 @@ def patch_update(data: RegisterUserSchema, username):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     patch_user(username, data)
 
@@ -145,7 +167,8 @@ def patch_update(data: RegisterUserSchema, username):
 
 @bp.route("/<username>", methods=["DELETE"])
 @bp.response(200)
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def delete(username):
     """Delete a user from the dtool lookup server.
@@ -153,8 +176,12 @@ def delete(username):
     The user in the Authorization token needs to be admin.
     """
     identity = get_jwt_identity()
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
+
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+        abort(403)
 
     delete_user(username)
 
@@ -163,7 +190,9 @@ def delete(username):
 
 @bp.route("/<username>/summary", methods=["GET"])
 @bp.response(200, SummarySchema)
-@bp.alt_response(404)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def summary_of_datasets(username):
     """Global summary of the datasets a user has access to."""
@@ -173,11 +202,11 @@ def summary_of_datasets(username):
         # Authenticated user does not exist
         abort(401)
 
-    # Return 404 if the user is not admin and the token username
+    # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
     if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         if identity != username:
-            abort(404)
+            abort(403)
 
     if not dtool_lookup_server.utils_auth.user_exists(username):
         # Authenticated user is admin, but user summary requested does not exist

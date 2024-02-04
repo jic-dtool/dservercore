@@ -20,6 +20,10 @@ bp = Blueprint("readmes", __name__, url_prefix="/readmes")
 
 
 @bp.route("/<path:uri>", methods=["GET"])
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def readme(uri):
     """Request the dataset readme."""
@@ -31,12 +35,12 @@ def readme(uri):
     uri = url_suffix_to_uri(uri)
     if not dtool_lookup_server.utils_auth.may_access(username, uri):
         # Authorization errors should return 400.
-        abort(400)
+        abort(403)
 
     try:
         readme_ = get_readme_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
-        abort(400)
+        abort(404)
 
     return jsonify(readme_)

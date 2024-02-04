@@ -9,6 +9,7 @@ from flask_jwt_extended import (
 
 from flask_smorest.pagination import PaginationParameters
 
+from dtool_lookup_server import ValidationError
 from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
 from dtool_lookup_server.sql_models import DatasetSchema
@@ -36,6 +37,7 @@ bp = Blueprint("uris", __name__, url_prefix="/uris")
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
+@bp.alt_response(401, "Not registered")
 @jwt_required()
 def search_datasets(query: SearchDatasetSchema,
                     pagination_parameters: PaginationParameters,
@@ -68,6 +70,7 @@ def search_datasets(query: SearchDatasetSchema,
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
+@bp.alt_response(401, "Not registered")
 @jwt_required()
 def search_datasets(query: SearchDatasetSchema,
                    pagination_parameters: PaginationParameters,
@@ -94,9 +97,9 @@ def search_datasets(query: SearchDatasetSchema,
 
 @bp.route("/search", methods=["POST"])
 @bp.arguments(SearchDatasetSchema(partial=True))
-@bp.response(200, DatasetSchema(many=True))
 @bp.paginate()
-@bp.alt_response(401, "User not registered")
+@bp.response(200, DatasetSchema(many=True))
+@bp.alt_response(401, "Not registered")
 @jwt_required()
 def search_datasets(
     query: SearchDatasetSchema, pagination_parameters: PaginationParameters
@@ -115,9 +118,9 @@ def search_datasets(
 
 @bp.route("/<path:uri>", methods=["GET"])
 @bp.response(200, DatasetSchema)
-@bp.alt_response(401, "User not registered")
-@bp.alt_response(403, "User has no permissions to search base URI")
-@bp.alt_response(404, "Dataset entry does not exist")
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def get_dataset_by_uri(uri):
     """Return dataset information by URI."""
@@ -144,37 +147,46 @@ def get_dataset_by_uri(uri):
 @bp.route("/<path:uri>", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(201)
-@bp.alt_response(401, "User not registered")
-@bp.alt_response(409, "Dataset information not valid")
+@bp.alt_response(400, "Dataset not valid")
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def register(dataset: RegisterDatasetSchema, uri):
     """Register a dataset.
 
     The user needs to have register permissions on the base_uri."""
-    username = get_jwt_identity()
+    identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         # Unregistered users should see 401.
         abort(401)
+
+    if not dtool_lookup_server.utils_auth.may_register(identity, dataset["base_uri"]):
+        abort(403)
 
     uri = url_suffix_to_uri(uri)
 
     if not uri == dataset["uri"]:
-        abort(409)
+        abort(400)
 
     if not dataset_info_is_valid(dataset):
-        abort(409)
+        abort(400)
 
-    if not dtool_lookup_server.utils_auth.may_register(username, dataset["base_uri"]):
-        abort(401)
+    try:
+        dataset_uri = register_dataset(dataset)
+    except ValidationError as message:
+        abort(400, message=message)
 
-    dataset_uri = register_dataset(dataset)
-    # return {"uri": dataset_uri}
     return "", 201
 
 
 @bp.route("/<path:uri>", methods=["PUT"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
+@bp.response(200)
+@bp.alt_response(400, "Dataset not valid")
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(404, "Not found")
 @jwt_required()
 def put_update(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by replacing entry.
@@ -182,18 +194,36 @@ def put_update(dataset : RegisterDatasetSchema, uri):
     The user needs to have register permissions on the base_uri.
     """
     identity = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        # Unregistered users should see 401.
+        abort(401)
+
+    if not dtool_lookup_server.utils_auth.may_register(identity, dataset["base_uri"]):
+        abort(403)
 
     uri = url_suffix_to_uri(uri)
 
+    if not uri == dataset["uri"]:
+        abort(400)
+
+    if not dataset_info_is_valid(dataset):
+        abort(400)
+
     # PUT
+
+    # dataset does not exist yet
+    # abort(404)
 
     return "", 200
 
 
 @bp.route("/<path:base_uri>", methods=["PATCH"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
+@bp.response(200)
+@bp.alt_response(400, "Dataset not valid")
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def patch_update(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by patching fields.
@@ -201,10 +231,21 @@ def patch_update(dataset : RegisterDatasetSchema, uri):
     The user needs to have register permissions on the base_uri.
     """
     identity = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        # Unregistered users should see 401.
+        abort(401)
+
+    if not dtool_lookup_server.utils_auth.may_register(identity, dataset["base_uri"]):
+        abort(403)
 
     uri = url_suffix_to_uri(uri)
+
+    if not uri == dataset["uri"]:
+        abort(400)
+
+    if not dataset_info_is_valid(dataset):
+        abort(400)
 
     # PATCH
 
@@ -212,6 +253,9 @@ def patch_update(dataset : RegisterDatasetSchema, uri):
 
 
 @bp.route("/<path:base_uri>", methods=["DELETE"])
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
 @jwt_required()
 def delete(uri):
     """Delete a dataset entry from the dtool lookup server.
@@ -219,10 +263,15 @@ def delete(uri):
     The user needs to have register permissions on the base_uri.
     """
     identity = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
-        abort(404)
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
+        abort(401)
 
     uri = url_suffix_to_uri(uri)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+
+    if not dtool_lookup_server.utils_auth.may_register(identity, base_uri_str):
+        abort(403)
 
     # DELETE
 

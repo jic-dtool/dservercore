@@ -20,6 +20,10 @@ bp = Blueprint("annotations", __name__, url_prefix="/annotations")
 
 
 @bp.route("/<path:uri>", methods=["GET"])
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
+@bp.alt_response(403, "No permissions")
+@bp.alt_response(400, "Unknown URI")
 @jwt_required()
 def annotations(uri):
     """Request the dataset annotations."""
@@ -31,8 +35,8 @@ def annotations(uri):
     uri = url_suffix_to_uri(uri)
 
     if not dtool_lookup_server.utils_auth.may_access(username, uri):
-        # Authorization errors should return 400.
-        abort(400)
+        # Authorization errors should return 403.
+        abort(403)
 
     try:
         annotations_ = get_annotations_from_uri_by_user(username, uri)

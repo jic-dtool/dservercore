@@ -19,6 +19,8 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
+@bp.response(200)
+@bp.alt_response(401, "Not registered")
 @jwt_required()
 def server_config():
     """Return the JSON-serialized Flask app configuration."""
@@ -34,6 +36,7 @@ def server_config():
 
 
 @bp.route("/versions", methods=["GET"])
+@bp.response(200)
 def server_versions():
     """Return the JSON-serialized server component versions.
 
