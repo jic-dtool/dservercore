@@ -259,6 +259,9 @@ def create_app(test_config=None):
         uuid_routes,
         user_routes,
         base_uri_routes,
+        manifest_routes,
+        readme_routes,
+        annotations_routes,
     )
 
     api.register_blueprint(config_routes.bp)
@@ -266,6 +269,9 @@ def create_app(test_config=None):
     api.register_blueprint(uuid_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
+    api.register_blueprint(manifest_routes.bp)
+    api.register_blueprint(readme_routes.bp)
+    api.register_blueprint(annotations_routes.bp)
 
     # Load dtool-lookup-server extension plugin blueprints.
     for ex in app.custom_extensions:

@@ -19,7 +19,7 @@ from dtool_lookup_server.utils import (
 bp = Blueprint("annotations", __name__, url_prefix="/annotations")
 
 
-@bp.route("/annotations/<path:uri>", methods=["GET"])
+@bp.route("/<path:uri>", methods=["GET"])
 @jwt_required()
 def annotations(uri):
     """Request the dataset annotations."""

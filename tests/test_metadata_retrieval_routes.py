@@ -2,6 +2,8 @@
 
 import json
 
+from dtool_lookup_server.utils import uri_to_url_suffix
+
 
 def test_dataset_manifest_route(
         tmp_app_with_data_client,
@@ -11,12 +13,11 @@ def test_dataset_manifest_route(
         noone_token):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)
-    query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=headers,
-        data=json.dumps(query),
-        content_type="application/json"
+    uri = "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=headers
     )
     assert r.status_code == 200
 
@@ -37,61 +38,45 @@ def test_dataset_manifest_route(
     assert expected_manifest == actual_manifest
 
     # Not authenticated, but in system.
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + dopey_token),
-        data=json.dumps(query),
-        content_type="application/json"
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + dopey_token)
     )
     assert r.status_code == 401
 
     # Not authenticated, not in system.
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + noone_token),
-        data=json.dumps(query),
-        content_type="application/json"
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + noone_token)
     )
     assert r.status_code == 401
 
     # Not authorized.
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + sleepy_token),
-        data=json.dumps(query),
-        content_type="application/json"
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 400
 
     # Base URI does not exist.
-    query = {"uri": "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + sleepy_token),
-        data=json.dumps(query),
-        content_type="application/json"
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 400
 
     # URI does not exist.
-    query = {"uri": "s3://snow-white/dontexist"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + sleepy_token),
-        data=json.dumps(query),
-        content_type="application/json"
+    uri = "s3://snow-white/dontexist"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/manifests/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
     )
     assert r.status_code == 400
-
-    # Broken query (no "uri").
-    query = {"broken": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/manifest",
-        headers=dict(Authorization="Bearer " + sleepy_token),
-        data=json.dumps(query),
-        content_type="application/json"
-    )
-    assert r.status_code == 422
 
 
 def test_dataset_readme_route(
@@ -102,12 +87,12 @@ def test_dataset_readme_route(
         noone_token):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)
-    query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/readme",
-        headers=headers,
-        data=json.dumps(query),
-        content_type="application/json"
+    uri = "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=headers
     )
     assert r.status_code == 200
 
@@ -125,16 +110,16 @@ def test_dataset_annotations_route(
         noone_token):  # NOQA
 
     headers = dict(Authorization="Bearer " + grumpy_token)
-    query = {"uri": "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"}
-    r = tmp_app_with_data_client.post(
-        "/dataset/annotations",
-        headers=headers,
-        data=json.dumps(query),
-        content_type="application/json"
+    uri = "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=headers
     )
     assert r.status_code == 200
 
-    expected_readme = {"type": "fruit"}
-    actual_readme = json.loads(r.data.decode("utf-8"))
+    expected_annotations = {"type": "fruit"}
+    actual_annotations = json.loads(r.data.decode("utf-8"))
 
-    assert expected_readme == actual_readme
+    assert expected_annotations == actual_annotations

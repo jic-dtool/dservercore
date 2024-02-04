@@ -19,7 +19,7 @@ from dtool_lookup_server.utils import (
 bp = Blueprint("readmes", __name__, url_prefix="/readmes")
 
 
-@bp.route("/<path:uri>", methods=["POST"])
+@bp.route("/<path:uri>", methods=["GET"])
 @jwt_required()
 def readme(uri):
     """Request the dataset readme."""
