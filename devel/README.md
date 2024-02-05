@@ -44,7 +44,7 @@ bash devel/run.sh
 
 ## On Ubunu (20.04)
 
-To run server with PostgreSQL, instal dependencies 
+To run server with PostgreSQL, install dependencies 
 
 ```
 sudo apt install libpq-dev

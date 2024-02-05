@@ -61,3 +61,14 @@ docker compose -f docker/env.yml up -d
 Make keys generated at container launch readible by current user on host with
 
     sudo chown -R ${USER}:${USER} docker/keys
+
+## Token
+
+The container composition provides an LDAP server and a token generator service.
+When running the services locally, generate a token with
+
+```
+curl --insecure -H "Content-Type: application/json" \
+   -X POST -d '{"username": "test-user", "password": "test-password" }' \
+   http://localhost:5001/token
+```
