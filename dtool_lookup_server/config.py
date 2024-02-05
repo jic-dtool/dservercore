@@ -1,3 +1,4 @@
+"""dserver Flask app configuration"""
 import json
 import os
 

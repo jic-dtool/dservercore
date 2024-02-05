@@ -1,3 +1,4 @@
+"""marshmallow schema for (de-) serialization and validation"""
 from marshmallow import Schema
 from marshmallow.fields import (
     String,
@@ -11,13 +12,15 @@ from marshmallow.fields import (
 )
 
 
-class URISchema(Schema):
-    uri = String()
-
-
 class RegisterUserSchema(Schema):
     username = String()
     is_admin = Boolean()
+
+
+class UserPermissionsOnBaseURISchema(Schema):
+    base_uri = String()
+    users_with_search_permissions = List(String)
+    users_with_register_permissions = List(String)
 
 
 class ItemSchema(Schema):
@@ -49,12 +52,6 @@ class RegisterDatasetSchema(Schema):
     tags = List(String)
     number_of_items = Integer()
     size_in_bytes = Integer()
-
-
-class URIPermissionSchema(Schema):
-    base_uri = String()
-    users_with_register_permissions = List(String)
-    users_with_search_permissions = List(String)
 
 
 class SearchDatasetSchema(Schema):

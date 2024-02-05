@@ -1,7 +1,7 @@
 from setuptools import setup
 
 url = "https://github.com/jic-dtool/dtool-lookup-server"
-version = "0.17.2"
+version = "0.18.0"
 readme = open('README.rst').read()
 
 setup(
@@ -9,6 +9,7 @@ setup(
     packages=["dtool_lookup_server"],
     description="Web API to register/lookup/search for dtool dataset metadata",
     long_description=readme,
+    long_description_content_type="text/x-rst",
     package_data={"dtool_lookup_server": ["templates/*"]},
     include_package_data=True,
     author="Tjelvar Olsson",
@@ -23,7 +24,7 @@ setup(
         ],
     },
     install_requires=[
-        "flask",
+        "flask<3",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",

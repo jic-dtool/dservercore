@@ -1,3 +1,4 @@
+"""dserver Flask app"""
 import logging
 import sys
 
@@ -5,18 +6,21 @@ from abc import ABC, abstractmethod
 
 from flask import Flask, request
 from flask_cors import CORS
-from flask_smorest import (
-    Api,
-    Blueprint
-)
+from flask_smorest import Api
+from flask_smorest.pagination import PaginationParameters
 from flask_migrate import Migrate
 
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.config import Config
 from dtool_lookup_server.extensions import sql_db, jwt, ma
+from dtool_lookup_server.schemas import SearchDatasetSchema
+from dtool_lookup_server.sort import SortParameters
+from dtool_lookup_server.sql_models import DatasetSchema
+
 
 from pkg_resources import iter_entry_points
 
-__version__ = "0.17.2"
+__version__ = "0.18.0"
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +76,9 @@ class SearchABC(PluginABC):
     """Any search plugin must inherit from this base class."""
 
     @abstractmethod
-    def search(self, query):
+    def search(self, query : SearchDatasetSchema,
+               pagination_parameters: PaginationParameters = None,
+               sort_parameters: SortParameters = None) -> DatasetSchema(many=True):
         """Search for datasets.
 
         It is assumed that preflight checks have been made to ensure that the
@@ -104,15 +110,9 @@ class SearchABC(PluginABC):
         The search plugin SHOULD make use of "OR" logic for the items in
         "base_uris" and "creator_usernames" lists, but use "AND" logic for
         filtering the search based on the items in the tags list.
-        """
-        pass
 
-    @abstractmethod
-    def lookup_uris(self, uuid, base_uris):
-        """Return list of URIs for a dataset defined by a UUID.
-
-        It is assumed that preflight checks will be performed to provide
-        a list of base URIs that the user is allowed to search through.
+        If pagination and sorting parameters are supplied, the plugin SHOULD
+        provide the desired subset of datasets.
         """
         pass
 
@@ -249,26 +249,30 @@ def create_app(test_config=None):
 
     from dtool_lookup_server import (
         config_routes,
-        dataset_routes,
+        uri_routes,
+        uuid_routes,
         user_routes,
         base_uri_routes,
-        user_admin_routes,
-        permission_routes,
+        manifest_routes,
+        readme_routes,
+        annotations_routes,
     )
 
     api.register_blueprint(config_routes.bp)
-    api.register_blueprint(dataset_routes.bp)
+    api.register_blueprint(uri_routes.bp)
+    api.register_blueprint(uuid_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
-    api.register_blueprint(user_admin_routes.bp)
-    api.register_blueprint(permission_routes.bp)
+    api.register_blueprint(manifest_routes.bp)
+    api.register_blueprint(readme_routes.bp)
+    api.register_blueprint(annotations_routes.bp)
 
     # Load dtool-lookup-server extension plugin blueprints.
     for ex in app.custom_extensions:
         bp = ex.get_blueprint()
         if not isinstance(bp, Blueprint):
             print(
-                "Please use flask_smorest.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
+                "Please use flask_smorest.blueprint.Blueprint or dtool_lookup_server.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
                 file=sys.stderr,
             )
             sys.exit(1)

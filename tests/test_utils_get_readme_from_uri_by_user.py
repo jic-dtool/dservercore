@@ -1,9 +1,7 @@
 import pytest
 
-from . import tmp_app_with_data  # NOQA
 
-
-def test_get_readme_from_uri_by_user(tmp_app_with_data):  # NOQA
+def test_get_readme_from_uri_by_user(tmp_app_with_data_client):  # NOQA
 
     from dtool_lookup_server import (
         AuthenticationError,

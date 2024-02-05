@@ -1,3 +1,4 @@
+"""Routes for retrieving server and server-side plugin configuration"""
 from flask import (
     abort,
     current_app,
@@ -8,10 +9,10 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_smorest import Blueprint
 
 import dtool_lookup_server
 import dtool_lookup_server.utils_auth
+from dtool_lookup_server.blueprint import Blueprint
 from dtool_lookup_server.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
@@ -19,6 +20,8 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
+@bp.response(200)
+@bp.alt_response(401, description="Not registered")
 @jwt_required()
 def server_config():
     """Return the JSON-serialized Flask app configuration."""
@@ -34,6 +37,7 @@ def server_config():
 
 
 @bp.route("/versions", methods=["GET"])
+@bp.response(200)
 def server_versions():
     """Return the JSON-serialized server component versions.
 

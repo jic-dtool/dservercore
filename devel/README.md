@@ -1,9 +1,12 @@
 # Development setup
 
-Helper components of a simple development setup.
+For development, it will be helpful to run the `dserver` app directly from within the repository root.
 
-Provide necessary services with docker composition `docker/env.yml`. 
-See `docker/README.md`.
+The folder `devel` contains helper components to set up a simple development setup.
+
+To run a meaningful `dserver` instance, underlying services like databases and storage infrastructure are necessary.
+
+The docker composition within `docker/env.yml` provides a collection of such services. See `docker/README.md`.
 
 `dtool.json` provides a minimal configuration for a lookup server launched as
 described in the following. Place it at `${HOME}/.config/dtool/dtool.json`.
@@ -16,7 +19,7 @@ described in the following. Place it at `${HOME}/.config/dtool/dtool.json`.
 
 `run.sh` launches the lookup server with `gunicorn`.
 
-# Example envrionment
+## Example environment
 
 Create a virtual environment with
 
@@ -42,9 +45,9 @@ bash devel/init.sh
 bash devel/run.sh
 ```
 
-## On Ubunu (20.04)
+## Ubuntu (20.04)
 
-To run server with PostgreSQL, instal dependencies 
+To run server with PostgreSQL, install dependencies 
 
 ```
 sudo apt install libpq-dev
