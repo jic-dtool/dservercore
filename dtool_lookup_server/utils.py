@@ -194,12 +194,14 @@ def generate_dataset_info(dataset, base_uri):
 
 
 def user_exists(username):
+    """Check whether user is registered in the system."""
     if _get_user_obj(username) is None:
         return False
     return True
 
 
 def get_user_obj(username):
+    """Retrieve User object from username."""
     user = _get_user_obj(username)
     if user is None:
         raise (AuthenticationError())

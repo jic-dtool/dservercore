@@ -1,3 +1,4 @@
+"""Routes for querying and managing dataset entries by their URIs"""
 from flask import (
     abort,
     jsonify

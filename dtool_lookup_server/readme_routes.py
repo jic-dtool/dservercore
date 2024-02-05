@@ -1,3 +1,4 @@
+"""Route for retrieving the readme of a dataset"""
 from flask import (
     abort,
     jsonify,

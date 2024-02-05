@@ -1,3 +1,4 @@
+"""Database models and derived schemas"""
 import datetime
 from marshmallow import fields
 import dtoolcore.utils

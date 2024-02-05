@@ -1,3 +1,4 @@
+"""Route for retrieving the manifest of a dataset"""
 from flask import (
     abort,
     jsonify,

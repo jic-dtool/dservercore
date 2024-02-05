@@ -1,3 +1,4 @@
+"""Routes for retrieving server and server-side plugin configuration"""
 from flask import (
     abort,
     current_app,

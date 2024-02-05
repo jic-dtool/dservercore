@@ -1,3 +1,4 @@
+"""Routes for querying dataset entries by their UUIDs"""
 from flask import (
     abort,
     jsonify

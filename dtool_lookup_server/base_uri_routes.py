@@ -1,3 +1,4 @@
+"""Routes for Base URI management"""
 from flask import (
     abort,
 )

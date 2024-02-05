@@ -1,3 +1,4 @@
+"""marshmallow schema for (de-) serialization and validation"""
 from marshmallow import Schema
 from marshmallow.fields import (
     String,

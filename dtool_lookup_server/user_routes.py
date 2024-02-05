@@ -1,3 +1,4 @@
+"""Routes for user management"""
 from flask import (
     abort,
     jsonify,

@@ -1,3 +1,4 @@
+"""Route for retrieving dataset annotations by URI."""
 from flask import (
     abort,
     jsonify,
