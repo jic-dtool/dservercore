@@ -111,6 +111,57 @@ def test_dataset_readme_route(
 
     assert expected_readme == actual_readme
 
+    # Not authenticated, but in system.
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401
+
+    # Not authenticated, not in system.
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + noone_token)
+    )
+    assert r.status_code == 401
+
+    # Not authorized.
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 403
+
+    # Not authorized and base URI does not exist.
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 403
+
+    # Authorized and base URI does not exist.
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 403
+
+    # Authorized and base URI does exist, but dataset URI does not exist.
+    uri = "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28339"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/readmes/{url_suffix}",
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 404
+
 
 def test_dataset_annotations_route(
         tmp_app_with_data_client,
@@ -133,3 +184,54 @@ def test_dataset_annotations_route(
     actual_annotations = json.loads(r.data.decode("utf-8"))
 
     assert expected_annotations == actual_annotations
+
+    # Not authenticated, but in system.
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401
+
+    # Not authenticated, not in system.
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + noone_token)
+    )
+    assert r.status_code == 401
+
+    # Not authorized.
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 403
+
+    # Not authorized and base URI does not exist.
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 403
+
+    # Authorized and base URI does not exist.
+    uri = "s3://dontexist/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 403
+
+    # Authorized and base URI does exist, but dataset URI does not exist.
+    uri = "s3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28339"
+    url_suffix = uri_to_url_suffix(uri)
+
+    r = tmp_app_with_data_client.get(
+        f"/annotations/{url_suffix}",
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 404
