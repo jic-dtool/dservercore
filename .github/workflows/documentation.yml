@@ -19,7 +19,7 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: false
-  
+
 jobs:
   build:
 
@@ -36,9 +36,7 @@ jobs:
           docs-folder: "docs/"
 
       - name: Setup pages
-        run: |
         uses: actions/configure-pages@v4
-          cd docs
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
