@@ -34,7 +34,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: prepare dependencies
+      - name: install package
+        run: |
+          pip install .
+
+      - name: install docs dependencies
         run: |
           pip install -r docs/requirements.txt
 
