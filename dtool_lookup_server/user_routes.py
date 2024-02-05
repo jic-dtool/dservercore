@@ -26,8 +26,8 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def list_users(pagination_parameters: PaginationParameters, sort_parameters: SortParameters):
     """List the users in the dtool lookup server.
@@ -62,9 +62,9 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
 
 @bp.route("/<username>", methods=["GET"])
 @bp.response(200, UserResponseSchema)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def get_user_info(username):
     """Return a user's information.
@@ -92,8 +92,8 @@ def get_user_info(username):
 @bp.route("/<username>", methods=["POST"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(201)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def register(data: RegisterUserSchema, username):
     """Register a user in the dtool lookup server.
@@ -116,9 +116,9 @@ def register(data: RegisterUserSchema, username):
 @bp.route("/<username>", methods=["PUT"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def put_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by replacing entry.
@@ -144,8 +144,8 @@ def put_update(data: RegisterUserSchema, username):
 @bp.route("/<username>", methods=["PATCH"])
 @bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def patch_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by patching fields.
@@ -167,8 +167,8 @@ def patch_update(data: RegisterUserSchema, username):
 
 @bp.route("/<username>", methods=["DELETE"])
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def delete(username):
     """Delete a user from the dtool lookup server.
@@ -190,9 +190,9 @@ def delete(username):
 
 @bp.route("/<username>/summary", methods=["GET"])
 @bp.response(200, SummarySchema)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def summary_of_datasets(username):
     """Global summary of the datasets a user has access to."""

@@ -37,7 +37,7 @@ bp = Blueprint("uris", __name__, url_prefix="/uris")
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
-@bp.alt_response(401, "Not registered")
+@bp.alt_response(401, description="Not registered")
 @jwt_required()
 def search_datasets(query: SearchDatasetSchema,
                     pagination_parameters: PaginationParameters,
@@ -70,7 +70,7 @@ def search_datasets(query: SearchDatasetSchema,
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
-@bp.alt_response(401, "Not registered")
+@bp.alt_response(401, description="Not registered")
 @jwt_required()
 def search_datasets(query: SearchDatasetSchema,
                    pagination_parameters: PaginationParameters,
@@ -95,32 +95,11 @@ def search_datasets(query: SearchDatasetSchema,
     return datasets
 
 
-@bp.route("/search", methods=["POST"])
-@bp.arguments(SearchDatasetSchema(partial=True))
-@bp.paginate()
-@bp.response(200, DatasetSchema(many=True))
-@bp.alt_response(401, "Not registered")
-@jwt_required()
-def search_datasets(
-    query: SearchDatasetSchema, pagination_parameters: PaginationParameters
-):
-    """List datasets the user has access to matching the query."""
-    username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
-        # Unregistered users should see 401.
-        abort(401)
-    datasets = search_datasets_by_user(username, query)
-    pagination_parameters.item_count = len(datasets)
-    return jsonify(
-        datasets[pagination_parameters.first_item : pagination_parameters.last_item + 1]
-    )
-
-
 @bp.route("/<path:uri>", methods=["GET"])
 @bp.response(200, DatasetSchema)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def get_dataset_by_uri(uri):
     """Return dataset information by URI."""
@@ -147,9 +126,9 @@ def get_dataset_by_uri(uri):
 @bp.route("/<path:uri>", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(201)
-@bp.alt_response(400, "Dataset not valid")
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(400, description="Dataset not valid")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def register(dataset: RegisterDatasetSchema, uri):
     """Register a dataset.
@@ -183,10 +162,10 @@ def register(dataset: RegisterDatasetSchema, uri):
 @bp.route("/<path:uri>", methods=["PUT"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(200)
-@bp.alt_response(400, "Dataset not valid")
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(400, description="Dataset not valid")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def put_update(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by replacing entry.
@@ -218,12 +197,12 @@ def put_update(dataset : RegisterDatasetSchema, uri):
     return "", 200
 
 
-@bp.route("/<path:base_uri>", methods=["PATCH"])
+@bp.route("/<path:uri>", methods=["PATCH"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(200)
-@bp.alt_response(400, "Dataset not valid")
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(400, description="Dataset not valid")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def patch_update(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by patching fields.
@@ -252,10 +231,10 @@ def patch_update(dataset : RegisterDatasetSchema, uri):
     return "", 200
 
 
-@bp.route("/<path:base_uri>", methods=["DELETE"])
+@bp.route("/<path:uri>", methods=["DELETE"])
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def delete(uri):
     """Delete a dataset entry from the dtool lookup server.

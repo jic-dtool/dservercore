@@ -21,9 +21,9 @@ bp = Blueprint("readmes", __name__, url_prefix="/readmes")
 
 @bp.route("/<path:uri>", methods=["GET"])
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def readme(uri):
     """Request the dataset readme."""

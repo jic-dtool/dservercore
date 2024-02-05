@@ -31,8 +31,8 @@ bp = Blueprint("base_uris", __name__, url_prefix="/base_uris")
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "base_uri"])
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def base_uri_list(pagination_parameters : PaginationParameters,
                   sort_parameters : SortParameters):
@@ -71,8 +71,8 @@ def base_uri_list(pagination_parameters : PaginationParameters,
 # can specify a custom converter for the route parameter, e.g. <path:base_uri>
 @bp.route("/<path:base_uri>", methods=["GET"])
 @bp.response(200, UserPermissionsOnBaseURISchema)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def get_base_uri(base_uri):
     """Return base URI information.
@@ -95,8 +95,8 @@ def get_base_uri(base_uri):
 @bp.route("/<path:base_uri>", methods=["POST"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(201)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
     """Register a base URI.
@@ -125,8 +125,8 @@ def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
 @bp.route("/<path:base_uri>", methods=["PUT"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     """Update a user in the dtool lookup server by replacing entry.
@@ -155,9 +155,9 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 @bp.route("/<path:base_uri>", methods=["PATCH"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(404, "Not found")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     """Update a user in the dtool lookup server by patching fields.
@@ -185,8 +185,8 @@ def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
 @bp.route("/<path:base_uri>", methods=["DELETE"])
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
 @jwt_required()
 def delete(base_uri):
     """Delete a user from the dtool lookup server.

@@ -26,7 +26,7 @@ bp = Blueprint("uuids", __name__, url_prefix="/uuids")
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
 @bp.response(200, DatasetSchema(many=True))
-@bp.alt_response(401, "Not registered")
+@bp.alt_response(401, description="Not registered")
 @jwt_required()
 def lookup_datasets(pagination_parameters: PaginationParameters,
                     sort_parameters: SortParameters, uuid):

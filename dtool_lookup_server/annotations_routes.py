@@ -21,9 +21,9 @@ bp = Blueprint("annotations", __name__, url_prefix="/annotations")
 
 @bp.route("/<path:uri>", methods=["GET"])
 @bp.response(200)
-@bp.alt_response(401, "Not registered")
-@bp.alt_response(403, "No permissions")
-@bp.alt_response(400, "Unknown URI")
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(400, description="Unknown URI")
 @jwt_required()
 def annotations(uri):
     """Request the dataset annotations."""
