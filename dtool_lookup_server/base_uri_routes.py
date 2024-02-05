@@ -74,6 +74,7 @@ def base_uri_list(pagination_parameters : PaginationParameters,
 @bp.response(200, UserPermissionsOnBaseURISchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def get_base_uri(base_uri):
     """Return base URI information.
@@ -89,6 +90,10 @@ def get_base_uri(base_uri):
         abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
+
+    if not base_uri_exists(base_uri):
+        abort(404)
+
     base_uri_data = get_permission_info(base_uri)
     return base_uri_data
 

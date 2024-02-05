@@ -43,6 +43,6 @@ def annotations(uri):
         annotations_ = get_annotations_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
-        abort(400)
+        abort(404)
 
     return jsonify(annotations_)

@@ -730,7 +730,7 @@ def patch_permissions(base_uri, permissions):
         for username in permissions["users_with_search_permissions"]:
             if user_exists(username):
                 user = get_user_obj(username)
-                if user not  in base_uri.search_users:
+                if user not in base_uri.search_users:
                     base_uri.search_users.append(user)
 
     if "users_with_register_permissions" in permissions:
