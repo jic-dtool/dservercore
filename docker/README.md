@@ -1,8 +1,8 @@
 # Docker
 
-This folder contains example Docker configuration files that allow running `dtool-lookup-server`.
+The folder `docker` contains example Docker configuration files that allow running `dtool-lookup-server`.
 
-## Development
+## Development deployment
 
 We provide a containerized development deployment of `dtool-lookup-server`.
 The containers are run using [`docker compose`](https://docs.docker.com/compose/).
@@ -35,7 +35,7 @@ The LDAP allows authentification of this user with password `test-password`.
 `docker/dtool.json` contains a sample dtool configuration for accessing lookup
 server and token generator from localhost.
 
-## Development dependencies
+## Development dependencies deployment
 
 Similar to the development setup, but only provides all services the lookup
 server depends on, not the lookup server itsels. Useful for playing with
