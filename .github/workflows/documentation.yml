@@ -29,35 +29,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Build docs
-        uses: ammaraskar/sphinx-action@master
-        with:
-          docs-folder: "docs/"
+      - name: install package
+        run: |
+          pip install .
 
-      - name: Setup pages
+      - name: install docs dependencies
+        run: |
+          pip install -r docs/requirements.txt
+
+      - name: build docs
+        run: |
+          cd docs
+          make html SPHINXOPTS="-j auto"
+          cd ..
+
+      - name: setup pages
         uses: actions/configure-pages@v4
           
-      - name: Upload artifact
+      - name: upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'docs/_build/html'
 
-    deploy:
-      # Add a dependency to the build job
-      needs: build
+  deploy:
+    # Add a dependency to the build job
+    needs: build
 
-      # Deploy to the github-pages environment
-      environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v4
+    steps:
+      - name: deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
