@@ -12,7 +12,7 @@ from sqlalchemy.sql import exists
 
 import dtoolcore.utils
 
-from dtool_lookup_server import (
+from dserver import (
     sql_db,
     AuthenticationError,
     AuthorizationError,
@@ -20,15 +20,15 @@ from dtool_lookup_server import (
     UnknownBaseURIError,
     __version__
 )
-from dtool_lookup_server.sql_models import (
+from dserver.sql_models import (
     User,
     BaseURI,
     Dataset,
 )
-from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
+from dserver.sort import SortParameters, ASCENDING, DESCENDING
 
 
-from dtool_lookup_server.date_utils import (
+from dserver.date_utils import (
     extract_created_at_as_datetime,
     extract_frozen_at_as_datetime,
 )
@@ -62,7 +62,7 @@ DATASET_SORT_FIELDS = [
 
 # These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
-DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
+DSERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 
 
 logger = logging.getLogger(__name__)
@@ -124,15 +124,15 @@ def versions_to_dict():
     """Dumps installed components and their versions to dictionary, i.e.
 
         {
-            'dtool_lookup_server': '0.17.2',
-            'dtool_lookup_server_retrieve_plugin_mongo': '0.1.0',
-            'dtool_lookup_server_search_plugin_mongo': '0.1.0'
+            'dserver': '0.17.2',
+            'dserver_retrieve_plugin_mongo': '0.1.0',
+            'dserver_search_plugin_mongo': '0.1.0'
         }
    """
 
-    versions_dict = {'dtool_lookup_server': __version__}
-    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
-        for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
+    versions_dict = {'dserver': __version__}
+    for ep_group in DSERVER_PLUGIN_ENTRYPOINTS:
+        for ep in iter_entry_points("dserver.{}".format(ep_group)):
             module_name = ep.module_name.split(".")[0]
 
             # import module
@@ -420,7 +420,7 @@ def list_datasets_by_user(username,
     """List the datasets the user has access to.
 
     :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
-    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
+    :param sort_parameters: dserver.sort.SortParameters object, optional
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
@@ -603,7 +603,7 @@ def search_datasets_by_user(username, query,
     :param username: username
     :param query: dictionary specifying query
     :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
-    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
+    :param sort_parameters: dserver.sort.SortParameters object, optional
     :returns: List of dicts if user is valid and has access to datasets.
               Empty list if user is valid but has not got access to any
               datasets.

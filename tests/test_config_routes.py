@@ -1,7 +1,7 @@
 """Test the /config blueprint routes."""
 
 import json
-import dtool_lookup_server
+import dserver
 
 
 def test_config_info_route(
@@ -66,7 +66,7 @@ def test_config_versions_route(tmp_app_client):
     response = json.loads(r.data.decode("utf-8"))
 
     expected_content = {
-        'dtool_lookup_server': dtool_lookup_server.__version__,
+        'dserver': dserver.__version__,
     }
 
     for k, v in expected_content.items():

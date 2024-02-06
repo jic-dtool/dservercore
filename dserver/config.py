@@ -2,7 +2,7 @@
 import json
 import os
 
-import dtool_lookup_server
+import dserver
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -49,7 +49,7 @@ class Config(object):
 
     JSONIFY_PRETTYPRINT_REGULAR = True
 
-    API_TITLE = "dtool-lookup-server API"
+    API_TITLE = "dserver API"
     API_VERSION = "v1"
 
     # flask_smorest.Blueprint.paginate embeds pagination information like

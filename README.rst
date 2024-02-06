@@ -1,16 +1,16 @@
 Dtool Lookup Server
 ===================
 
-.. image:: https://badge.fury.io/py/dtool-lookup-server.svg
-   :target: http://badge.fury.io/py/dtool-lookup-server
+.. image:: https://badge.fury.io/py/dserver.svg
+   :target: http://badge.fury.io/py/dserver
    :alt: PyPi package
 
-.. image:: https://img.shields.io/github/actions/workflow/status/jotelha/dtool-lookup-server/test.yml?branch=main
+.. image:: https://img.shields.io/github/actions/workflow/status/jotelha/dserver/test.yml?branch=main
     :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
     :alt: GitHub Workflow Status
 
-- GitHub: https://github.com/jic-dtool/dtool-lookup-server
-- PyPI: https://pypi.python.org/pypi/dtool-lookup-server
+- GitHub: https://github.com/jic-dtool/dserver
+- PyPI: https://pypi.python.org/pypi/dserver
 - Free software: MIT License
 
 
@@ -36,18 +36,18 @@ However, if one has to manage more than a hundred datasets it can be helpful
 to have the datasets' metadata stored in a central server to enable one to
 quickly find datasets of interest.
 
-The dtool-lookup-server provides a web API for registering datasets' metadata
+dserver provides a web API for registering datasets' metadata
 and provides functionality to lookup, list and search for datasets.
 
 When managing many groups data it can be useful to ensure that users can only
 access metadata associated with datasets stored in base URI's that they have
-been given access to. The dtool-lookup-server therefore provides means to
+been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
-The dtool-lookup-server is consumed by the `dtool-lookup-client
+dserver is consumed by the `dtool-lookup-client
 <https://github.com/jic-dtool/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
-Third party applications making use of the dtool-lookup-server have also been
+Third party applications making use of the dserver have also been
 created, notably the `IMTEK-Simulation/dtool-lookup-gui
 <https://github.com/IMTEK-Simulation/dtool-lookup-gui>`_.
 
@@ -57,15 +57,15 @@ Installation
 
 Install the dtool lookup server::
 
-    $ pip install dtool-lookup-server
+    $ pip install dserver
 
 For a minimal setup, the lookup server requires search and retrieve plugins.
 Pick search and retrieve plugins of your choice and install those. Here, the
-``dtool-lookup-server-search-plugin-mongo`` and ``dtool-lookup-server-retrieve-plugin-mongo``
+``dserver-search-plugin-mongo`` and ``dserver-retrieve-plugin-mongo``
 serve as default for demonstration::
 
-    $ pip install dtool-lookup-server-search-plugin-mongo
-    $ pip install dtool-lookup-server-retrieve-plugin-mongo
+    $ pip install dserver-search-plugin-mongo
+    $ pip install dserver-retrieve-plugin-mongo
 
 Setup and configuration
 -----------------------
@@ -76,7 +76,7 @@ Configure the Flask app
 The dtool lookup server is a Flask app. Flask needs to know where to look for
 the app. One therefore needs to define the ``FLASK_APP`` environment variable::
 
-    $ export FLASK_APP=dtool_lookup_server
+    $ export FLASK_APP=dserver
 
 Configure search and retrieve plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,8 +85,8 @@ The dtool lookup server is agnostic of how descriptive data is stored and
 searched. The implementation is delegated to search and retrieve plugins.
 Refer to their documentation for details on their configuration.
 
-In the sample case of ``dtool-lookup-server-search-plugin-mongo`` and
-``dtool-lookup-server-retrieve-plugin-mongo``, the same Mongo database
+In the sample case of ``dserver-search-plugin-mongo`` and
+``dserver-retrieve-plugin-mongo``, the same Mongo database
 can be used for both search and information retrieval.
 
 Create a directory where the MongoDB data will be stored::
@@ -100,13 +100,13 @@ Start Mongo DB, for example using docker::
 Configure the search plugin with::
 
     export SEARCH_MONGO_URI="mongodb://localhost:27017/"
-    export SEARCH_MONGO_DB="dtool_lookup_server"
+    export SEARCH_MONGO_DB="dserver"
     export SEARCH_MONGO_COLLECTION="datasets"
 
 and the retrieve plugin with::
 
     export RETRIEVE_MONGO_URI="mongodb://localhost:27017/"
-    export RETRIEVE_MONGO_DB="dtool_lookup_server"
+    export RETRIEVE_MONGO_DB="dserver"
     export RETRIEVE_MONGO_COLLECTION="datasets"
 
 This must happen before issuing any ``flask`` commands as below.
@@ -197,13 +197,13 @@ Inspect the Flask app configuration with::
 The output is JSON-formatted with lower-case keys and will include plugin
 configuration parameters as well.
 
-Inspect the installed dtool-lookup-server components with::
+Inspect the installed dserver components with::
 
     $ flask config versions
     {
-      "dtool_lookup_server": "0.17.2",
-      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
-      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+      "dserver": "0.17.2",
+      "dserver_retrieve_plugin_mongo": "0.1.0",
+      "dserver_search_plugin_mongo": "0.1.0"
     }
 
 Starting the flask app
@@ -555,7 +555,7 @@ Below is an example of how to register a dataset::
         http://localhost:5000/dataset/register
 
 The required keys are defined in the variable
-``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
+``dserver.utils.DATASET_INFO_REQUIRED_KEYS``.
 
 
 Admin user usage
@@ -723,9 +723,9 @@ will return all components, i.e. server core, search, retrieve
 and extension plugins with their versions, i.e.::
 
     {
-      "dtool_lookup_server": "0.17.2",
-      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
-      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+      "dserver": "0.17.2",
+      "dserver_retrieve_plugin_mongo": "0.1.0",
+      "dserver_search_plugin_mongo": "0.1.0"
     }
 
 This request does not require any authorization.
@@ -760,7 +760,7 @@ The ``__init__.py`` file could contain the code below.
 
 
 The Flask blueprint object(s) need to be associated with the
-``dtool_lookup_server.blueprints`` entrypoint in the Python package
+``dserver.blueprints`` entrypoint in the Python package
 ``setup.py`` file. The ``setup.py`` file would need to look something along the
 lines of the below.
 
@@ -775,7 +775,7 @@ lines of the below.
             "flask",
         ],
         entry_points={
-            "dtool_lookup_server.blueprints": [
+            "dserver.blueprints": [
                 "my_plugin=my_plugin:my_plugin_bp",
             ],
         }
@@ -783,9 +783,9 @@ lines of the below.
 
 Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
 <https://github.com/jotelha>`_ can be found in
-`dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_.
+`dserver-plugin-scaffolding <https://github.com/IMTEK-Simulation/dserver-plugin-scaffolding>`_.
 
 Examples of actual plugins include:
 
-- `dtool-lookup-server-dependency-graph-plugin <https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin>`_
-- `dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_
+- `dserver-dependency-graph-plugin <https://github.com/IMTEK-Simulation/dserver-dependency-graph-plugin>`_
+- `dserver-plugin-scaffolding <https://github.com/IMTEK-Simulation/dserver-plugin-scaffolding>`_

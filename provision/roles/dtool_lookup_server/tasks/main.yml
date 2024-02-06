@@ -18,11 +18,11 @@
     creates: /home/dtool/id_rsa
 
 
-- name: install dtool_lookup_server and gunicorn
+- name: install dserver and gunicorn
   become: yes
   become_user: dtool
   pip:
-    name: [ "dtool-lookup-server", "gunicorn" ]
+    name: [ "dserver", "gunicorn" ]
     virtualenv: /home/dtool/venv
 
 - name: copy over load_env.sh script

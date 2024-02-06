@@ -68,7 +68,7 @@ def noone_token():
 def tmp_app(request):
 
     from flask import current_app
-    from dtool_lookup_server import create_app, sql_db
+    from dserver import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 
@@ -134,8 +134,8 @@ def tmp_app_with_users(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
-    from dtool_lookup_server.utils import (
+    from dserver import create_app, sql_db
+    from dserver.utils import (
         register_users,
         register_base_uri,
         put_permissions,
@@ -208,8 +208,8 @@ def tmp_app_with_data(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
-    from dtool_lookup_server.utils import (
+    from dserver import create_app, sql_db
+    from dserver.utils import (
         register_users,
         register_base_uri,
         register_dataset,
@@ -338,7 +338,7 @@ def tmp_cli_runner(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
+    from dserver import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 

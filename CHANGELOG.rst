@@ -21,6 +21,7 @@ Added
 Changed
 ^^^^^^^
 
+- Renamed package from ``dtool_lookup_server`` to ``dserver``.
 
 Deprecated
 ^^^^^^^^^^

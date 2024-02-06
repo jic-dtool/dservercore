@@ -10,7 +10,7 @@ def test_register_user_route(
         noone_token,
         sleepy_token):  # NOQA
 
-    from dtool_lookup_server.utils import user_exists
+    from dserver.utils import user_exists
 
     assert not user_exists("evil-witch")
     assert not user_exists("dopey")
@@ -76,7 +76,7 @@ def test_get_user_route(
         sleepy_token):
     """Test retrieving user information by get method."""
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - snow-white by snow-white
     # Admin is allowed to query any user
@@ -180,7 +180,7 @@ def test_patch_user_route(
         sleepy_token):
     "Text updating user information by patch method."
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - check original grumpy entry
     expected_response = UserResponseSchema().load(
@@ -285,7 +285,7 @@ def test_put_user_route(
         sleepy_token):  # NOQA
     """Test updating user information by put method."""
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - check original grumpy entry
     expected_response = UserResponseSchema().load(
@@ -406,7 +406,7 @@ def test_delete_user_route(
         sleepy_token):
     "Text deletein users"
 
-    from dtool_lookup_server.utils import user_exists
+    from dserver.utils import user_exists
 
     assert user_exists("grumpy")
 

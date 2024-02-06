@@ -10,11 +10,11 @@ from flask_jwt_extended import (
 
 from flask_smorest.pagination import PaginationParameters
 
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.sort import SortParameters
-from dtool_lookup_server.sql_models import DatasetSchema
-import dtool_lookup_server.utils_auth
-from dtool_lookup_server.utils import (
+from dserver.blueprint import Blueprint
+from dserver.sort import SortParameters
+from dserver.sql_models import DatasetSchema
+import dserver.utils_auth
+from dserver.utils import (
     lookup_datasets_by_user_and_uuid,
     DATASET_SORT_FIELDS
 )
@@ -33,7 +33,7 @@ def lookup_datasets(pagination_parameters: PaginationParameters,
                     sort_parameters: SortParameters, uuid):
     """List all instances of a dataset in any base_uris the user has access to."""
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 

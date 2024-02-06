@@ -9,10 +9,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-from dtool_lookup_server import UnknownURIError
-from dtool_lookup_server.blueprint import Blueprint
-import dtool_lookup_server.utils_auth
-from dtool_lookup_server.utils import (
+from dserver import UnknownURIError
+from dserver.blueprint import Blueprint
+import dserver.utils_auth
+from dserver.utils import (
     url_suffix_to_uri,
     get_readme_from_uri_by_user
 )
@@ -29,12 +29,12 @@ bp = Blueprint("readmes", __name__, url_prefix="/readmes")
 def readme(uri):
     """Request the dataset readme."""
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
     uri = url_suffix_to_uri(uri)
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+    if not dserver.utils_auth.may_access(username, uri):
         # Authorization errors should return 400.
         abort(403)
 

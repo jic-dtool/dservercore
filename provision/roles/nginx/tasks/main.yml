@@ -13,8 +13,8 @@
 
 - name: copy over the reverse proxy nginx config file
   template:
-    src: dtool_lookup_server.conf
-    dest: /etc/nginx/conf.d/dtool_lookup_server.conf
+    src: dserver.conf
+    dest: /etc/nginx/conf.d/dserver.conf
   notify: restart nginx
 
 - name: copy over nginx.conf with default site commented out

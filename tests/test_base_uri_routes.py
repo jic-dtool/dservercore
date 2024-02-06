@@ -2,8 +2,8 @@
 
 import json
 
-from dtool_lookup_server.utils import uri_to_url_suffix
-from dtool_lookup_server.utils import base_uri_exists
+from dserver.utils import uri_to_url_suffix
+from dserver.utils import base_uri_exists
 
 
 def test_get_base_uri_route(

@@ -1,6 +1,6 @@
 """Test the auth utils."""
 
-from dtool_lookup_server.utils_auth import (
+from dserver.utils_auth import (
     user_exists,
     has_admin_rights,
     may_search,
