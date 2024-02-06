@@ -1,4 +1,4 @@
 click
 pyyaml
 requests
-dtool_lookup_server
+dserver

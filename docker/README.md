@@ -27,7 +27,7 @@ The lookup server is then available at `https://localhost:5000`.
 A single user with the name `test-user` is already registered. To generate a
 token for this user, run
 ```
-docker compose -f docker/devel.yml exec dtool_lookup_server flask user token test-user
+docker compose -f docker/devel.yml exec dserver flask user token test-user
 ```
 
 The LDAP allows authentification of this user with password `test-password`.

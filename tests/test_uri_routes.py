@@ -2,7 +2,7 @@
 
 import json
 
-from dtool_lookup_server.utils import uri_to_url_suffix
+from dserver.utils import uri_to_url_suffix
 
 
 def test_list_uri_route(
@@ -193,7 +193,7 @@ def test_register_dataset_by_uri_route(
         dopey_token,
         noone_token):  # NOQA
 
-    from dtool_lookup_server.utils import (
+    from dserver.utils import (
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
         lookup_datasets_by_user_and_uuid,
@@ -367,7 +367,7 @@ def test_dataset_register_route_when_created_at_is_string(
         dopey_token,
         noone_token):  # NOQA
 
-    from dtool_lookup_server.utils import (
+    from dserver.utils import (
         get_admin_metadata_from_uri,
         lookup_datasets_by_user_and_uuid,
     )

@@ -5,4 +5,4 @@ API
    :toctree: generated
    :recursive:
 
-   dtool_lookup_server
+   dserver

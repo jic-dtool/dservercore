@@ -10,7 +10,7 @@ def test_register_user_route(
         noone_token,
         sleepy_token):  # NOQA
 
-    from dtool_lookup_server.utils import user_exists
+    from dserver.utils import user_exists
 
     assert not user_exists("evil-witch")
     assert not user_exists("dopey")
@@ -76,7 +76,7 @@ def test_get_user_route(
         sleepy_token):
     """Test retrieving user information by get method."""
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - snow-white by snow-white
     # Admin is allowed to query any user
@@ -127,7 +127,14 @@ def test_get_user_route(
     # assert correct content
     assert user_response == expected_response
 
-    # 3 - grumpy by grumpy
+    # 3 - noone (does not exist) by snow-white
+    r = tmp_app_with_users_client.get(
+        "/users/noone",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+    # 4 - grumpy by grumpy
     # Only admins allowed to query all users.
     # Non-admins may query themselves only.
     headers = dict(Authorization="Bearer " + grumpy_token)
@@ -146,13 +153,23 @@ def test_get_user_route(
     # assert correct content
     assert user_response == expected_response
 
-    # 4 - snow-white by grumpy
+    # 5 - snow-white by grumpy
     r = tmp_app_with_users_client.get(
         "/users/snow-white",
         headers=headers
     )
 
     assert r.status_code == 403
+
+    # 6 - snow-white by noone (user does not exist)
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.get(
+        "/users/snow-white",
+        headers=headers
+    )
+
+    assert r.status_code == 401
 
 
 def test_patch_user_route(
@@ -163,7 +180,7 @@ def test_patch_user_route(
         sleepy_token):
     "Text updating user information by patch method."
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - check original grumpy entry
     expected_response = UserResponseSchema().load(
@@ -252,7 +269,7 @@ def test_patch_user_route(
     # 5 - check failure for non-registered users
     headers = dict(Authorization="Bearer " + noone_token)
 
-    r = tmp_app_with_users_client.put(
+    r = tmp_app_with_users_client.patch(
         "/users/grumpy",
         headers=headers,
         json={"is_admin": True}
@@ -268,7 +285,7 @@ def test_put_user_route(
         sleepy_token):  # NOQA
     """Test updating user information by put method."""
 
-    from dtool_lookup_server.schemas import UserResponseSchema
+    from dserver.schemas import UserResponseSchema
 
     # 1 - check original grumpy entry
     expected_response = UserResponseSchema().load(
@@ -294,7 +311,7 @@ def test_put_user_route(
 
     assert user_response == expected_response
 
-    # patch grumpy
+    # replace grumpy
     r = tmp_app_with_users_client.put(
         "/users/grumpy",
         headers=headers,
@@ -351,7 +368,16 @@ def test_put_user_route(
 
     assert user_response == expected_response
 
-    # 4 - check failure for non-admins
+    # 4 - check failure for non-existing user
+    r = tmp_app_with_users_client.put(
+        "/users/noone",
+        headers=headers,
+        json={"is_admin": True}
+    )
+
+    assert r.status_code == 404
+
+    # 5 - check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)
 
     r = tmp_app_with_users_client.put(
@@ -361,13 +387,71 @@ def test_put_user_route(
     )
     assert r.status_code == 403
 
-    # 5 - check failure for non-registered users
+    # 6 - check failure for non-registered users
     headers = dict(Authorization="Bearer " + noone_token)
 
     r = tmp_app_with_users_client.put(
         "/users/grumpy",
         headers=headers,
         json={"is_admin": True}
+    )
+    assert r.status_code == 401
+
+
+def test_delete_user_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    "Text deletein users"
+
+    from dserver.utils import user_exists
+
+    assert user_exists("grumpy")
+
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    # delete grumpy
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy",
+        headers=headers
+    )
+    assert r.status_code == 200
+    assert not user_exists("grumpy")
+
+    # assure idempotency
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy",
+        headers=headers
+    )
+    assert r.status_code == 200
+    assert not user_exists("grumpy")
+
+    # delete non-existing user
+    assert not user_exists("noone")
+    r = tmp_app_with_users_client.delete(
+        "/users/noone",
+        headers=headers
+    )
+    assert r.status_code == 200
+    assert not user_exists("noone")
+
+    # check failure for non-admins
+    headers = dict(Authorization="Bearer " + sleepy_token)
+
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy",
+        headers=headers
+    )
+    assert r.status_code == 403
+
+    # check failure for non-registered users
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy",
+        headers=headers
     )
     assert r.status_code == 401
 

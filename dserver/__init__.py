@@ -10,12 +10,12 @@ from flask_smorest import Api
 from flask_smorest.pagination import PaginationParameters
 from flask_migrate import Migrate
 
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.config import Config
-from dtool_lookup_server.extensions import sql_db, jwt, ma
-from dtool_lookup_server.schemas import SearchDatasetSchema
-from dtool_lookup_server.sort import SortParameters
-from dtool_lookup_server.sql_models import DatasetSchema
+from dserver.blueprint import Blueprint
+from dserver.config import Config
+from dserver.extensions import sql_db, jwt, ma
+from dserver.schemas import SearchDatasetSchema
+from dserver.sort import SortParameters
+from dserver.sql_models import DatasetSchema
 
 
 from pkg_resources import iter_entry_points
@@ -167,7 +167,7 @@ class ExtensionABC(ABC):
         capitalized module name
       - retrieve config parameters in a Flask-typical fashion, i.e.
         from the environment or from file as done within the core at
-        dtool_lookup_server.config.Config
+        dserver.config.Config
       - provide these parameters via the get_config method.
       - access at runtime via global Flask config, i.e. app.config
     """
@@ -186,7 +186,7 @@ def create_app(test_config=None):
 
     # Load the search plugin.
     search_entrypoints = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.search"):
+    for entrypoint in iter_entry_points("dserver.search"):
         logger.info("Discovered search plugin entrypoint %s", entrypoint)
         search_entrypoints.append(entrypoint.load())
     if len(search_entrypoints) < 1:
@@ -197,7 +197,7 @@ def create_app(test_config=None):
 
     # Load the retrieve plugin.
     retrieve_entrypoints = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
+    for entrypoint in iter_entry_points("dserver.retrieve"):
         logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
         retrieve_entrypoints.append(entrypoint.load())
     if len(retrieve_entrypoints) < 1:
@@ -208,7 +208,7 @@ def create_app(test_config=None):
 
     # Load any extension plugins.
     app.custom_extensions = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
+    for entrypoint in iter_entry_points("dserver.extension"):
         logger.info("Discovered extension plugin entrypoint %s", entrypoint)
         ep = entrypoint.load()
         app.custom_extensions.append(ep())
@@ -247,7 +247,7 @@ def create_app(test_config=None):
 
     api = Api(app)
 
-    from dtool_lookup_server import (
+    from dserver import (
         config_routes,
         uri_routes,
         uuid_routes,
@@ -267,12 +267,12 @@ def create_app(test_config=None):
     api.register_blueprint(readme_routes.bp)
     api.register_blueprint(annotations_routes.bp)
 
-    # Load dtool-lookup-server extension plugin blueprints.
+    # Load dserver extension plugin blueprints.
     for ex in app.custom_extensions:
         bp = ex.get_blueprint()
         if not isinstance(bp, Blueprint):
             print(
-                "Please use flask_smorest.blueprint.Blueprint or dtool_lookup_server.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
+                "Please use flask_smorest.blueprint.Blueprint or dserver.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
                 file=sys.stderr,
             )
             sys.exit(1)

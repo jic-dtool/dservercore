@@ -9,14 +9,14 @@ from flask_jwt_extended import (
 )
 from flask_smorest.pagination import PaginationParameters
 
-import dtool_lookup_server.utils
-import dtool_lookup_server.utils_auth
+import dserver.utils
+import dserver.utils_auth
 
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
-from dtool_lookup_server.schemas import RegisterUserSchema, UserResponseSchema, SummarySchema
-from dtool_lookup_server.sql_models import User, UserSchema
-from dtool_lookup_server.utils import register_user, put_user, patch_user, delete_user, summary_of_datasets_by_user
+from dserver.blueprint import Blueprint
+from dserver.sort import SortParameters, ASCENDING, DESCENDING
+from dserver.schemas import RegisterUserSchema, UserResponseSchema, SummarySchema
+from dserver.sql_models import User, UserSchema
+from dserver.utils import register_user, put_user, patch_user, delete_user, summary_of_datasets_by_user
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -37,10 +37,10 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
 
     order_by_args = []
@@ -75,19 +75,19 @@ def get_user_info(username):
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
     # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         if identity != username:
             abort(403)
 
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         abort(404)
 
-    return dtool_lookup_server.utils.get_user_info(username)
+    return dserver.utils.get_user_info(username)
 
 
 @bp.route("/<username>", methods=["POST"])
@@ -103,10 +103,10 @@ def register(data: RegisterUserSchema, username):
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
 
     register_user(username, data)
@@ -128,13 +128,13 @@ def put_update(data: RegisterUserSchema, username):
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
 
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         abort(404)
 
     put_user(username, data)
@@ -155,10 +155,10 @@ def patch_update(data: RegisterUserSchema, username):
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
 
     patch_user(username, data)
@@ -178,10 +178,10 @@ def delete(username):
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
 
     delete_user(username)
@@ -199,17 +199,17 @@ def summary_of_datasets(username):
     """Global summary of the datasets a user has access to."""
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dserver.utils_auth.user_exists(identity):
         # Authenticated user does not exist
         abort(401)
 
     # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
-    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
+    if not dserver.utils_auth.has_admin_rights(identity):
         if identity != username:
             abort(403)
 
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         # Authenticated user is admin, but user summary requested does not exist
         abort(404)
 

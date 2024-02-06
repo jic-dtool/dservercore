@@ -1,12 +1,12 @@
 FROM python:3.10-bullseye
 
-RUN adduser --disabled-password --gecos '' dtool_lookup_server
+RUN adduser --disabled-password --gecos '' dserver
 
-COPY --chown=dtool_lookup_server . /app
+COPY --chown=dserver . /app
 
 WORKDIR /app
 
-ENV FLASK_APP=dtool_lookup_server
+ENV FLASK_APP=dserver
 
 RUN pip install -U pip  && \
     pip install gunicorn  psycopg2 setuptools_scm && \
@@ -19,13 +19,13 @@ RUN pip install -U pip  && \
     pip install git+https://github.com/livMatS/dtool-lookup-server-notification-plugin.git@main && \
     rm -rf /root/.cache/pip
 
-COPY docker/dtool_lookup_server_devel/dtool.json /home/dtool_lookup_server/.config/dtool/
+COPY docker/dserver_devel/dtool.json /home/dserver/.config/dtool/
 
-COPY docker/dtool_lookup_server_devel/boot.sh  /
+COPY docker/dserver_devel/boot.sh  /
 RUN chmod +x /boot.sh
 
-RUN mkdir /keys && chown dtool_lookup_server /keys
+RUN mkdir /keys && chown dserver /keys
 
-USER dtool_lookup_server
+USER dserver
 EXPOSE 5000
 ENTRYPOINT ["/boot.sh"]

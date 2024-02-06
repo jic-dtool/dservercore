@@ -10,10 +10,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-import dtool_lookup_server
-import dtool_lookup_server.utils_auth
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.utils import versions_to_dict, obj_to_lowercase_key_dict
+import dserver
+import dserver.utils_auth
+from dserver.blueprint import Blueprint
+from dserver.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
 bp = Blueprint("config", __name__, url_prefix="/config")
@@ -27,7 +27,7 @@ def server_config():
     """Return the JSON-serialized Flask app configuration."""
 
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dserver.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
