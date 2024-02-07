@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from flask import Flask, request
 from flask_cors import CORS
 from flask_smorest import Api
+from flask_smorest import Blueprint as FlaskSmorestBlueprint
 from flask_smorest.pagination import PaginationParameters
 from flask_migrate import Migrate
 
@@ -270,7 +271,7 @@ def create_app(test_config=None):
     # Load dserver extension plugin blueprints.
     for ex in app.custom_extensions:
         bp = ex.get_blueprint()
-        if not isinstance(bp, Blueprint):
+        if not isinstance(bp, (FlaskSmorestBlueprint, Blueprint)):
             print(
                 "Please use flask_smorest.blueprint.Blueprint or dserver.blueprint.Blueprint instead of flask.Blueprint",  # NOQA
                 file=sys.stderr,

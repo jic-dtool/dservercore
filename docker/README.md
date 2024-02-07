@@ -1,15 +1,15 @@
 # Docker
 
-The folder `docker` contains example Docker configuration files that allow running `dtool-lookup-server`.
+The folder `docker` contains example Docker configuration files that allow running `dserver`.
 
 ## Development deployment
 
-We provide a containerized development deployment of `dtool-lookup-server`.
+We provide a containerized development deployment of `dserver`.
 The containers are run using [`docker compose`](https://docs.docker.com/compose/).
 The compose environment sets up Postgres and Mongo databases and starts a
 [Minio](https://min.io/) (S3-compatible) object store. The startup process
 pushes two example datasets to the object store. Furthermore, an LDAP server
-and an LDAP-backed token generator for the `dtool-lookup-server` are launched
+and an LDAP-backed token generator for the `dserver` are launched
 to allow running other components, such as the `dtool-lookup-webapp`, that
 depend authentication by user credentials, against the local lookup server
 deployment.
