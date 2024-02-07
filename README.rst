@@ -1,5 +1,5 @@
-Dtool Lookup Server
-===================
+dserver
+=======
 
 .. image:: https://badge.fury.io/py/dserver.svg
    :target: http://badge.fury.io/py/dserver
@@ -9,7 +9,7 @@ Dtool Lookup Server
     :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
     :alt: GitHub Workflow Status
 
-- GitHub: https://github.com/jic-dtool/dserver
+- GitHub: https://github.com/jotelha/dserver
 - PyPI: https://pypi.python.org/pypi/dserver
 - Free software: MIT License
 
@@ -45,7 +45,7 @@ been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
 dserver is consumed by the `dtool-lookup-client
-<https://github.com/jic-dtool/dtool-lookup-client>`_, and the
+<https://github.com/jotelha/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
 created, notably the `IMTEK-Simulation/dtool-lookup-gui

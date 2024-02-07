@@ -30,11 +30,11 @@ source venv/bin/activate
 pip install gunicorn psycopg2 setuptools_scm wheel
 pip install -r requirements.txt
 pip install dtool-cli dtool-info dtool-create dtool-s3
-pip install git+https://github.com/jotelha/dtool-lookup-server-retrieve-plugin-mongo.git@main
-pip install git+https://github.com/jotelha/dtool-lookup-server-search-plugin-mongo.git@main
-pip install git+https://github.com/livMatS/dtool-lookup-server-direct-mongo-plugin.git@main
-pip install git+https://github.com/livMatS/dtool-lookup-server-dependency-graph-plugin.git@main
-pip install git+https://github.com/livMatS/dtool-lookup-server-notification-plugin.git@main
+pip install git+https://github.com/jotelha/dserver-retrieve-plugin-mongo.git@main
+pip install git+https://github.com/jotelha/dserver-search-plugin-mongo.git@main
+pip install git+https://github.com/livMatS/dserver-direct-mongo-plugin.git@main
+pip install git+https://github.com/livMatS/dserver-dependency-graph-plugin.git@main
+pip install git+https://github.com/livMatS/dserver-notification-plugin.git@main
 ```
 
 and launch server with

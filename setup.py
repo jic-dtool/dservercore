@@ -1,6 +1,6 @@
 from setuptools import setup
 
-url = "https://github.com/jic-dtool/dserver"
+url = "https://github.com/jotelha/dserver"
 version = "0.18.0"
 readme = open('README.rst').read()
 
