@@ -1,4 +1,4 @@
-"""Test the /base_uris blueprint routes."""
+"""Test the /base-uris blueprint routes."""
 
 import json
 
@@ -17,7 +17,7 @@ def test_get_base_uri_route(
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -33,7 +33,7 @@ def test_get_base_uri_route(
     # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -42,7 +42,7 @@ def test_get_base_uri_route(
     # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -63,7 +63,7 @@ def test_base_uri_register_route(
     # test without specifying permissions
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -72,7 +72,7 @@ def test_base_uri_register_route(
 
     # Ensure idempotency
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -81,7 +81,7 @@ def test_base_uri_register_route(
 
     # check empty default permissions
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -97,7 +97,7 @@ def test_base_uri_register_route(
     # Only admins allowed.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -106,7 +106,7 @@ def test_base_uri_register_route(
     # Unregistered users should see 401
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -126,7 +126,7 @@ def test_base_uri_register_route(
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         json=post_content,
         content_type="application/json"
@@ -135,7 +135,7 @@ def test_base_uri_register_route(
     assert base_uri_exists(base_uri)
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 200
@@ -149,7 +149,7 @@ def test_base_uri_register_route(
 
     # ensure idempotency on submitting equivalent permissions
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         json=post_content,
         content_type="application/json"
@@ -159,7 +159,7 @@ def test_base_uri_register_route(
 
     # check empty default permissions
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -174,7 +174,7 @@ def test_base_uri_register_route(
     }
 
     r = tmp_app_with_users_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         json=post_content,
         content_type="application/json"
@@ -184,7 +184,7 @@ def test_base_uri_register_route(
 
     # check empty default permissions
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -218,14 +218,14 @@ def test_put_base_uri_route(
     uri_suffix = uri_to_url_suffix(base_uri)
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
     assert r.status_code == 404
 
     r = tmp_app_with_users_client.put(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         json=put_content,
         headers=headers,
         content_type="application/json"
@@ -233,7 +233,7 @@ def test_put_base_uri_route(
     assert r.status_code == 200
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -252,7 +252,7 @@ def test_put_base_uri_route(
     uri_suffix = uri_to_url_suffix(base_uri)
 
     r = tmp_app_with_users_client.put(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         json=put_content,
         headers=headers,
         content_type="application/json"
@@ -260,7 +260,7 @@ def test_put_base_uri_route(
     assert r.status_code == 200
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -276,7 +276,7 @@ def test_put_base_uri_route(
     # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.put(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -285,7 +285,7 @@ def test_put_base_uri_route(
     # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.put(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -305,7 +305,7 @@ def test_patch_base_uri_route(
     headers = dict(Authorization="Bearer " + snowwhite_token)
 
     r = tmp_app_with_users_client.patch(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -320,7 +320,7 @@ def test_patch_base_uri_route(
     }
 
     r = tmp_app_with_users_client.patch(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         json=patch_content,
         headers=headers,
         content_type="application/json"
@@ -328,7 +328,7 @@ def test_patch_base_uri_route(
     assert r.status_code == 200
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
@@ -343,7 +343,7 @@ def test_patch_base_uri_route(
 
     # ensure idempotency on repeated permissions
     r = tmp_app_with_users_client.patch(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers,
         json=patch_content,
         content_type="application/json"
@@ -351,7 +351,7 @@ def test_patch_base_uri_route(
     assert r.status_code == 200
 
     r = tmp_app_with_users_client.get(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 200
@@ -366,7 +366,7 @@ def test_patch_base_uri_route(
     # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.patch(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 401
@@ -374,7 +374,7 @@ def test_patch_base_uri_route(
     # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.patch(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 403
@@ -393,7 +393,7 @@ def test_delete_base_uri_route(
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_users_client.delete(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 200
@@ -401,7 +401,7 @@ def test_delete_base_uri_route(
 
     # assert idempotency
     r = tmp_app_with_users_client.delete(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 200
@@ -410,7 +410,7 @@ def test_delete_base_uri_route(
     # Unregistered user should see 401.
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_users_client.delete(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 401
@@ -418,7 +418,7 @@ def test_delete_base_uri_route(
     # Non-admin user should see 403.
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_users_client.delete(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 403
@@ -431,7 +431,7 @@ def test_base_uri_list_route(
         noone_token):  # NOQA
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         headers=headers,
     )
     assert r.status_code == 200
@@ -452,7 +452,7 @@ def test_base_uri_list_route(
     # test without specifying permissions
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_data_client.post(
-        f"/base_uris/{uri_suffix}",
+        f"/base-uris/{uri_suffix}",
         headers=headers
     )
     assert r.status_code == 201
@@ -460,7 +460,7 @@ def test_base_uri_list_route(
 
     # test ascending sorting by id
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         query_string={"sort": "+id"},
         headers=headers
     )
@@ -474,7 +474,7 @@ def test_base_uri_list_route(
 
     # test descending sorting by id
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         query_string={"sort": "-id"},
         headers=headers
     )
@@ -488,7 +488,7 @@ def test_base_uri_list_route(
 
     # test ascending sorting by alphabet
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         query_string={"sort": "+base_uri"},
         headers=headers
     )
@@ -502,7 +502,7 @@ def test_base_uri_list_route(
 
     # test descending sorting by alphabet
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         query_string={"sort": "-base_uri"},
         headers=headers
     )
@@ -517,7 +517,7 @@ def test_base_uri_list_route(
     # non-authorized users should get 401
     headers = dict(Authorization="Bearer " + grumpy_token)
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         headers=headers,
     )
     assert r.status_code == 403
@@ -525,7 +525,7 @@ def test_base_uri_list_route(
     # unregistered users should get 401
     headers = dict(Authorization="Bearer " + noone_token)
     r = tmp_app_with_data_client.get(
-        "/base_uris",
+        "/base-uris",
         headers=headers,
     )
     assert r.status_code == 401
