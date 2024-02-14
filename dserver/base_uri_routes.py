@@ -24,7 +24,7 @@ from dserver.utils import (
     url_suffix_to_uri
 )
 
-bp = Blueprint("base_uris", __name__, url_prefix="/base_uris")
+bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 
 
 @bp.route("", methods=["GET"])

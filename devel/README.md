@@ -13,7 +13,7 @@ described in the following. Place it at `${HOME}/.config/dtool/dtool.json`.
 
 `env.rc` provides flask app configuration in form of environment varables.
 
-`create_test_data.sh` creates test data sets and copis them to test s3 bucket.
+`create_test_data.sh` creates test data sets and copies them to test s3 bucket.
 
 `init.sh` prepares the lookup server.
 
