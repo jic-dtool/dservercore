@@ -44,8 +44,8 @@ access metadata associated with datasets stored in base URI's that they have
 been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
-dserver is consumed by the `dtool-lookup-client
-<https://github.com/livMatS/dtool-lookup-client>`_, and the
+dserver is consumed by the `dserver-client
+<https://github.com/livMatS/dserver-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
 created, notably the `livMatS/dtool-lookup-gui
@@ -363,7 +363,7 @@ in the s3://dtool-demo bucket::
 It is possible to list all the location a dataset is located in using the
 command below::
 
-    $ curl -H $HEADER http://localhost:5000/dataset/lookup/$UUID
+    $ curl -H $HEADER http://localhost:5000/uuids/$UUID
 
 Response content::
 
@@ -385,7 +385,7 @@ Summary information about datasets
 
 An overall summary of datasets accessible to a user can be accessed using the request below::
 
-    $ curl -H "$HEADER" http://localhost:5000/dataset/summary
+    $ curl -H "$HEADER" http://localhost:5000/users/olssont/summary
 
 The response will contain JSON content along the lines of::
 
@@ -406,7 +406,7 @@ Listing all datasets
 All the dataset's that a user has permissions to search for can be listed using
 the request below::
 
-    $ curl -H "$HEADER" http://localhost:5000/dataset/list
+    $ curl -H "$HEADER" http://localhost:5000/uris
 
 Some of the output of the command above is displayed below::
 
@@ -435,7 +435,7 @@ The command below does a full text search for the word "microscopy" in the descr
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         -X POST -d '{"free_text": "microscopy"}'  \
-        http://localhost:5000/dataset/search
+        http://localhost:5000/uris
 
 Below is the result of this search::
 
@@ -477,25 +477,19 @@ The command below retrieves the readme for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/readme
+        http://localhost:5000/readmes/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The command below retrieves the annotations for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/annotations
+        http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The command below retrieves the manifest for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/manifest
+        http://localhost:5000/manifests/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 
 Getting information about one's own permissions
@@ -503,7 +497,7 @@ Getting information about one's own permissions
 
 A user can find out about his/her own permissions using the command below::
 
-    $ curl -H "$HEADER" http://localhost:5000/user/info/olssont
+    $ curl -H "$HEADER" http://localhost:5000/user/olssont
 
 Response content::
 
@@ -552,7 +546,7 @@ Below is an example of how to register a dataset::
     }'
     $ curl -H $HEADER -H "Content-Type: application/json"  \
         -X POST -d $DATASET_INFO  \
-        http://localhost:5000/dataset/register
+        http://localhost:5000/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The required keys are defined in the variable
 ``dserver.utils.DATASET_INFO_REQUIRED_KEYS``.
@@ -574,7 +568,7 @@ Listing registered users
 
 To list all the registered users an admin user can use the below::
 
-    $ curl -H "$HEADER" http://localhost:5000/admin/user/list
+    $ curl -H "$HEADER" http://localhost:5000/users
 
 Response content::
 
@@ -605,7 +599,7 @@ An admin user can register other users in batch::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         -X POST -d '[{"username": "admin", "is_admin": true}, {"username": "joe"}]'  \
-        http://localhost:5000/admin/user/register
+        http://localhost:5000/users/joe
 
 
 
@@ -613,11 +607,10 @@ An admin user can register other users in batch::
 Registering a base URI
 ~~~~~~~~~~~~~~~~~~~~~~
 
-An admin user can register a new base URI::
+An admin user can register a new base URI ``s3://another-bucket``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
-        http://localhost:5000/admin/base_uri/register
+        -X POST http://localhost:5000/base-uris/s3/another-bucket
 
 
 Listing registered base URIs
@@ -625,7 +618,7 @@ Listing registered base URIs
 
 An admin user can list all registered base URIs::
 
-    $ curl -H "$HEADER" http://localhost:5000/admin/base_uri/list
+    $ curl -H "$HEADER" http://localhost:5000/base-uris
 
 Response content::
 
@@ -653,8 +646,7 @@ Updating the permissions on a base URI
 An admin user can update the permissions on a base URI::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{
-          "base_uri": "s3://another-bucket",
+        -X PUT -d '{
           "users_with_register_permissions": [
             "olssont"
           ],
@@ -662,16 +654,16 @@ An admin user can update the permissions on a base URI::
             "olssont"
           ]
         }'  \
-        http://localhost:5000/admin/permission/update_on_base_uri
+        http://localhost:5000/base-uris/s3/another-bucket
 
 Note that the request below can be used to clear all existing permissions::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{
+        -X PUT -d '{
           "base_uri": "s3://another-bucket",
           "users_with_register_permissions": [],
           "users_with_search_permissions": []}'  \
-        http://localhost:5000/admin/permission/update_on_base_uri
+        http://localhost:5000/base-uris/s3/another-bucket
 
 
 Getting information about the permissions on a base URI
@@ -680,8 +672,7 @@ Getting information about the permissions on a base URI
 An admin user can get information about the permissions on a base URI::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
-        http://localhost:5000/admin/permission/info
+        http://localhost:5000/base-uris/s3/another-bucket
 
 Response content::
 
