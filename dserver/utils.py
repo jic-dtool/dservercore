@@ -397,7 +397,7 @@ def _dataset_order_by_args(sort_parameters):
     """Convert SortParameters to SQLAlchemy sort argument for Dataset model."""
 
     order_by_args = []
-    for field, order in sort_parameters.order().items():
+    for field, order in sort_parameters.order.items():
         if not hasattr(Dataset, field):
             continue
         # special treatment for base_uri:

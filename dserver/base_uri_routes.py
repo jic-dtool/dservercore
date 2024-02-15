@@ -50,7 +50,7 @@ def base_uri_list(pagination_parameters : PaginationParameters,
         abort(403)
 
     order_by_args = []
-    for field, order in sort_parameters.order().items():
+    for field, order in sort_parameters.order.items():
         if not hasattr(BaseURI, field):
             continue
         if order == DESCENDING:

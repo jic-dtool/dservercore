@@ -44,7 +44,7 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
         abort(403)
 
     order_by_args = []
-    for field, order in sort_parameters.order().items():
+    for field, order in sort_parameters.order.items():
         if not hasattr(User, field):
             continue
         if order == DESCENDING:
