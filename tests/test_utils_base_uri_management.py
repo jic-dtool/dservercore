@@ -1,11 +1,9 @@
 """Test dtool lookup server URI management helper functions."""
 
-from . import tmp_app  # NOQA
 
+def test_uri_management_helper_functions(tmp_app_client):  # NOQA
 
-def test_uri_management_helper_functions(tmp_app):  # NOQA
-
-    from dtool_lookup_server.utils import (
+    from dserver.utils import (
         register_base_uri,
         list_base_uris,
     )

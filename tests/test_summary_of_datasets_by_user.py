@@ -1,11 +1,9 @@
 """Test the summary_of_datasets_by_user helper function."""
 
-from . import tmp_app_with_data  # NOQA
 
+def test_summary_of_datasets_by_user(tmp_app_with_data_client):  # NOQA
 
-def test_summary_of_datasets_by_user(tmp_app_with_data):  # NOQA
-
-    from dtool_lookup_server.utils import summary_of_datasets_by_user
+    from dserver.utils import summary_of_datasets_by_user
 
     summary = summary_of_datasets_by_user("grumpy")
     exected_output = {

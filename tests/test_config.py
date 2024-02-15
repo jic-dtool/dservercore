@@ -1,9 +1,7 @@
 """Test the config module."""
 
-from . import tmp_app  # NOQA
 
-
-def test_search_for_datasets_route(tmp_app):  # NOQA
+def test_search_for_datasets_route(tmp_app_client):  # NOQA
 
     # Get the collection out of the tmp_app.
-    assert tmp_app.application.config["SECRET_KEY"] is not None
+    assert tmp_app_client.application.config["SECRET_KEY"] is not None

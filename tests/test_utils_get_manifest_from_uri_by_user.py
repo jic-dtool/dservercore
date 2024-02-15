@@ -1,17 +1,15 @@
 import pytest
 
-from . import tmp_app_with_data  # NOQA
 
+def test_get_manifest_from_uri_by_user(tmp_app_with_data_client):  # NOQA
 
-def test_get_manifest_from_uri_by_user(tmp_app_with_data):  # NOQA
-
-    from dtool_lookup_server import (
+    from dserver import (
         AuthenticationError,
         AuthorizationError,
         UnknownBaseURIError,
         UnknownURIError,
     )
-    from dtool_lookup_server.utils import (
+    from dserver.utils import (
         get_manifest_from_uri_by_user,
     )
 

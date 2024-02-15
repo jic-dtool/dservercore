@@ -1,16 +1,14 @@
-"""Test the dtool_lookup_server.utils.register_dataset helper function."""
+"""Test the dserver.utils.register_dataset helper function."""
 
 import pytest
 
-from . import tmp_app  # NOQA
 
-
-def test_register_dataset(tmp_app):   # NOQA
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import (
+def test_register_dataset(tmp_app_client):   # NOQA
+    from dserver import ValidationError
+    from dserver.utils import (
         register_users,
         register_base_uri,
-        update_permissions,
+        put_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -29,7 +27,7 @@ def test_register_dataset(tmp_app):   # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -81,12 +79,12 @@ def test_register_dataset(tmp_app):   # NOQA
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_dataset_without_created_at(tmp_app):   # NOQA
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import (
+def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
+    from dserver import ValidationError
+    from dserver.utils import (
         register_users,
         register_base_uri,
-        update_permissions,
+        put_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -105,7 +103,7 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -157,12 +155,12 @@ def test_register_dataset_without_created_at(tmp_app):   # NOQA
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQA
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import (
+def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client):   # NOQA
+    from dserver import ValidationError
+    from dserver.utils import (
         register_users,
         register_base_uri,
-        update_permissions,
+        put_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -181,7 +179,7 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQ
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -231,13 +229,13 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app):   # NOQ
         register_dataset({"name": "not-all-required-metadata"})
 
 
-def test_register_too_large_metadata_dataset(tmp_app):  # NOQA
+def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
 
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import (
+    from dserver import ValidationError
+    from dserver.utils import (
         register_users,
         register_base_uri,
-        update_permissions,
+        put_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
     )
@@ -255,7 +253,7 @@ def test_register_too_large_metadata_dataset(tmp_app):  # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    update_permissions(permissions)
+    put_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -295,8 +293,8 @@ def test_register_too_large_metadata_dataset(tmp_app):  # NOQA
     # The dataset_info is too large and raises:
     # pymongo.errors.DocumentTooLarge: BSON document too large (28978543 bytes)
     # - the connected server supports BSON document sizes up to 16793598 bytes.
-    # See https://github.com/jic-dtool/dtool-lookup-server/issues/16
-    # So the code catches this and raises dtool_lookup_server.ValidationError
+    # See https://github.com/jic-dtool/dserver/issues/16
+    # So the code catches this and raises dserver.ValidationError
     # instead.
     with pytest.raises(ValidationError):
         register_dataset(dataset_info)

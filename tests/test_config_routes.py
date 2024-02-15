@@ -1,21 +1,17 @@
 """Test the /config blueprint routes."""
 
 import json
-import dtool_lookup_server
-
-from . import tmp_app, tmp_app_with_users  # NOQA
-
-from . import (
-    snowwhite_token,
-    grumpy_token,
-    noone_token,
-)
+import dserver
 
 
-def test_config_info_route(tmp_app_with_users):  # NOQA
+def test_config_info_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
-    r = tmp_app_with_users.get(
+    r = tmp_app_with_users_client.get(
         "/config/info",
         headers=headers,
     )
@@ -38,13 +34,16 @@ def test_config_info_route(tmp_app_with_users):  # NOQA
         assert v == response[k]
 
 
-def test_config_info_route_authorization(tmp_app_with_users):  # NOQA
-
+def test_config_info_route_authorization(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token):  # NOQA
     # All users in the system should have access to the /config route.
     # For example "snow-white" and "grumpy"
     for t in (snowwhite_token, grumpy_token):
         headers = dict(Authorization="Bearer " + snowwhite_token)
-        r = tmp_app_with_users.get(
+        r = tmp_app_with_users_client.get(
             "/config/info",
             headers=headers,
         )
@@ -52,23 +51,22 @@ def test_config_info_route_authorization(tmp_app_with_users):  # NOQA
 
     # However a user that is not registered in the system should get 401.
     headers = dict(Authorization="Bearer " + noone_token)
-    r = tmp_app_with_users.get(
+    r = tmp_app_with_users_client.get(
         "/config/info",
         headers=headers,
     )
     assert r.status_code == 401
 
 
+def test_config_versions_route(tmp_app_client):
 
-def test_config_versions_route(tmp_app):
-
-    r = tmp_app.get("/config/versions")
+    r = tmp_app_client.get("/config/versions")
     assert r.status_code == 200
 
     response = json.loads(r.data.decode("utf-8"))
 
     expected_content = {
-        'dtool_lookup_server': dtool_lookup_server.__version__,
+        'dserver': dserver.__version__,
     }
 
     for k, v in expected_content.items():

@@ -1,16 +1,16 @@
 from setuptools import setup
 
-url = "https://github.com/jic-dtool/dtool-lookup-server"
+url = "https://github.com/livMatS/dserver"
 version = "0.18.0"
 readme = open('README.rst').read()
 
 setup(
-    name="dtool-lookup-server",
-    packages=["dtool_lookup_server"],
+    name="dserver",
+    packages=["dserver"],
     description="Web API to register/lookup/search for dtool dataset metadata",
     long_description=readme,
     long_description_content_type="text/x-rst",
-    package_data={"dtool_lookup_server": ["templates/*"]},
+    package_data={"dserver": ["templates/*"]},
     include_package_data=True,
     author="Tjelvar Olsson",
     author_email="tjelvar.olsson@gmail.com",
@@ -18,10 +18,10 @@ setup(
     url=url,
     entry_points={
         'flask.commands': [
-            'base_uri=dtool_lookup_server.cli:base_uri_cli',
-            'user=dtool_lookup_server.cli:user_cli',
-            'config=dtool_lookup_server.cli:config_cli',
-            'dataset=dtool_lookup_server.cli:dataset_cli',
+            'base_uri=dserver.cli:base_uri_cli',
+            'user=dserver.cli:user_cli',
+            'config=dserver.cli:config_cli',
+            'dataset=dserver.cli:dataset_cli',
         ],
     },
     install_requires=[

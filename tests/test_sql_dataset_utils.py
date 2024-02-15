@@ -2,13 +2,11 @@
 
 import pytest
 
-from . import tmp_app  # NOQA
 
+def test_sql_dataset_helper_functions(tmp_app_client):  # NOQA
 
-def test_sql_dataset_helper_functions(tmp_app):  # NOQA
-
-    from dtool_lookup_server import ValidationError
-    from dtool_lookup_server.utils import (
+    from dserver import UnknownBaseURIError
+    from dserver.utils import (
         register_base_uri,
         register_dataset_admin_metadata,
         get_admin_metadata_from_uri,
@@ -31,7 +29,7 @@ def test_sql_dataset_helper_functions(tmp_app):  # NOQA
     }
 
     # BaseURI not registered yet.
-    with pytest.raises(ValidationError):
+    with pytest.raises(UnknownBaseURIError):
         register_dataset_admin_metadata(admin_metadata)
 
     register_base_uri(base_uri)

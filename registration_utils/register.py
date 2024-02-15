@@ -4,7 +4,7 @@ import yaml
 
 from dtoolcore import iter_datasets_in_base_uri
 
-from dtool_lookup_server.utils import generate_dataset_info
+from dserver.utils import generate_dataset_info
 
 
 def get_projects(fpath):
@@ -107,7 +107,7 @@ def register_data(projects_fpath, token, lookup_server_url):
 
 @click.group()
 def register():
-    "Register base URIs, users, permissions and data in dtool-lookup-server."
+    "Register base URIs, users, permissions and data in dserver."
 
 
 @register.command()

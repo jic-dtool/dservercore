@@ -1,6 +1,6 @@
 ---
 
-- name: provision dtool-lookup-server
+- name: provision dserver
   hosts: all
 
   vars_files:
@@ -14,4 +14,4 @@
     - python_tools
     - nginx 
     - firewalld
-    - dtool_lookup_server
+    - dserver

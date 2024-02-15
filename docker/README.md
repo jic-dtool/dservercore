@@ -1,15 +1,15 @@
 # Docker
 
-This folder contains example Docker configuration files that allow running `dtool-lookup-server`.
+The folder `docker` contains example Docker configuration files that allow running `dserver`.
 
-## Development
+## Development deployment
 
-We provide a containerized development deployment of `dtool-lookup-server`.
+We provide a containerized development deployment of `dserver`.
 The containers are run using [`docker compose`](https://docs.docker.com/compose/).
 The compose environment sets up Postgres and Mongo databases and starts a
 [Minio](https://min.io/) (S3-compatible) object store. The startup process
 pushes two example datasets to the object store. Furthermore, an LDAP server
-and an LDAP-backed token generator for the `dtool-lookup-server` are launched
+and an LDAP-backed token generator for the `dserver` are launched
 to allow running other components, such as the `dtool-lookup-webapp`, that
 depend authentication by user credentials, against the local lookup server
 deployment.
@@ -27,7 +27,7 @@ The lookup server is then available at `https://localhost:5000`.
 A single user with the name `test-user` is already registered. To generate a
 token for this user, run
 ```
-docker compose -f docker/devel.yml exec dtool_lookup_server flask user token test-user
+docker compose -f docker/devel.yml exec dserver flask user token test-user
 ```
 
 The LDAP allows authentification of this user with password `test-password`.
@@ -35,11 +35,19 @@ The LDAP allows authentification of this user with password `test-password`.
 `docker/dtool.json` contains a sample dtool configuration for accessing lookup
 server and token generator from localhost.
 
-## Development dependencies
+## Development dependencies deployment
 
 Similar to the development setup, but only provides all services the lookup
 server depends on, not the lookup server itsels. Useful for playing with
 different plugin constellations.
+
+To share keys between containerized token generator and the host environment,
+keys are generated on a bind mount when launchingthe composition.
+
+Prepare an empty folder `keys` within this direcotry (meaning at `docker/keys`
+relative to the repository root) before launching any container composition.
+
+Otherwise, `docker compose` will not launch.
 
 Build the compose environment with
 ```
@@ -47,5 +55,20 @@ docker compose -f docker/env.yml build
 ```
 and start it with
 ```
-docker compose -f docker/env.yml up
+docker compose -f docker/env.yml up -d
+```
+
+Make keys generated at container launch readible by current user on host with
+
+    sudo chown -R ${USER}:${USER} docker/keys
+
+## Token
+
+The container composition provides an LDAP server and a token generator service.
+When running the services locally, generate a token with
+
+```
+curl --insecure -H "Content-Type: application/json" \
+   -X POST -d '{"username": "test-user", "password": "test-password" }' \
+   http://localhost:5001/token
 ```
