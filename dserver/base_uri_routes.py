@@ -28,7 +28,6 @@ bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 
 
 @bp.route("", methods=["GET"])
-@bp.route("/", methods=["GET"])
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "base_uri"])
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))
@@ -50,7 +49,7 @@ def base_uri_list(pagination_parameters : PaginationParameters,
         abort(403)
 
     order_by_args = []
-    for field, order in sort_parameters.order().items():
+    for field, order in sort_parameters.order.items():
         if not hasattr(BaseURI, field):
             continue
         if order == DESCENDING:
@@ -101,6 +100,7 @@ def get_base_uri(base_uri):
 @bp.route("/<path:base_uri>", methods=["POST"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(201)
+@bp.alt_response(200, description="Updated")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
@@ -119,18 +119,21 @@ def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
 
     base_uri = url_suffix_to_uri(base_uri)
 
+    success_code = 200
     if not base_uri_exists(base_uri):
         register_base_uri(base_uri)
+        success_code = 201
 
     # post method not idempotent
     patch_permissions(base_uri, permissions)
 
-    return "", 201
+    return "", success_code
 
 
 @bp.route("/<path:base_uri>", methods=["PUT"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(200)
+@bp.alt_response(201, description="Created")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
@@ -149,13 +152,15 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 
     base_uri = url_suffix_to_uri(base_uri)
 
+    success_code = 200  # updated
     if not base_uri_exists(base_uri):
         register_base_uri(base_uri)
+        success_code = 201  # created
 
     # put method idempotent
     put_permissions(base_uri, permissions)
 
-    return "", 200
+    return "", success_code
 
 
 @bp.route("/<path:base_uri>", methods=["PATCH"])

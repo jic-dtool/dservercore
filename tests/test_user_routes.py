@@ -32,7 +32,7 @@ def test_register_user_route(
     assert user_exists("evil-witch")
     assert user_exists("dopey")
 
-    # Ensure idempotent.
+    # Ensure idempotent, but with distinction in success code
     for user in users:
         r = tmp_app_with_users_client.post(
             "/users/{}".format(user["username"]),
@@ -40,7 +40,7 @@ def test_register_user_route(
             data=json.dumps(user),
             content_type="application/json"
         )
-        assert r.status_code == 201
+        assert r.status_code == 200
 
     assert user_exists("evil-witch")
     assert user_exists("dopey")
@@ -182,7 +182,7 @@ def test_patch_user_route(
 
     from dserver.schemas import UserResponseSchema
 
-    # 1 - check original grumpy entry
+    # 1 check original grumpy entry
     expected_response = UserResponseSchema().load(
         {
             'is_admin': False,
@@ -201,7 +201,7 @@ def test_patch_user_route(
 
     user_response = r.json
 
-    # 2 - validate against expected schema
+    # validate against expected schema
     assert len(UserResponseSchema().validate(user_response)) == 0
 
     assert user_response == expected_response
@@ -234,7 +234,7 @@ def test_patch_user_route(
 
     assert user_response == expected_response
 
-    # 3 - check idempotency
+    # check idempotency
     r = tmp_app_with_users_client.patch(
         "/users/grumpy",
         headers=headers,
@@ -256,7 +256,16 @@ def test_patch_user_route(
 
     assert user_response == expected_response
 
-    # 4 - check failure for non-admins
+    # try to patch non-existing user
+    r = tmp_app_with_users_client.patch(
+        "/users/noone",
+        headers=headers,
+        json={}
+    )
+
+    assert r.status_code == 404
+
+    # check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)
 
     r = tmp_app_with_users_client.patch(
@@ -266,7 +275,7 @@ def test_patch_user_route(
     )
     assert r.status_code == 403
 
-    # 5 - check failure for non-registered users
+    # check failure for non-registered users
     headers = dict(Authorization="Bearer " + noone_token)
 
     r = tmp_app_with_users_client.patch(
@@ -368,14 +377,14 @@ def test_put_user_route(
 
     assert user_response == expected_response
 
-    # 4 - check failure for non-existing user
+    # 4 - check creation for non-existing user
     r = tmp_app_with_users_client.put(
         "/users/noone",
         headers=headers,
         json={"is_admin": True}
     )
 
-    assert r.status_code == 404
+    assert r.status_code == 201
 
     # 5 - check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)

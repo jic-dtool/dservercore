@@ -70,13 +70,13 @@ def test_base_uri_register_route(
     assert r.status_code == 201
     assert base_uri_exists(base_uri)
 
-    # Ensure idempotency
+    # Ensure idempotency, but distinction in success code
     r = tmp_app_with_users_client.post(
         f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 201
+    assert r.status_code == 200
     assert base_uri_exists(base_uri)
 
     # check empty default permissions
@@ -154,7 +154,7 @@ def test_base_uri_register_route(
         json=post_content,
         content_type="application/json"
     )
-    assert r.status_code == 201
+    assert r.status_code == 200
     assert base_uri_exists(base_uri)
 
     # check empty default permissions
@@ -179,7 +179,7 @@ def test_base_uri_register_route(
         json=post_content,
         content_type="application/json"
     )
-    assert r.status_code == 201
+    assert r.status_code == 200
     assert base_uri_exists(base_uri)
 
     # check empty default permissions
@@ -230,14 +230,14 @@ def test_put_base_uri_route(
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 200
+    assert r.status_code == 201  # created
 
     r = tmp_app_with_users_client.get(
         f"/base-uris/{uri_suffix}",
         headers=headers,
         content_type="application/json"
     )
-    assert r.status_code == 200
+    assert r.status_code == 200  # updated
 
     expected_content = {
         "base_uri": base_uri,

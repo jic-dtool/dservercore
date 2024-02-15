@@ -5,5 +5,11 @@ from dserver.sort import SortMixin
 
 class Blueprint(FlaskSmorestBlueprint, SortMixin):
     """Bring together flask-smorest blueprint and custom sort mixin."""
-    pass
+
+    def __init__(self, *args, **kwargs):
+        self.description = kwargs.pop("description", "")
+
+        super().__init__(*args, **kwargs)
+
+        self._prepare_doc_cbks.append(self._prepare_sort_doc)
 

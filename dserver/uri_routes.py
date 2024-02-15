@@ -10,7 +10,7 @@ from flask_jwt_extended import (
 
 from flask_smorest.pagination import PaginationParameters
 
-from dserver import ValidationError
+from dserver import ValidationError, UnknownURIError
 from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
 from dserver.sql_models import DatasetSchema
@@ -25,6 +25,10 @@ from dserver.utils import (
     search_datasets_by_user,
     get_dataset_by_user_and_uri,
     register_dataset,
+    put_update_dataset,
+    patch_update_dataset,
+    delete_dataset,
+    dataset_uri_exists,
     url_suffix_to_uri,
     DATASET_SORT_FIELDS
 )
@@ -33,7 +37,6 @@ bp = Blueprint("uris", __name__, url_prefix="/uris")
 
 
 @bp.route("", methods=["GET"])
-@bp.route("/", methods=["GET"])
 @bp.arguments(SearchDatasetSchema, location="query")
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
@@ -66,7 +69,6 @@ def search_datasets(query: SearchDatasetSchema,
 # We offer search via post method as well in case the URL-embedded query string
 # does not suffice for formulating a complex search query.
 @bp.route("", methods=["POST"])
-@bp.route("/", methods=["POST"])
 @bp.arguments(SearchDatasetSchema)
 @bp.sort(sort=["+uri"], allowed_sort_fields=DATASET_SORT_FIELDS)
 @bp.paginate()
@@ -127,6 +129,7 @@ def get_dataset_by_uri(uri):
 @bp.route("/<path:uri>", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(201)
+@bp.alt_response(200, description="Updated")
 @bp.alt_response(400, description="Dataset not valid")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
@@ -152,17 +155,23 @@ def register(dataset: RegisterDatasetSchema, uri):
     if not dataset_info_is_valid(dataset):
         abort(400)
 
+    success_code = 201  # created
+    if dataset_uri_exists(uri):
+        success_code = 200  # updated
+
     try:
         dataset_uri = register_dataset(dataset)
     except ValidationError as message:
-        abort(400, message=message)
+        # this should only be reached if plugins fail with a validation error
+        abort(400, message)
 
-    return "", 201
+    return "", success_code
 
 
 @bp.route("/<path:uri>", methods=["PUT"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(200)
+@bp.alt_response(201, description="Created")
 @bp.alt_response(400, description="Dataset not valid")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
@@ -190,12 +199,17 @@ def put_update(dataset : RegisterDatasetSchema, uri):
     if not dataset_info_is_valid(dataset):
         abort(400)
 
-    # PUT
+    success_code = 201  # created
+    if dataset_uri_exists(uri):
+        success_code = 200  # updated
 
-    # dataset does not exist yet
-    # abort(404)
+    try:
+        dataset_uri = put_update_dataset(dataset)
+    except ValidationError as message:
+        # this should only be reached if plugins fail with a validation error
+        abort(400, message)
 
-    return "", 200
+    return "", success_code
 
 
 @bp.route("/<path:uri>", methods=["PATCH"])
@@ -204,6 +218,7 @@ def put_update(dataset : RegisterDatasetSchema, uri):
 @bp.alt_response(400, description="Dataset not valid")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def patch_update(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by patching fields.
@@ -216,18 +231,30 @@ def patch_update(dataset : RegisterDatasetSchema, uri):
         # Unregistered users should see 401.
         abort(401)
 
-    if not dserver.utils_auth.may_register(identity, dataset["base_uri"]):
-        abort(403)
-
     uri = url_suffix_to_uri(uri)
+
+    # infer base URI, if not provided
+    # import pdb; pdb.set_trace()
+    if "base_uri" in dataset:
+        base_uri = dataset["base_uri"]
+    else:
+        base_uri = uri.rsplit("/", 1)[0]
+
+    if not dserver.utils_auth.may_register(identity, base_uri):
+        abort(403)
 
     if not uri == dataset["uri"]:
         abort(400)
 
-    if not dataset_info_is_valid(dataset):
-        abort(400)
+    # no validation of dataset info, only partial
 
-    # PATCH
+    try:
+        dataset_uri = patch_update_dataset(dataset)
+    except ValidationError as message:
+        # this should only be reached if plugins fail with a validation error
+        abort(400, message)  # invalid data
+    except UnknownURIError as message:
+        abort(404, message)  # not found
 
     return "", 200
 
@@ -253,6 +280,9 @@ def delete(uri):
     if not dserver.utils_auth.may_register(identity, base_uri_str):
         abort(403)
 
-    # DELETE
+    try:
+        dataset_uri = delete_dataset(uri)
+    except ValidationError as message:
+        abort(400, message)
 
     return "", 200

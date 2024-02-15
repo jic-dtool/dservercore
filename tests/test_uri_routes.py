@@ -207,7 +207,7 @@ def test_register_dataset_by_uri_route(
         "uuid": uuid,
         "uri": uri,
         "name": "my-dataset",
-        "type": "dataset",
+        "type": "protodataset",
         "readme": "---\ndescription: test dataset",
         "manifest": {
             "dtoolcore_version": "3.7.0",
@@ -230,6 +230,19 @@ def test_register_dataset_by_uri_route(
     }
 
     url_suffix = uri_to_url_suffix(uri)
+
+    # try to register invalid dataset (type: proto)
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.post(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
+
+    # make dataset valid
+    dataset_info["type"] = "dataset"
 
     # test for unregistered users
     headers = dict(Authorization="Bearer " + dopey_token)
@@ -310,7 +323,7 @@ def test_register_dataset_by_uri_route(
         data=json.dumps(dataset_info),
         content_type="application/json"
     )
-    assert r.status_code == 201
+    assert r.status_code == 200  # updated, not created
 
     assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
     assert get_admin_metadata_from_uri(uri) == expected_content
@@ -358,6 +371,478 @@ def test_register_dataset_by_uri_route(
         content_type="application/json"
     )
     assert r.status_code == 401
+
+
+def test_put_dataset_by_uri_route(
+        tmp_app_with_users_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    from dserver.utils import (
+        get_admin_metadata_from_uri,
+        lookup_datasets_by_user_and_uuid,
+    )
+
+    base_uri = "s3://snow-white"
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: test dataset",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+
+    url_suffix = uri_to_url_suffix(uri)
+
+    # test for unregistered users
+    headers = dict(Authorization="Bearer " + dopey_token)
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    # test for users without register permission
+    headers = dict(Authorization="Bearer " + sleepy_token)
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 403
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201
+
+    # do not check against README as updating README mus happen and be tested
+    # in retrieve plugin, and the implementation of a put_update_dataset method
+    # is not enforced on a plugin
+    # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # Add the same dataset again, but with updated readme info.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: new metadata",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 15741810,
+    }
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 200  # updated, not created
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 15741810,
+    }
+
+    # do not check against README as updating README mus happen and be tested
+    # in retrieve plugin, and the implementation of a put_update_dataset method
+    # is not enforced on a plugin
+    # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
+    assert get_admin_metadata_from_uri(uri) == expected_content
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # URI suffix and dataset uri attribute disagree
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}-diverges",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
+
+    # Try to put invalid data.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+    }
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
+
+    # Try to put data from user that does not exist in the system.
+    headers = dict(Authorization="Bearer " + noone_token)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: new metadata",
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+    }
+    r = tmp_app_with_users_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+
+def test_patch_dataset_by_uri_route(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    from dserver.utils import (
+        get_admin_metadata_from_uri,
+        lookup_datasets_by_user_and_uuid,
+    )
+
+    base_uri = "s3://snow-white"
+    uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28339"
+    uri = "{}/{}".format(base_uri, uuid)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: test dataset",
+        "manifest": {
+            "dtoolcore_version": "3.7.0",
+            "hash_function": "md5sum_hexdigest",
+            "items": {
+                "e4cc3a7dc281c3d89ed4553293c4b4b110dc9bf3": {
+                    "hash": "d89117c9da2cc34586e183017cb14851",
+                    "relpath": "U00096.3.rev.1.bt2",
+                    "size_in_bytes": 5741810,
+                    "utc_timestamp": 1536832115.0
+                }
+            }
+        },
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+        "annotations": {"software": "bowtie2"},
+        "tags": ["rnaseq"],
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+
+    url_suffix = uri_to_url_suffix(uri)
+
+    # test for unregistered users
+    headers = dict(Authorization="Bearer " + dopey_token)
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+    # test for users without register permission
+    headers = dict(Authorization="Bearer " + sleepy_token)
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 403
+
+    # test for failure on trying to patch non-existing dataset
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 404
+
+    # first put dataset
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.put(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 201  # created
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "creator_username": "olssont",
+        "frozen_at": 1536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
+    }
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    # next, patch with full, unmodified dataset entry
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 200
+
+    # do not check against README as updating README mus happen and be tested
+    # in retrieve plugin, and the implementation of a patch_update_dataset method
+    # is not enforced on a plugin
+    # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
+
+    # unchanged expected content
+    assert get_admin_metadata_from_uri(uri) == expected_content
+
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # patch a few fields of the dataset
+    dataset_info = {
+        "uri": uri,
+        "name": "your-dataset",
+        "creator_username": "pytest",
+        "frozen_at": "3536238185.881941",
+        "number_of_items": 3,
+        "size_in_bytes": 1741810
+    }
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 200  # updated, not created
+
+    expected_content = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "your-dataset",
+        "creator_username": "pytest",
+        "frozen_at": 3536238185.881941,
+        "created_at": 1536238185.881941,
+        "number_of_items": 3,
+        "size_in_bytes": 1741810,
+    }
+
+    assert get_admin_metadata_from_uri(uri) == expected_content
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # URI suffix and dataset uri attribute disagree
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}-diverges",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400
+
+    # try to patch other base URI that is a valid base URI the use has register
+    # permissions for, but disagrees with the dataset's URI-embedded base URI
+    dataset_info = {
+        "base_uri": "s3://mr-men",
+        "uri": uri,
+        "size_in_bytes": 7741810,
+    }
+
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 400  # invalid request
+
+    # expected content unchanged
+    assert get_admin_metadata_from_uri(uri) == expected_content
+    assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
+
+    # try to patch with invalid data.
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "field_does_not_exist": "nonsense",
+    }
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 422
+
+    # Try to patch data from user that does not exist in the system.
+    headers = dict(Authorization="Bearer " + noone_token)
+    dataset_info = {
+        "base_uri": base_uri,
+        "uuid": uuid,
+        "uri": uri,
+        "name": "my-dataset",
+        "type": "dataset",
+        "readme": "---\ndescription: new metadata",
+        "creator_username": "olssont",
+        "frozen_at": "1536238185.881941",
+    }
+    r = tmp_app_with_data_client.patch(
+        f"/uris/{url_suffix}",
+        headers=headers,
+        data=json.dumps(dataset_info),
+        content_type="application/json"
+    )
+    assert r.status_code == 401
+
+
+def test_delete_dataset_by_uri_route(
+        tmp_app_with_data_client,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    uri = "s3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337"
+    url_suffix = uri_to_url_suffix(uri)
+
+    # dataset exists
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    # try to delete, but user has no register permission on base uri
+    r = tmp_app_with_data_client.delete(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    # user does not have register rights on delete from base uri;
+    assert r.status_code == 403  # forbidden
+
+    # user does not exist
+    r = tmp_app_with_data_client.delete(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401  # unauthorized
+
+    # delete existing dataset
+    r = tmp_app_with_data_client.delete(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 200  # success
+
+    # make sure dataset disappeared
+    r = tmp_app_with_data_client.get(
+        "/uris/{}".format(url_suffix),
+        headers=headers
+    )
+    assert r.status_code == 404 # not found
+
+    # delete again, idempotency
+    r = tmp_app_with_data_client.delete(
+        "/uris/{}".format(url_suffix),
+        headers=dict(Authorization="Bearer " + grumpy_token)
+    )
+    assert r.status_code == 200  # success
+
+    # delete dataset entry that did not exist in the first place
+    uri = "s3://mr-men/non-existent-dataset"
+    url_suffix = uri_to_url_suffix(uri)
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.delete(
+        "/uris/{}".format(url_suffix),
+        headers=headers
+    )
+
+    # user has search access to base uri, but entry does not exist
+    assert r.status_code == 200  # success anyway, dataset did not and does not exist
 
 
 def test_dataset_register_route_when_created_at_is_string(

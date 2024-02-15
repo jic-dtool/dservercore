@@ -5,6 +5,7 @@ Introduces and parses sort parameter for blueprints.
 from copy import deepcopy
 from functools import wraps
 import http
+import json
 import re
 
 from flask import request
@@ -81,6 +82,7 @@ class SortParameters:
             f"(sort={sort_string!r})"
         )
 
+    @property
     def order(self):
         d = {}
         for field in self._sort:
@@ -119,10 +121,33 @@ def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
     return SortParametersSchema
 
 
+class SortMetadataSchema(ma.Schema):
+    """Sort metadata schema
+
+    Used to serialize sort metadata.
+    Its main purpose is to document the sort metadata.
+    """
+
+    sort = ma.fields.Dict(keys=ma.fields.String(), values=ma.fields.Integer())
+
+    class Meta:
+        ordered = True
+
+
+SORT_HEADER = {
+    "description": "Sort metadata",
+    "schema": SortMetadataSchema,
+}
+
+
 class SortMixin:
     """Extend Blueprint to add Sort feature"""
 
     SORT_ARGUMENTS_PARSER = CommaSeparatedListFlaskParser()
+
+    # Name of field to use for sort metadata response header
+    # Can be overridden. If None, no sort header is returned.
+    SORT_HEADER_NAME = "X-Sort"
 
     # Global default sort parameters
     # Can be overridden to provide custom defaults
@@ -135,16 +160,9 @@ class SortMixin:
         :param str sort: Default requested sort string
         :param list of str allowed_sort_fields: Allowed sort fields
 
-        If a :class:`Page <Page>` class is provided, it is used to paginate the
-        data returned by the view function, typically a lazy database cursor.
-
-        Otherwise, pagination is handled in the view function.
-
         The decorated function may return a tuple including status and/or
         headers, like a typical flask view function. It may not return a
         ``Response`` object.
-
-        See :doc:`Pagination <pagination>`.
         """
         if sort is None:
             sort = self.DEFAULT_SORT_PARAMETERS["sort"]
@@ -168,15 +186,21 @@ class SortMixin:
                     sort_params_schema, request, location="query"
                 )
 
-                # Pagination in resource code: inject page_params as kwargs
+                # sort in resource code: inject sort_params as kwargs
                 kwargs["sort_parameters"] = sort_params
 
                 # Execute decorated function
                 result, status, headers = unpack_tuple_response(func(*args, **kwargs))
 
+                # Set sort metadata in response
+                if self.SORT_HEADER_NAME is not None:
+                    result, headers = self._set_sort_metadata(
+                            sort_params, result, headers
+                        )
+
                 return result, status, headers
 
-            # Add pagination params to doc info in wrapper object
+            # Add sort params to doc info in wrapper object
             wrapper._apidoc = deepcopy(getattr(wrapper, "_apidoc", {}))
             wrapper._apidoc["sort"] = {
                 "parameters": parameters,
@@ -188,3 +212,49 @@ class SortMixin:
             return wrapper
 
         return decorator
+
+    @staticmethod
+    def _make_sort_metadata(sort):
+        """Build sort metadata from sort
+
+        Override this to use another sort metadata structure
+        """
+        sort_metadata = {}
+        sort_metadata["sort"] = sort
+
+        return SortMetadataSchema().dump(sort_metadata)
+
+    def _set_sort_metadata(self, sort_params, result, headers):
+        """Add sort metadata to headers
+
+        Override this to set sort data another way
+        """
+        if headers is None:
+            headers = {}
+        headers[self.SORT_HEADER_NAME] = json.dumps(
+            self._make_sort_metadata(sort_params.order)
+        )
+        return result, headers
+
+    def _document_sort_metadata(self, spec, resp_doc):
+        """Document sort metadata header
+
+        Override this to document custom sort metadata
+        """
+        resp_doc.setdefault("headers", {}).update(
+            {
+                self.SORT_HEADER_NAME: SORT_HEADER
+            }
+        )
+
+    def _prepare_sort_doc(self, doc, doc_info, *, spec, **kwargs):
+        operation = doc_info.get("sort")
+        if operation:
+            doc.setdefault("parameters", []).append(operation["parameters"])
+            doc.setdefault("responses", {}).update(operation["response"])
+            success_status_codes = doc_info.get("success_status_codes", [])
+            for success_status_code in success_status_codes:
+                self._document_sort_metadata(
+                    spec, doc["responses"][success_status_code]
+                )
+        return doc
