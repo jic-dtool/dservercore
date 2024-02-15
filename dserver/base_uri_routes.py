@@ -28,7 +28,6 @@ bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 
 
 @bp.route("", methods=["GET"])
-@bp.route("/", methods=["GET"])
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "base_uri"])
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))

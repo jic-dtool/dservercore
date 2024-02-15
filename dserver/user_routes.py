@@ -23,7 +23,6 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 
 
 @bp.route("", methods=["GET"])
-@bp.route("/", methods=["GET"])
 @bp.sort(sort=["+id"], allowed_sort_fields=["id", "username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
@@ -125,7 +124,6 @@ def register(data: RegisterUserSchema, username):
 @bp.alt_response(201, description="Created")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
-@bp.alt_response(404, description="Not found")
 @jwt_required()
 def put_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by replacing entry.
@@ -139,9 +137,6 @@ def put_update(data: RegisterUserSchema, username):
 
     if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
-
-    if not dserver.utils_auth.user_exists(username):
-        abort(404)
 
     success_code = 201  # create
     if dserver.utils_auth.user_exists(username):
@@ -157,6 +152,7 @@ def put_update(data: RegisterUserSchema, username):
 @bp.response(200)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
 @jwt_required()
 def patch_update(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by patching fields.
@@ -170,6 +166,9 @@ def patch_update(data: RegisterUserSchema, username):
 
     if not dserver.utils_auth.has_admin_rights(identity):
         abort(403)
+
+    if not dserver.utils_auth.user_exists(username):
+        abort(404)
 
     patch_user(username, data)
 

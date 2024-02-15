@@ -885,16 +885,14 @@ def put_update_dataset_admin_metadata(admin_metadata):
     new_dataset_entry = create_dataset_obj_from_admin_metadata(admin_metadata)
 
     uri = admin_metadata["uri"]
-    # there must only be one object, as URI is the unique index
-    for old_dataset_entry in (
-            sql_db.session.query(Dataset).filter_by(uri=uri).all()
-    ):
-        sql_db.session.delete(old_dataset_entry)
 
-    sql_db.add(new_dataset_entry)
+    # there must only be one object, as URI is the unique index
+    sql_db.session.query(Dataset).filter_by(uri=uri).delete()
+
+    sql_db.session.add(new_dataset_entry)
     sql_db.session.commit()
 
-    return new_dataset_entry["uri"]
+    return new_dataset_entry.uri
 
 
 def patch_update_dataset_admin_metadata(admin_metadata):
@@ -918,7 +916,7 @@ def patch_update_dataset_admin_metadata(admin_metadata):
         raise UnknownURIError(f"Entry '{uri} does not exist.")
 
     # otherwise, we assume no required field
-    if hasattr(admin_metadata, "base_uri"):
+    if "base_uri" in admin_metadata:
         base_uri = get_base_uri_obj(admin_metadata["base_uri"])
     else:
         base_uri_str = uri.rsplit("/", 1)[0]
@@ -928,13 +926,17 @@ def patch_update_dataset_admin_metadata(admin_metadata):
         raise ValidationError(f"Provided base_uri and base_uri of existing entry '{uri} disagree.")
 
     try:
-        frozen_at = extract_frozen_at_as_datetime(admin_metadata)
+        frozen_at = admin_metadata["frozen_at"]
+        frozen_at = float(frozen_at)
+        frozen_at = datetime.utcfromtimestamp(frozen_at)
         dataset.frozen_at = frozen_at
     except KeyError:
         logger.info("No valid 'frozen_at' field provided in admin metadata of '%s'", uri)
 
     try:
-        created_at = extract_created_at_as_datetime(admin_metadata)
+        created_at = admin_metadata["created_at"]
+        created_at = float(created_at)
+        return datetime.utcfromtimestamp(created_at)
         dataset.created_at = created_at
     except KeyError:
         logger.info("No valid 'created_at' field provided in admin metadata of '%s'", uri)
@@ -1086,8 +1088,7 @@ def put_update_dataset(dataset_info):
 
     # this is double bookkeeping, next to delegating dataset registration to
     # the search plugin, we also store metadata in an sql table
-    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
-        put_update_dataset_admin_metadata(dataset_info)
+    put_update_dataset_admin_metadata(dataset_info)
 
     return dataset_info["uri"]
 
@@ -1106,7 +1107,7 @@ def patch_update_dataset(dataset_info):
         raise ValidationError("No URI provied.")
 
     # infer base URI, if not provided
-    if hasattr(dataset_info, "base_uri"):
+    if "base_uri" in dataset_info:
         base_uri = dataset_info["base_uri"]
     else:
         base_uri = uri.rsplit("/", 1)[0]
@@ -1154,8 +1155,7 @@ def patch_update_dataset(dataset_info):
 
     # this is double bookkeeping, next to delegating dataset registration to
     # the search plugin, we also store metadata in an sql table
-    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
-        patch_update_dataset_admin_metadata(dataset_info)
+    patch_update_dataset_admin_metadata(dataset_info)
 
     return dataset_info["uri"]
 
