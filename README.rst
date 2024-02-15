@@ -5,11 +5,11 @@ dserver
    :target: http://badge.fury.io/py/dserver
    :alt: PyPi package
 
-.. image:: https://img.shields.io/github/actions/workflow/status/jotelha/dserver/test.yml?branch=main
+.. image:: https://img.shields.io/github/actions/workflow/status/livMatS/dserver/test.yml?branch=main
     :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
     :alt: GitHub Workflow Status
 
-- GitHub: https://github.com/jotelha/dserver
+- GitHub: https://github.com/livMatS/dserver
 - PyPI: https://pypi.python.org/pypi/dserver
 - Free software: MIT License
 
@@ -45,11 +45,11 @@ been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
 dserver is consumed by the `dtool-lookup-client
-<https://github.com/jotelha/dtool-lookup-client>`_, and the
+<https://github.com/livMatS/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
-created, notably the `IMTEK-Simulation/dtool-lookup-gui
-<https://github.com/IMTEK-Simulation/dtool-lookup-gui>`_.
+created, notably the `livMatS/dtool-lookup-gui
+<https://github.com/livMatS/dtool-lookup-gui>`_.
 
 
 Installation
@@ -783,9 +783,9 @@ lines of the below.
 
 Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
 <https://github.com/jotelha>`_ can be found in
-`dserver-plugin-scaffolding <https://github.com/IMTEK-Simulation/dserver-plugin-scaffolding>`_.
+`dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_.
 
 Examples of actual plugins include:
 
-- `dserver-dependency-graph-plugin <https://github.com/IMTEK-Simulation/dserver-dependency-graph-plugin>`_
-- `dserver-plugin-scaffolding <https://github.com/IMTEK-Simulation/dserver-plugin-scaffolding>`_
+- `dserver-dependency-graph-plugin <https://github.com/livMatS/dserver-dependency-graph-plugin>`_
+- `dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_

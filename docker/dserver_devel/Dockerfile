@@ -12,8 +12,8 @@ RUN pip install -U pip  && \
     pip install gunicorn  psycopg2 setuptools_scm && \
     pip install -r requirements.txt && \
     pip install dtool-cli dtool-info dtool-create dtool-s3 && \
-    pip install git+https://github.com/jotelha/dserver-retrieve-plugin-mongo.git@main && \
-    pip install git+https://github.com/jotelha/dserver-search-plugin-mongo.git@main && \
+    pip install git+https://github.com/livMatS/dserver-retrieve-plugin-mongo.git@main && \
+    pip install git+https://github.com/livMatS/dserver-search-plugin-mongo.git@main && \
     pip install git+https://github.com/livMatS/dserver-direct-mongo-plugin.git@main && \
     pip install git+https://github.com/livMatS/dserver-dependency-graph-plugin.git@main && \
     pip install git+https://github.com/livMatS/dserver-notification-plugin.git@main && \

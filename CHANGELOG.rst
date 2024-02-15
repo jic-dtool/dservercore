@@ -17,7 +17,8 @@ TODO
 Added
 ^^^^^
 
-- Sorting mechnism in analogy to flask_smorest's Pagination mechanism
+- Sorting mechanism in analogy to flask_smorest's Pagination mechanism
+- Deletion, put, and patch routes
 
 Changed
 ^^^^^^^
@@ -180,11 +181,11 @@ Added
 
 - Added hook to allow the loading of plugins. Scaffold code for implementing a
   plugin can be found in
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding.
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding.
   For examples of actual plugins see:
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin
+  https://github.com/livMatS/dtool-lookup-server-dependency-graph-plugin
   and
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding
 - Added /config route; see
   https://github.com/jic-dtool/dtool-lookup-server/pull/6
 - Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of
