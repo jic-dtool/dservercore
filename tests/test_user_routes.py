@@ -32,7 +32,7 @@ def test_register_user_route(
     assert user_exists("evil-witch")
     assert user_exists("dopey")
 
-    # Ensure idempotent.
+    # Ensure idempotent, but with distinction in success code
     for user in users:
         r = tmp_app_with_users_client.post(
             "/users/{}".format(user["username"]),
@@ -40,7 +40,7 @@ def test_register_user_route(
             data=json.dumps(user),
             content_type="application/json"
         )
-        assert r.status_code == 201
+        assert r.status_code == 200
 
     assert user_exists("evil-witch")
     assert user_exists("dopey")

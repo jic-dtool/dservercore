@@ -310,7 +310,7 @@ def test_register_dataset_by_uri_route(
         data=json.dumps(dataset_info),
         content_type="application/json"
     )
-    assert r.status_code == 201
+    assert r.status_code == 200  # updated, not created
 
     assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
     assert get_admin_metadata_from_uri(uri) == expected_content
