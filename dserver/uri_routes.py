@@ -25,6 +25,10 @@ from dserver.utils import (
     search_datasets_by_user,
     get_dataset_by_user_and_uri,
     register_dataset,
+    put_update_dataset,
+    patch_update_dataset,
+    delete_dataset,
+    dataset_uri_exists,
     url_suffix_to_uri,
     DATASET_SORT_FIELDS
 )
@@ -127,6 +131,7 @@ def get_dataset_by_uri(uri):
 @bp.route("/<path:uri>", methods=["POST"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(201)
+@bp.alt_response(200, description="Updated")
 @bp.alt_response(400, description="Dataset not valid")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
@@ -152,17 +157,22 @@ def register(dataset: RegisterDatasetSchema, uri):
     if not dataset_info_is_valid(dataset):
         abort(400)
 
+    success_code = 201  # created
+    if dataset_uri_exists(uri):
+        success_code = 200  # updated
+
     try:
         dataset_uri = register_dataset(dataset)
     except ValidationError as message:
         abort(400, message=message)
 
-    return "", 201
+    return "", success_code
 
 
 @bp.route("/<path:uri>", methods=["PUT"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(200)
+@bp.alt_response(201, description="Created")
 @bp.alt_response(400, description="Dataset not valid")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
@@ -190,12 +200,16 @@ def put_update(dataset : RegisterDatasetSchema, uri):
     if not dataset_info_is_valid(dataset):
         abort(400)
 
-    # PUT
+    success_code = 201  # created
+    if dataset_uri_exists(uri):
+        success_code = 200  # updated
 
-    # dataset does not exist yet
-    # abort(404)
+    try:
+        dataset_uri = put_update_dataset(dataset)
+    except ValidationError as message:
+        abort(400, message=message)
 
-    return "", 200
+    return "", success_code
 
 
 @bp.route("/<path:uri>", methods=["PATCH"])
@@ -224,10 +238,12 @@ def patch_update(dataset : RegisterDatasetSchema, uri):
     if not uri == dataset["uri"]:
         abort(400)
 
-    if not dataset_info_is_valid(dataset):
-        abort(400)
+    # no validation of dataset info, only partial
 
-    # PATCH
+    try:
+        dataset_uri = patch_update_dataset(dataset)
+    except ValidationError as message:
+        abort(400, message=message)
 
     return "", 200
 
@@ -253,6 +269,9 @@ def delete(uri):
     if not dserver.utils_auth.may_register(identity, base_uri_str):
         abort(403)
 
-    # DELETE
+    try:
+        dataset_uri = delete_dataset(uri)
+    except ValidationError as message:
+        abort(400, message=message)
 
     return "", 200
