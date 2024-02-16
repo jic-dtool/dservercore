@@ -36,6 +36,7 @@ jobs:
 
       - name: install package
         run: |
+          pip install setuptools_scm
           pip install .
 
       - name: install docs dependencies
