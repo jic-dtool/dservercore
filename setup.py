@@ -1,7 +1,15 @@
+import os
 from setuptools import setup
+from setuptools_scm import get_version
+version = get_version(root='.', relative_to=__file__)
+
+
+def local_scheme(version):
+    """Skip the local version (eg. +xyz of 0.6.1.dev4+gdf99fe2)
+    to be able to upload to Test PyPI"""
+    return ""
 
 url = "https://github.com/livMatS/dserver"
-version = "0.18.0"
 readme = open('README.rst').read()
 
 setup(
@@ -14,7 +22,13 @@ setup(
     include_package_data=True,
     author="Tjelvar Olsson",
     author_email="tjelvar.olsson@gmail.com",
-    version=version,
+    use_scm_version={
+        "local_scheme": local_scheme,
+        "root": '.',
+        "relative_to": __file__,
+        "write_to": os.path.join(
+            "dserver", "version.py"),
+    },
     url=url,
     entry_points={
         'flask.commands': [
@@ -24,6 +38,7 @@ setup(
             'dataset=dserver.cli:dataset_cli',
         ],
     },
+    setup_requires=['setuptools_scm'],
     install_requires=[
         "flask<3",
         "pymongo",
