@@ -588,6 +588,83 @@ def test_list_user_route(
     )
     assert r.status_code == 401
 
+def test_me_summary_route(
+        tmp_app_with_data_client,
+        snowwhite_token,
+        grumpy_token,
+        sleepy_token,
+        dopey_token,
+        noone_token):  # NOQA
+
+    # snow-white
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_data_client.get(
+        "/users/me/summary",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    expected_content = {
+        "number_of_datasets": 0,
+        "creator_usernames": [],
+        "base_uris": [],
+        "datasets_per_creator": {},
+        "datasets_per_base_uri": {},
+        "tags": [],
+        "datasets_per_tag": {}
+    }
+    assert expected_content == json.loads(r.data.decode("utf-8"))
+
+    # grumpy
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_data_client.get(
+        "/users/me/summary",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    expected_content = {
+        "number_of_datasets": 3,
+        "creator_usernames": ["queen"],
+        "base_uris": ["s3://mr-men", "s3://snow-white"],
+        "datasets_per_creator": {"queen": 3},
+        "datasets_per_base_uri": {"s3://mr-men": 1, "s3://snow-white": 2},
+        "tags": ["evil", "fruit", "good"],
+        "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3}
+    }
+    assert expected_content == json.loads(r.data.decode("utf-8"))
+
+    # sleepy
+    r = tmp_app_with_data_client.get(
+        "/users/me/summary",
+        headers=dict(Authorization="Bearer " + sleepy_token)
+    )
+    assert r.status_code == 200
+    expected_content = {
+        "number_of_datasets": 0,
+        "creator_usernames": [],
+        "base_uris": [],
+        "datasets_per_creator": {},
+        "datasets_per_base_uri": {},
+        "tags": [],
+        "datasets_per_tag": {}
+    }
+    assert expected_content == json.loads(r.data.decode("utf-8"))
+
+    # dopey (not registered) checks himself
+    r = tmp_app_with_data_client.get(
+        "/users/me/summary",
+        headers=dict(Authorization="Bearer " + dopey_token)
+    )
+    assert r.status_code == 401
+
+    # noone (not registered) checks himself
+    r = tmp_app_with_data_client.get(
+        "/users/me/summary",
+        headers=dict(Authorization="Bearer " + noone_token)
+    )
+    assert r.status_code == 401
+
 
 def test_dataset_summary_route(
         tmp_app_with_data_client,

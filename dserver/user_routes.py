@@ -212,6 +212,22 @@ def delete(username):
     return "", 200
 
 
+@bp.route("/me/summary", methods=["GET"])
+@bp.response(200, SummarySchema)
+@bp.alt_response(401, description="Not registered")
+@jwt_required()
+def summary_of_datasets():
+    """Global summary of the datasets a user has access to."""
+    identity = get_jwt_identity()
+
+    if not dserver.utils_auth.user_exists(identity):
+        # Authenticated user does not exist
+        abort(401)
+
+    summary = summary_of_datasets_by_user(identity)
+    return summary
+
+
 @bp.route("/<username>/summary", methods=["GET"])
 @bp.response(200, SummarySchema)
 @bp.alt_response(401, description="Not registered")
