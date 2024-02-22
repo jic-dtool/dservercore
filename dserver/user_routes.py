@@ -60,6 +60,20 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
     ).items
 
 
+@bp.route("/me", methods=["GET"])
+@bp.response(200, UserResponseSchema)
+@bp.alt_response(401, description="Not registered")
+@jwt_required()
+def get_user_info():
+    """Return information on me (the user currently authenticated)."""
+    identity = get_jwt_identity()
+
+    if not dserver.utils_auth.user_exists(identity):
+        abort(401)
+
+    return dserver.utils.get_user_info(identity)
+
+
 @bp.route("/<username>", methods=["GET"])
 @bp.response(200, UserResponseSchema)
 @bp.alt_response(401, description="Not registered")

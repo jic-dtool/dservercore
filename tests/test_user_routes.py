@@ -68,6 +68,77 @@ def test_register_user_route(
         assert r.status_code == 401
 
 
+def test_get_me_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test retrieving current user information by get method."""
+
+    from dserver.schemas import UserResponseSchema
+
+    # snow-white
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    expected_response = UserResponseSchema().load(
+        {
+            'is_admin': True,
+            'register_permissions_on_base_uris': [],
+            'search_permissions_on_base_uris': [],
+            'username': 'snow-white'
+        })
+
+    r = tmp_app_with_users_client.get(
+        "/users/me",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+
+    # validate against expected schema
+    assert len(UserResponseSchema().validate(user_response)) == 0
+
+    # assert correct content
+    assert user_response == expected_response
+
+    # grumpy
+    expected_response = UserResponseSchema().load(
+        {
+            'is_admin': False,
+            'register_permissions_on_base_uris': ['s3://snow-white'],
+            'search_permissions_on_base_uris': ['s3://snow-white'],
+            'username': 'grumpy'
+        })
+
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    r = tmp_app_with_users_client.get(
+        "/users/me",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+
+    # validate against expected schema
+    assert len(UserResponseSchema().validate(user_response)) == 0
+
+    # assert correct content
+    assert user_response == expected_response
+
+    # noone (user does not exist)
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.get(
+        "/users/me",
+        headers=headers
+    )
+
+    assert r.status_code == 401
+
+
 def test_get_user_route(
         tmp_app_with_users_client,
         snowwhite_token,
