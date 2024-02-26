@@ -27,7 +27,7 @@ def test_config_info_route(
         'sqlalchemy_track_modifications': False,
     }
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.data.decode("utf-8"))["config"]
 
     for k, v in expected_content.items():
         assert k in response
@@ -63,7 +63,7 @@ def test_config_versions_route(tmp_app_client):
     r = tmp_app_client.get("/config/versions")
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.data.decode("utf-8"))["versions"]
 
     expected_content = {
         'dserver': dserver.__version__,

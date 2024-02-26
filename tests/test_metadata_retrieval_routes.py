@@ -1,4 +1,4 @@
-"""Test the /manifest, /readme, /annotations blueprint routes."""
+"""Test the /manifest, /readme, /annotations, /tags blueprint routes."""
 
 import json
 
@@ -106,7 +106,7 @@ def test_dataset_readme_route(
     )
     assert r.status_code == 200
 
-    expected_readme = "---\ndescripton: apples from queen"
+    expected_readme = {"readme": "---\ndescripton: apples from queen"}
     actual_readme = json.loads(r.data.decode("utf-8"))
 
     assert expected_readme == actual_readme
@@ -180,7 +180,7 @@ def test_dataset_annotations_route(
     )
     assert r.status_code == 200
 
-    expected_annotations = {"type": "fruit"}
+    expected_annotations = {"annotations": {"type": "fruit"}}
     actual_annotations = json.loads(r.data.decode("utf-8"))
 
     assert expected_annotations == actual_annotations
@@ -254,7 +254,7 @@ def test_dataset_tags_route(
     )
     assert r.status_code == 200
 
-    expected_tags = ['evil', 'fruit']
+    expected_tags = {"tags": ['evil', 'fruit']}
     actual_tags = json.loads(r.data.decode("utf-8"))
 
     assert expected_tags == actual_tags
