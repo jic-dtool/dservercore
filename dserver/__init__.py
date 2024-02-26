@@ -200,6 +200,15 @@ class RetrieveABC(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_tags(self, uri):
+        """Return the dataset tags.
+
+        It is assumed that preflight checks have been made to ensure that the
+        user has permissions to access the URI.
+        """
+        pass
+
 
 class ExtensionABC(ABC):
     """Any extension plugin must inherit from this base class.
@@ -309,6 +318,7 @@ def create_app(test_config=None):
         manifest_routes,
         readme_routes,
         annotations_routes,
+        tags_routes,
     )
 
     api.register_blueprint(config_routes.bp)
@@ -319,6 +329,7 @@ def create_app(test_config=None):
     api.register_blueprint(manifest_routes.bp)
     api.register_blueprint(readme_routes.bp)
     api.register_blueprint(annotations_routes.bp)
+    api.register_blueprint(tags_routes.bp)
 
     # Load dserver extension plugin blueprints.
     for ex in app.custom_extensions:

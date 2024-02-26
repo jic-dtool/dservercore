@@ -36,6 +36,10 @@ class ManifestSchema(Schema):
     dtoolcore_version = String()
 
 
+class TagSchema(Schema):
+    tags = List(String())
+
+
 class RegisterDatasetSchema(Schema):
     uuid = UUID()
     base_uri = String()
