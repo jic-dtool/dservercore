@@ -39,11 +39,11 @@ def manifest(uri):
         abort(403)
 
     try:
-        tags_ = get_tags_from_uri_by_user(username, uri)
+        tags = get_tags_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(404)
 
-    return jsonify(tags_)
+    return {"tags": tags}
 
 

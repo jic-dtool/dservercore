@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 
 from dserver import UnknownURIError
 from dserver.blueprint import Blueprint
+from dserver.schemas import AnnotationSchema
 import dserver.utils_auth
 from dserver.utils import (
     url_suffix_to_uri,
@@ -21,7 +22,7 @@ bp = Blueprint("annotations", __name__, url_prefix="/annotations")
 
 
 @bp.route("/<path:uri>", methods=["GET"])
-@bp.response(200)
+@bp.response(200, AnnotationSchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(400, description="Unknown URI")
@@ -40,9 +41,9 @@ def annotations(uri):
         abort(403)
 
     try:
-        annotations_ = get_annotations_from_uri_by_user(username, uri)
+        annotations = get_annotations_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(404)
 
-    return jsonify(annotations_)
+    return {"annotations": annotations}

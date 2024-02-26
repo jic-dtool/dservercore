@@ -8,8 +8,17 @@ from marshmallow.fields import (
     Boolean,
     Integer,
     Nested,
-    Float
+    Float,
+    Raw
 )
+
+
+class ConfigSchema(Schema):
+    config = Dict(keys=String(), values=Raw())
+
+
+class VersionSchema(Schema):
+    versions = Dict(keys=String(), values=String())
 
 
 class RegisterUserSchema(Schema):
@@ -30,10 +39,19 @@ class ItemSchema(Schema):
     utc_timestamp = Float()
 
 
+class ReadmeSchema(Schema):
+    readme = String()
+
+
 class ManifestSchema(Schema):
     items = Dict(keys=String, values=Nested(ItemSchema))
     hash_function = String()
     dtoolcore_version = String()
+
+
+# Define a schema for the response
+class AnnotationSchema(Schema):
+    annotations = Dict(keys=String(), values=String())
 
 
 class TagSchema(Schema):

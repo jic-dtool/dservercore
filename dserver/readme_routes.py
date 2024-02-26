@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 
 from dserver import UnknownURIError
 from dserver.blueprint import Blueprint
+from dserver.schemas import ReadmeSchema
 import dserver.utils_auth
 from dserver.utils import (
     url_suffix_to_uri,
@@ -21,7 +22,7 @@ bp = Blueprint("readmes", __name__, url_prefix="/readmes")
 
 
 @bp.route("/<path:uri>", methods=["GET"])
-@bp.response(200)
+@bp.response(200, ReadmeSchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
@@ -39,9 +40,9 @@ def readme(uri):
         abort(403)
 
     try:
-        readme_ = get_readme_from_uri_by_user(username, uri)
+        readme = get_readme_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(404)
 
-    return jsonify(readme_)
+    return {"readme": readme}

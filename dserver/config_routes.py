@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 import dserver
 import dserver.utils_auth
 from dserver.blueprint import Blueprint
+from dserver.schemas import ConfigSchema, VersionSchema
 from dserver.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
@@ -20,7 +21,7 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
-@bp.response(200)
+@bp.response(200, ConfigSchema)
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
 def server_config():
@@ -31,16 +32,16 @@ def server_config():
         # Unregistered users should see 401.
         abort(401)
 
-    return jsonify(obj_to_lowercase_key_dict(
+    return jsonify({"config": obj_to_lowercase_key_dict(
         current_app.config,
-        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"]))
+        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"])})
 
 
 @bp.route("/versions", methods=["GET"])
-@bp.response(200)
+@bp.response(200, VersionSchema)
 def server_versions():
     """Return the JSON-serialized server component versions.
 
     This does not require authorization."""
 
-    return jsonify(versions_to_dict())
+    return jsonify({"versions": versions_to_dict()})
