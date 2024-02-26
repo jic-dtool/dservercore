@@ -12,13 +12,14 @@ TODO
 ^^^^
 
 - Simplify code cleaning up created_at and frozen_at types
-- Create response schemas
+- Create response schemas for readme, annotations, tags, config, and versions routes
 
 Added
 ^^^^^
 
 - Sorting mechanism in analogy to flask_smorest's Pagination mechanism
 - Deletion, put, and patch routes
+- `/tags` tag retrieval route
 
 Changed
 ^^^^^^^
