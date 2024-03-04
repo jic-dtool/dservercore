@@ -97,39 +97,6 @@ def get_base_uri(base_uri):
     return base_uri_data
 
 
-@bp.route("/<path:base_uri>", methods=["POST"])
-@bp.arguments(UserPermissionsOnBaseURISchema)
-@bp.response(201)
-@bp.alt_response(200, description="Updated")
-@bp.alt_response(401, description="Not registered")
-@bp.alt_response(403, description="No permissions")
-@jwt_required()
-def register(permissions: UserPermissionsOnBaseURISchema, base_uri):
-    """Register a base URI.
-
-    The user needs to be admin.
-    """
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        abort(401)
-
-    if not dserver.utils_auth.has_admin_rights(identity):
-        abort(403)
-
-    base_uri = url_suffix_to_uri(base_uri)
-
-    success_code = 200
-    if not base_uri_exists(base_uri):
-        register_base_uri(base_uri)
-        success_code = 201
-
-    # post method not idempotent
-    patch_permissions(base_uri, permissions)
-
-    return "", success_code
-
-
 @bp.route("/<path:base_uri>", methods=["PUT"])
 @bp.arguments(UserPermissionsOnBaseURISchema)
 @bp.response(200)
@@ -161,37 +128,6 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
     put_permissions(base_uri, permissions)
 
     return "", success_code
-
-
-@bp.route("/<path:base_uri>", methods=["PATCH"])
-@bp.arguments(UserPermissionsOnBaseURISchema)
-@bp.response(200)
-@bp.alt_response(401, description="Not registered")
-@bp.alt_response(403, description="No permissions")
-@bp.alt_response(404, description="Not found")
-@jwt_required()
-def patch_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
-    """Update a user in the dtool lookup server by patching fields.
-
-    The user in the Authorization token needs to be admin.
-    """
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        abort(401)
-
-    if not dserver.utils_auth.has_admin_rights(identity):
-        abort(403)
-
-    base_uri = url_suffix_to_uri(base_uri)
-
-    # patch only updates existing resources, but does not create
-    if not base_uri_exists(base_uri):
-        abort(404)
-
-    patch_permissions(base_uri, permissions)
-
-    return "", 200
 
 
 @bp.route("/<path:base_uri>", methods=["DELETE"])

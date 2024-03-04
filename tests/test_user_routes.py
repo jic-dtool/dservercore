@@ -3,289 +3,6 @@
 import json
 
 
-def test_register_user_route(
-        tmp_app_with_users_client,
-        snowwhite_token,
-        grumpy_token,
-        noone_token,
-        sleepy_token):  # NOQA
-
-    from dserver.utils import user_exists
-
-    assert not user_exists("evil-witch")
-    assert not user_exists("dopey")
-
-    users = [
-        {"username": "evil-witch", "is_admin": True},
-        {"username": "dopey"}
-    ]
-    headers = dict(Authorization="Bearer " + snowwhite_token)
-    for user in users:
-        r = tmp_app_with_users_client.post(
-            "/users/{}".format(user["username"]),
-            headers=headers,
-            data=json.dumps(user),
-            content_type="application/json"
-        )
-        assert r.status_code == 201
-
-    assert user_exists("evil-witch")
-    assert user_exists("dopey")
-
-    # Ensure idempotent, but with distinction in success code
-    for user in users:
-        r = tmp_app_with_users_client.post(
-            "/users/{}".format(user["username"]),
-            headers=headers,
-            data=json.dumps(user),
-            content_type="application/json"
-        )
-        assert r.status_code == 200
-
-    assert user_exists("evil-witch")
-    assert user_exists("dopey")
-
-    # Only admins allowed.
-    headers = dict(Authorization="Bearer " + grumpy_token)
-
-    for user in users:
-        r = tmp_app_with_users_client.post(
-            "/users/{}".format(user["username"]),
-            headers=headers,
-            data=json.dumps(user),
-            content_type="application/json"
-        )
-        assert r.status_code == 403
-
-    headers = dict(Authorization="Bearer " + noone_token)
-    for user in users:
-        r = tmp_app_with_users_client.post(
-            "/users/{}".format(user["username"]),
-            headers=headers,
-            data=json.dumps(user),
-            content_type="application/json"
-        )
-        assert r.status_code == 401
-
-
-def test_get_user_route(
-        tmp_app_with_users_client,
-        snowwhite_token,
-        grumpy_token,
-        noone_token,
-        sleepy_token):
-    """Test retrieving user information by get method."""
-
-    from dserver.schemas import UserResponseSchema
-
-    # 1 - snow-white by snow-white
-    # Admin is allowed to query any user
-    headers = dict(Authorization="Bearer " + snowwhite_token)
-
-    expected_response = UserResponseSchema().load(
-        {
-            'is_admin': True,
-            'register_permissions_on_base_uris': [],
-            'search_permissions_on_base_uris': [],
-            'username': 'snow-white'
-        })
-
-    r = tmp_app_with_users_client.get(
-        "/users/snow-white",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    # validate against expected schema
-    assert len(UserResponseSchema().validate(user_response)) == 0
-
-    # assert correct content
-    assert user_response == expected_response
-
-    # 2 - grumpy by snow-white
-    expected_response = UserResponseSchema().load(
-        {
-            'is_admin': False,
-            'register_permissions_on_base_uris': ['s3://snow-white'],
-            'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
-        })
-
-    r = tmp_app_with_users_client.get(
-        "/users/grumpy",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    # validate against expected schema
-    assert len(UserResponseSchema().validate(user_response)) == 0
-
-    # assert correct content
-    assert user_response == expected_response
-
-    # 3 - noone (does not exist) by snow-white
-    r = tmp_app_with_users_client.get(
-        "/users/noone",
-        headers=headers
-    )
-    assert r.status_code == 404
-
-    # 4 - grumpy by grumpy
-    # Only admins allowed to query all users.
-    # Non-admins may query themselves only.
-    headers = dict(Authorization="Bearer " + grumpy_token)
-
-    r = tmp_app_with_users_client.get(
-        "/users/grumpy",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    # validate against expected schema
-    assert len(UserResponseSchema().validate(user_response)) == 0
-
-    # assert correct content
-    assert user_response == expected_response
-
-    # 5 - snow-white by grumpy
-    r = tmp_app_with_users_client.get(
-        "/users/snow-white",
-        headers=headers
-    )
-
-    assert r.status_code == 403
-
-    # 6 - snow-white by noone (user does not exist)
-    headers = dict(Authorization="Bearer " + noone_token)
-
-    r = tmp_app_with_users_client.get(
-        "/users/snow-white",
-        headers=headers
-    )
-
-    assert r.status_code == 401
-
-
-def test_patch_user_route(
-        tmp_app_with_users_client,
-        snowwhite_token,
-        grumpy_token,
-        noone_token,
-        sleepy_token):
-    "Text updating user information by patch method."
-
-    from dserver.schemas import UserResponseSchema
-
-    # 1 check original grumpy entry
-    expected_response = UserResponseSchema().load(
-        {
-            'is_admin': False,
-            'register_permissions_on_base_uris': ['s3://snow-white'],
-            'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
-        })
-
-    headers = dict(Authorization="Bearer " + snowwhite_token)
-
-    r = tmp_app_with_users_client.get(
-        "/users/grumpy",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    # validate against expected schema
-    assert len(UserResponseSchema().validate(user_response)) == 0
-
-    assert user_response == expected_response
-
-    # patch grumpy
-    r = tmp_app_with_users_client.patch(
-        "/users/grumpy",
-        headers=headers,
-        json={"is_admin": True}
-    )
-
-    assert r.status_code == 200
-
-    # check modified grumpy entry
-    expected_response = UserResponseSchema().load(
-        {
-            'is_admin': True,
-            'register_permissions_on_base_uris': ['s3://snow-white'],
-            'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
-        })
-
-    r = tmp_app_with_users_client.get(
-        "/users/grumpy",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    assert user_response == expected_response
-
-    # check idempotency
-    r = tmp_app_with_users_client.patch(
-        "/users/grumpy",
-        headers=headers,
-        json={}
-    )
-
-    assert r.status_code == 200
-
-    r = tmp_app_with_users_client.get(
-        "/users/grumpy",
-        headers=headers
-    )
-    assert r.status_code == 200
-
-    user_response = r.json
-
-    # validate against expected schema
-    assert len(UserResponseSchema().validate(user_response)) == 0
-
-    assert user_response == expected_response
-
-    # try to patch non-existing user
-    r = tmp_app_with_users_client.patch(
-        "/users/noone",
-        headers=headers,
-        json={}
-    )
-
-    assert r.status_code == 404
-
-    # check failure for non-admins
-    headers = dict(Authorization="Bearer " + sleepy_token)
-
-    r = tmp_app_with_users_client.patch(
-        "/users/grumpy",
-        headers=headers,
-        json={"is_admin": True}
-    )
-    assert r.status_code == 403
-
-    # check failure for non-registered users
-    headers = dict(Authorization="Bearer " + noone_token)
-
-    r = tmp_app_with_users_client.patch(
-        "/users/grumpy",
-        headers=headers,
-        json={"is_admin": True}
-    )
-    assert r.status_code == 401
-
-
 def test_put_user_route(
         tmp_app_with_users_client,
         snowwhite_token,
@@ -404,6 +121,110 @@ def test_put_user_route(
         headers=headers,
         json={"is_admin": True}
     )
+    assert r.status_code == 401
+
+
+def test_get_user_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test retrieving user information by get method."""
+
+    from dserver.schemas import UserResponseSchema
+
+    # 1 - snow-white by snow-white
+    # Admin is allowed to query any user
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    expected_response = UserResponseSchema().load(
+        {
+            'is_admin': True,
+            'register_permissions_on_base_uris': [],
+            'search_permissions_on_base_uris': [],
+            'username': 'snow-white'
+        })
+
+    r = tmp_app_with_users_client.get(
+        "/users/snow-white",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+
+    # validate against expected schema
+    assert len(UserResponseSchema().validate(user_response)) == 0
+
+    # assert correct content
+    assert user_response == expected_response
+
+    # 2 - grumpy by snow-white
+    expected_response = UserResponseSchema().load(
+        {
+            'is_admin': False,
+            'register_permissions_on_base_uris': ['s3://snow-white'],
+            'search_permissions_on_base_uris': ['s3://snow-white'],
+            'username': 'grumpy'
+        })
+
+    r = tmp_app_with_users_client.get(
+        "/users/grumpy",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+
+    # validate against expected schema
+    assert len(UserResponseSchema().validate(user_response)) == 0
+
+    # assert correct content
+    assert user_response == expected_response
+
+    # 3 - noone (does not exist) by snow-white
+    r = tmp_app_with_users_client.get(
+        "/users/noone",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+    # 4 - grumpy by grumpy
+    # Only admins allowed to query all users.
+    # Non-admins may query themselves only.
+    headers = dict(Authorization="Bearer " + grumpy_token)
+
+    r = tmp_app_with_users_client.get(
+        "/users/grumpy",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+
+    # validate against expected schema
+    assert len(UserResponseSchema().validate(user_response)) == 0
+
+    # assert correct content
+    assert user_response == expected_response
+
+    # 5 - snow-white by grumpy
+    r = tmp_app_with_users_client.get(
+        "/users/snow-white",
+        headers=headers
+    )
+
+    assert r.status_code == 403
+
+    # 6 - snow-white by noone (user does not exist)
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.get(
+        "/users/snow-white",
+        headers=headers
+    )
+
     assert r.status_code == 401
 
 

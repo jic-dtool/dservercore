@@ -126,48 +126,6 @@ def get_dataset_by_uri(uri):
     return dataset
 
 
-@bp.route("/<path:uri>", methods=["POST"])
-@bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
-@bp.response(201)
-@bp.alt_response(200, description="Updated")
-@bp.alt_response(400, description="Dataset not valid")
-@bp.alt_response(401, description="Not registered")
-@bp.alt_response(403, description="No permissions")
-@jwt_required()
-def register(dataset: RegisterDatasetSchema, uri):
-    """Register a dataset.
-
-    The user needs to have register permissions on the base_uri."""
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        # Unregistered users should see 401.
-        abort(401)
-
-    if not dserver.utils_auth.may_register(identity, dataset["base_uri"]):
-        abort(403)
-
-    uri = url_suffix_to_uri(uri)
-
-    if not uri == dataset["uri"]:
-        abort(400)
-
-    if not dataset_info_is_valid(dataset):
-        abort(400)
-
-    success_code = 201  # created
-    if dataset_uri_exists(uri):
-        success_code = 200  # updated
-
-    try:
-        dataset_uri = register_dataset(dataset)
-    except ValidationError as message:
-        # this should only be reached if plugins fail with a validation error
-        abort(400, message)
-
-    return "", success_code
-
-
 @bp.route("/<path:uri>", methods=["PUT"])
 @bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
 @bp.response(200)
@@ -210,53 +168,6 @@ def put_update(dataset : RegisterDatasetSchema, uri):
         abort(400, message)
 
     return "", success_code
-
-
-@bp.route("/<path:uri>", methods=["PATCH"])
-@bp.arguments(RegisterDatasetSchema(partial=("created_at",)))
-@bp.response(200)
-@bp.alt_response(400, description="Dataset not valid")
-@bp.alt_response(401, description="Not registered")
-@bp.alt_response(403, description="No permissions")
-@bp.alt_response(404, description="Not found")
-@jwt_required()
-def patch_update(dataset : RegisterDatasetSchema, uri):
-    """Update a dataset entry in the dtool lookup server by patching fields.
-
-    The user needs to have register permissions on the base_uri.
-    """
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        # Unregistered users should see 401.
-        abort(401)
-
-    uri = url_suffix_to_uri(uri)
-
-    # infer base URI, if not provided
-    # import pdb; pdb.set_trace()
-    if "base_uri" in dataset:
-        base_uri = dataset["base_uri"]
-    else:
-        base_uri = uri.rsplit("/", 1)[0]
-
-    if not dserver.utils_auth.may_register(identity, base_uri):
-        abort(403)
-
-    if not uri == dataset["uri"]:
-        abort(400)
-
-    # no validation of dataset info, only partial
-
-    try:
-        dataset_uri = patch_update_dataset(dataset)
-    except ValidationError as message:
-        # this should only be reached if plugins fail with a validation error
-        abort(400, message)  # invalid data
-    except UnknownURIError as message:
-        abort(404, message)  # not found
-
-    return "", 200
 
 
 @bp.route("/<path:uri>", methods=["DELETE"])
