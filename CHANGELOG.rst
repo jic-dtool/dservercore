@@ -17,45 +17,43 @@ TODO
 Added
 ^^^^^
 
-- Sorting mechanism in analogy to flask_smorest's Pagination mechanism
+- Sorting mechanism in analogy to ``flask_smorest``'s Pagination mechanism
 - Deletion, put, and patch routes
-- `/tags` tag retrieval route
+- ``/tags`` tag retrieval route
 
 Changed
 ^^^^^^^
 
 - Renamed package from ``dtool_lookup_server`` to ``dserver``.
 - All routes refactored to adhere to a few simple REST API conventions from "Mark Masse, REST API Design Rulebook, O'Reilly Media, Inc., 2011", namely
-  - Forward slash separator indicates hierarchical relationship,
-    and URI path conveys the REST API's resource model,
-    e.g. `/users/test-user`, `/base-uris/smb/test-share`, `/uris/s3/test-bucket/aad1c62b-b184-422b-841e-ac68eda26fe7`
-  - Hyphens used to improve readability and underscores avoided in URIs,
-    e.g. `/base-uris` instead of `/base_uris`
-  - Plural nouns are used for collections, e.g. `/users`, `/base-uris`
-  - Singular nouns are used for specific documents, e.g. `/users/test-user/summary`
-  - Query component of a URI used to filter collections, e.g. `/uris?creator_usernames=test-user&free_text=apple`
-  - Query component of URI used to paginate and sort collections , e.g. `/users?page=2&page_size=5&sort=is_admin,-username`
-- use HTTP methods GET, POST, PUT, PATCH, DELETE for managing resources in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods:
-  - GET retrieves a resource, e.g. GET /users/test-user
-  - POST registers a resource, but need not be idempotent, meaning it may fail for an existing resource or create multiple instances
-  - PUT registers a resource or replaces an existing resource and behaves idempotent,
-    e.g. PUT /users/test-user will create the user `test-user` or replace them if already existing
-  - PATCH updates an existing resource partially by modifying specified fields only and fails if resource does not exist, not necessarily idempotent
-  - DELETE removes a resource from dserver
+   - Forward slash separator indicates hierarchical relationship,
+     and URI path conveys the REST API's resource model,
+     e.g. ``/users/test-user``, ``/base-uris/smb/test-share``, ``/uris/s3/test-bucket/aad1c62b-b184-422b-841e-ac68eda26fe7``
+   - Hyphens used to improve readability and underscores avoided in URIs,
+     e.g. ``/base-uris`` instead of ``/base_uris``
+   - Plural nouns are used for collections, e.g. ``/users``, ``/base-uris``
+   - Singular nouns are used for specific documents, e.g. ``/users/test-user/summary``
+   - Query component of a URI used to filter collections, e.g. ``/uris?creator_usernames=test-user&free_text=apple``
+   - Query component of URI used to paginate and sort collections , e.g. ``/users?page=2&page_size=5&sort=is_admin,-username``
+- use HTTP methods GET, PUT, DELETE for managing resources in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods:
+   - GET retrieves a resource, e.g. GET ``/users/test-user``
+   - PUT registers a resource or replaces an existing resource and behaves idempotent,
+     e.g. PUT ``/users/test-user`` will create the user `test-user` or replace them if already existing
+   - DELETE removes a resource from dserver
 - use HTTP response codes to transparently indicate errors in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Status, e.g.
-  - 200 OK, Request succeeded, e.g. used by
-    - GET to indicate the resource has been fetched and transmitted,
-    - PUT and PATCH to indicate an existing resource has been updated successfully,
-    - DELETE to indicate successful removal of a resource
-  - 201 Created, The request succeeded, and a new resource was created as a result,
-    e.g. used by POST or PUT if the resource had not existed before the request and has been newly created
-  - 400 Bad Request, e.g. a dataset to be registered is not valid.
-  - 401 Unauthorized, semantically this response means "unauthenticated",
-    e.g. user needs to authenticate to access the resource.
-  - 403 Forbidden, client does not have access rights to the content,
-    e.g. user is authenticated and known to the server, but lacks admin rights to access the specified resource
-  - 404 Not Found, server cannot find the requested resource,
-    e.g. user is authenticated and has permissions to search a specific base URI, but no dataset entry exists for the requested URI
+   - 200 OK, Request succeeded, e.g. used by
+      - GET to indicate the resource has been fetched and transmitted,
+      - PUT to indicate an existing resource has been updated successfully,
+      - DELETE to indicate successful removal of a resource
+   - 201 Created, The request succeeded, and a new resource was created as a result,
+     e.g. used by PUT if the resource had not existed before the request and has been newly created
+   - 400 Bad Request, e.g. a dataset to be registered is not valid.
+   - 401 Unauthorized, semantically this response means "unauthenticated",
+     e.g. user needs to authenticate to access the resource.
+   - 403 Forbidden, client does not have access rights to the content,
+     e.g. user is authenticated and known to the server, but lacks admin rights to access the specified resource
+   - 404 Not Found, server cannot find the requested resource,
+     e.g. user is authenticated and has permissions to search a specific base URI, but no dataset entry exists for the requested URI
 
 Deprecated
 ^^^^^^^^^^
