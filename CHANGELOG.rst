@@ -98,8 +98,8 @@ Changed
   shall happen in the API client.
 - When registering a dataset the readme should now be provided as a string
   (text) rather than as a dictionary of key value entries
-- The ``/config/info```route now provides a dump of the actual Flask app config
-- Epoxe ``X-Pagination`` headers per default.
+- The ``/config/info`` route now provides a dump of the actual Flask app config
+- Expose ``X-Pagination`` headers per default.
 
 
 Removed
