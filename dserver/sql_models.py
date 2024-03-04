@@ -132,6 +132,8 @@ class BaseURISchema(ma.SQLAlchemyAutoSchema):
         model = BaseURI
         exclude = ("id",)
 
+
+class BaseURIWithPermissionsSchema(BaseURISchema):
     users_with_search_permissions = fields.List(fields.String)
     users_with_register_permissions = fields.List(fields.String)
 
@@ -141,6 +143,8 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         model = User
         exclude = ("id",)
 
+
+class UserWithPermissionsSchema(UserSchema):
     register_permissions_on_base_uris = fields.List(fields.String)
     search_permissions_on_base_uris = fields.List(fields.String)
 

@@ -12,7 +12,7 @@ import dserver.utils
 import dserver.utils_auth
 
 from dserver.blueprint import Blueprint
-from dserver.sql_models import UserSchema
+from dserver.sql_models import UserSchema, UserWithPermissionsSchema
 from dserver.schemas import SummarySchema
 from dserver.utils import summary_of_datasets_by_user
 
@@ -21,7 +21,7 @@ bp = Blueprint("me", __name__, url_prefix="/me")
 
 
 @bp.route("", methods=["GET"])
-@bp.response(200, UserSchema)
+@bp.response(200, UserWithPermissionsSchema)
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
 def me_get():

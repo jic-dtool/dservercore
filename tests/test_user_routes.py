@@ -11,10 +11,10 @@ def test_put_user_route(
         sleepy_token):  # NOQA
     """Test updating user information by put method."""
 
-    from dserver.sql_models import UserSchema
+    from dserver.sql_models import UserWithPermissionsSchema
 
     # 1 - check original grumpy entry
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
@@ -33,7 +33,7 @@ def test_put_user_route(
     user_response = r.json
 
     # 2 - validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     assert user_response == expected_response
 
@@ -47,7 +47,7 @@ def test_put_user_route(
     assert r.status_code == 200
 
     # check modified grumpy entry
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': True,
             'register_permissions_on_base_uris': ['s3://snow-white'],
@@ -66,7 +66,7 @@ def test_put_user_route(
     assert user_response == expected_response
 
     # 3 - check replacement of whole entry, contrary to patch
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
@@ -90,7 +90,7 @@ def test_put_user_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     assert user_response == expected_response
 
@@ -132,13 +132,13 @@ def test_get_user_route(
         sleepy_token):
     """Test retrieving user information by get method."""
 
-    from dserver.sql_models import UserSchema
+    from dserver.sql_models import UserWithPermissionsSchema
 
     # 1 - snow-white by snow-white
     # Admin is allowed to query any user
     headers = dict(Authorization="Bearer " + snowwhite_token)
 
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': True,
             'register_permissions_on_base_uris': [],
@@ -155,13 +155,13 @@ def test_get_user_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     # assert correct content
     assert user_response == expected_response
 
     # 2 - grumpy by snow-white
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
@@ -178,7 +178,7 @@ def test_get_user_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     # assert correct content
     assert user_response == expected_response
@@ -204,7 +204,7 @@ def test_get_user_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     # assert correct content
     assert user_response == expected_response

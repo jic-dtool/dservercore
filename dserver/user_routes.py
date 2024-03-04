@@ -15,7 +15,7 @@ import dserver.utils_auth
 from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
 from dserver.schemas import SummarySchema
-from dserver.sql_models import User, UserSchema
+from dserver.sql_models import User, UserSchema, UserWithPermissionsSchema
 from dserver.utils import register_user, delete_user, summary_of_datasets_by_user
 
 
@@ -25,7 +25,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 @bp.route("", methods=["GET"])
 @bp.sort(sort=["+username"], allowed_sort_fields=["username", "is_admin"])
 @bp.paginate()
-@bp.response(200, UserSchema(many=True))
+@bp.response(200, UserWithPermissionsSchema(many=True))
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
@@ -61,7 +61,7 @@ def users_get(pagination_parameters: PaginationParameters, sort_parameters: Sort
 
 
 @bp.route("/<username>", methods=["GET"])
-@bp.response(200, UserSchema)
+@bp.response(200, UserWithPermissionsSchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
@@ -90,7 +90,7 @@ def user_get(username):
 
 
 @bp.route("/<username>", methods=["PUT"])
-@bp.arguments(UserSchema(many=False, partial=("username", "is_admin",)))
+@bp.arguments(UserSchema)
 @bp.response(200)
 @bp.alt_response(201, description="Created")
 @bp.alt_response(401, description="Not registered")

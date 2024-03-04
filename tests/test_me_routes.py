@@ -12,12 +12,12 @@ def test_me_route(
         sleepy_token):
     """Test retrieving current user information by get method."""
 
-    from dserver.sql_models import UserSchema
+    from dserver.sql_models import UserWithPermissionsSchema
 
     # snow-white
     headers = dict(Authorization="Bearer " + snowwhite_token)
 
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': True,
             'register_permissions_on_base_uris': [],
@@ -34,13 +34,13 @@ def test_me_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     # assert correct content
     assert user_response == expected_response
 
     # grumpy
-    expected_response = UserSchema().load(
+    expected_response = UserWithPermissionsSchema().load(
         {
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
@@ -59,7 +59,7 @@ def test_me_route(
     user_response = r.json
 
     # validate against expected schema
-    assert len(UserSchema().validate(user_response)) == 0
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
 
     # assert correct content
     assert user_response == expected_response
