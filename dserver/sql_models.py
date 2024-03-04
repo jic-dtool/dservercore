@@ -137,6 +137,9 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
 
+    register_permissions_on_base_uris = fields.List(fields.String)
+    search_permissions_on_base_uris = fields.List(fields.String)
+
 
 class DatasetSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

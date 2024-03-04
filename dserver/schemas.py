@@ -92,10 +92,3 @@ class SummarySchema(Schema):
     datasets_per_base_uri = Dict(keys=String, values=Integer)
     tags = List(String)
     datasets_per_tag = Dict(keys=String, values=Integer)
-
-
-class UserResponseSchema(Schema):
-    username = String()
-    is_admin = Boolean()
-    register_permissions_on_base_uris = List(String)
-    search_permissions_on_base_uris = List(String)

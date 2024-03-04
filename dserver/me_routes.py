@@ -12,18 +12,19 @@ import dserver.utils
 import dserver.utils_auth
 
 from dserver.blueprint import Blueprint
-from dserver.schemas import UserResponseSchema, SummarySchema
-from dserver.utils import  summary_of_datasets_by_user
+from dserver.sql_models import UserSchema
+from dserver.schemas import SummarySchema
+from dserver.utils import summary_of_datasets_by_user
 
 
 bp = Blueprint("me", __name__, url_prefix="/me")
 
 
 @bp.route("", methods=["GET"])
-@bp.response(200, UserResponseSchema)
+@bp.response(200, UserSchema)
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
-def get_user_info():
+def me_get():
     """Return information on me (the user currently authenticated)."""
     identity = get_jwt_identity()
 
@@ -37,7 +38,7 @@ def get_user_info():
 @bp.response(200, SummarySchema)
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
-def summary_of_datasets():
+def me_summary_get():
     """Global summary of the datasets the currently authenticated user has access to."""
     identity = get_jwt_identity()
 

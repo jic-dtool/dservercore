@@ -14,7 +14,7 @@ import dserver.utils_auth
 
 from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
-from dserver.schemas import RegisterUserSchema, UserResponseSchema, SummarySchema
+from dserver.schemas import RegisterUserSchema, SummarySchema
 from dserver.sql_models import User, UserSchema
 from dserver.utils import register_user, delete_user, summary_of_datasets_by_user
 
@@ -61,7 +61,7 @@ def users_get(pagination_parameters: PaginationParameters, sort_parameters: Sort
 
 
 @bp.route("/<username>", methods=["GET"])
-@bp.response(200, UserResponseSchema)
+@bp.response(200, UserSchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
