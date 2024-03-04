@@ -314,6 +314,7 @@ def create_app(test_config=None):
         uri_routes,
         uuid_routes,
         user_routes,
+        me_routes,
         base_uri_routes,
         manifest_routes,
         readme_routes,
@@ -324,6 +325,7 @@ def create_app(test_config=None):
     api.register_blueprint(config_routes.bp)
     api.register_blueprint(uri_routes.bp)
     api.register_blueprint(uuid_routes.bp)
+    api.register_blueprint(me_routes.bp)
     api.register_blueprint(user_routes.bp)
     api.register_blueprint(base_uri_routes.bp)
     api.register_blueprint(manifest_routes.bp)

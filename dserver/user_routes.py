@@ -60,20 +60,6 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
     ).items
 
 
-@bp.route("/me", methods=["GET"])
-@bp.response(200, UserResponseSchema)
-@bp.alt_response(401, description="Not registered")
-@jwt_required()
-def get_user_info():
-    """Return information on me (the user currently authenticated)."""
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        abort(401)
-
-    return dserver.utils.get_user_info(identity)
-
-
 @bp.route("/<username>", methods=["GET"])
 @bp.response(200, UserResponseSchema)
 @bp.alt_response(401, description="Not registered")
@@ -210,22 +196,6 @@ def delete(username):
     delete_user(username)
 
     return "", 200
-
-
-@bp.route("/me/summary", methods=["GET"])
-@bp.response(200, SummarySchema)
-@bp.alt_response(401, description="Not registered")
-@jwt_required()
-def summary_of_datasets():
-    """Global summary of the datasets a user has access to."""
-    identity = get_jwt_identity()
-
-    if not dserver.utils_auth.user_exists(identity):
-        # Authenticated user does not exist
-        abort(401)
-
-    summary = summary_of_datasets_by_user(identity)
-    return summary
 
 
 @bp.route("/<username>/summary", methods=["GET"])

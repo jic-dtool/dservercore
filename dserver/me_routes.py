@@ -1,0 +1,49 @@
+"""Routes for me (information on currently authenticated user)"""
+from flask import (
+    abort,
+    jsonify,
+)
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity,
+)
+
+import dserver.utils
+import dserver.utils_auth
+
+from dserver.blueprint import Blueprint
+from dserver.schemas import UserResponseSchema, SummarySchema
+from dserver.utils import  summary_of_datasets_by_user
+
+
+bp = Blueprint("me", __name__, url_prefix="/me")
+
+
+@bp.route("", methods=["GET"])
+@bp.response(200, UserResponseSchema)
+@bp.alt_response(401, description="Not registered")
+@jwt_required()
+def get_user_info():
+    """Return information on me (the user currently authenticated)."""
+    identity = get_jwt_identity()
+
+    if not dserver.utils_auth.user_exists(identity):
+        abort(401)
+
+    return dserver.utils.get_user_info(identity)
+
+
+@bp.route("/summary", methods=["GET"])
+@bp.response(200, SummarySchema)
+@bp.alt_response(401, description="Not registered")
+@jwt_required()
+def summary_of_datasets():
+    """Global summary of the datasets the currently authenticated user has access to."""
+    identity = get_jwt_identity()
+
+    if not dserver.utils_auth.user_exists(identity):
+        # Authenticated user does not exist
+        abort(401)
+
+    summary = summary_of_datasets_by_user(identity)
+    return summary
