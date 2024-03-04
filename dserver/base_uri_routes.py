@@ -19,8 +19,7 @@ from dserver.utils import (
     get_permission_info,
     register_base_uri,
     delete_base_uri,
-    put_permissions,
-    patch_permissions,
+    register_permissions,
     url_suffix_to_uri
 )
 
@@ -34,7 +33,7 @@ bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def base_uri_list(pagination_parameters : PaginationParameters,
+def base_uris_get(pagination_parameters : PaginationParameters,
                   sort_parameters : SortParameters):
     """List all base_uris.
 
@@ -75,7 +74,7 @@ def base_uri_list(pagination_parameters : PaginationParameters,
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
-def get_base_uri(base_uri):
+def base_uri_get(base_uri):
     """Return base URI information.
 
     The user needs to be admin.
@@ -104,7 +103,7 @@ def get_base_uri(base_uri):
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
+def base_uri_put(permissions : UserPermissionsOnBaseURISchema, base_uri):
     """Update a user in the dtool lookup server by replacing entry.
 
     The user in the Authorization token needs to be admin.
@@ -125,7 +124,7 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
         success_code = 201  # created
 
     # put method idempotent
-    put_permissions(base_uri, permissions)
+    register_permissions(base_uri, permissions)
 
     return "", success_code
 
@@ -135,7 +134,7 @@ def put_update(permissions : UserPermissionsOnBaseURISchema, base_uri):
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def delete(base_uri):
+def base_uri_delete(base_uri):
     """Delete a user from the dtool lookup server.
 
     The user in the Authorization token needs to be admin.

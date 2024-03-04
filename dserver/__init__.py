@@ -75,36 +75,18 @@ class PluginABC(ABC):
     python entrypoints mechanism.
 
     Any plugin MUST implement a register_dataset method, and SHOULD implement
-    put_update_dataset, patch_update_dataset, and delete_dataset methods.
+    a delete_dataset methods.
     While register_dataset is primarily intended to create new a dataset entry
-    (but may as well replace an existing entry), the put_update_dataset is
+    (but may as well replace an existing entry), the register_dataset is
     primarily intended to replace an existing entry (but may as well create a
-    new entry). put_update_dataset MUST be idempotent. patch_update_dataset
+    new entry). register_dataset MUST be idempotent. patch_update_dataset
     SHOULD update an existing entry partially by only modifying specified fields
     and MUST not create new entries. delete_dataset SHOULD remove a dataset
     entry from the plugin's database if applicable.
     """
     @abstractmethod
     def register_dataset(self, dataset_info: RegisterDatasetSchema):
-        """Register a dataset.
-
-        The base URI is in the dataset_info. It is assumed that preflight checks
-        have been made to ensure that the base URI has been registered and that
-        the user has permissions to perform the action.
-        """
-        pass
-
-    def put_update_dataset(self, dataset_info: RegisterDatasetSchema):
-        """Update a dataset entry by replacing a possibly existing entry. Idempotent.
-
-        The base URI is in the dataset_info. It is assumed that preflight checks
-        have been made to ensure that the base URI has been registered and that
-        the user has permissions to perform the action.
-        """
-        pass
-
-    def patch_update_dataset(self, dataset_info: RegisterDatasetSchema):
-        """Update a dataset entry by appending partial information to an existing entry without replacing.
+        """Register or update a dataset entry by replacing a possibly existing entry. Idempotent.
 
         The base URI is in the dataset_info. It is assumed that preflight checks
         have been made to ensure that the base URI has been registered and that

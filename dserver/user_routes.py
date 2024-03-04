@@ -16,7 +16,7 @@ from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
 from dserver.schemas import RegisterUserSchema, UserResponseSchema, SummarySchema
 from dserver.sql_models import User, UserSchema
-from dserver.utils import register_user, put_user, patch_user, delete_user, summary_of_datasets_by_user
+from dserver.utils import register_user, delete_user, summary_of_datasets_by_user
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -29,7 +29,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def list_users(pagination_parameters: PaginationParameters, sort_parameters: SortParameters):
+def users_get(pagination_parameters: PaginationParameters, sort_parameters: SortParameters):
     """List the users in the dtool lookup server.
 
     The user in the Authorization token needs to be admin.
@@ -66,7 +66,7 @@ def list_users(pagination_parameters: PaginationParameters, sort_parameters: Sor
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
-def get_user_info(username):
+def user_get(username):
     """Return a user's information.
 
     A user can see his/her own profile.
@@ -96,7 +96,7 @@ def get_user_info(username):
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def put_update(data: RegisterUserSchema, username):
+def user_put(data: RegisterUserSchema, username):
     """Update a user in the dtool lookup server by replacing entry.
 
     The user in the Authorization token needs to be admin.
@@ -113,7 +113,7 @@ def put_update(data: RegisterUserSchema, username):
     if dserver.utils_auth.user_exists(username):
         success_code = 200  # update
 
-    put_user(username, data)
+    register_user(username, data)
 
     return "", success_code
 
@@ -123,7 +123,7 @@ def put_update(data: RegisterUserSchema, username):
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def delete(username):
+def user_delete(username):
     """Delete a user from the dtool lookup server.
 
     The user in the Authorization token needs to be admin.
@@ -147,7 +147,7 @@ def delete(username):
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
-def summary_of_datasets(username):
+def user_summary_get(username):
     """Global summary of the datasets a user has access to."""
     identity = get_jwt_identity()
 

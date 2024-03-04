@@ -29,7 +29,7 @@ bp = Blueprint("uuids", __name__, url_prefix="/uuids")
 @bp.response(200, DatasetSchema(many=True))
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
-def lookup_datasets(pagination_parameters: PaginationParameters,
+def uuid_get(pagination_parameters: PaginationParameters,
                     sort_parameters: SortParameters, uuid):
     """List all instances of a dataset in any base_uris the user has access to."""
     username = get_jwt_identity()

@@ -8,7 +8,7 @@ def test_register_dataset(tmp_app_client):   # NOQA
     from dserver.utils import (
         register_users,
         register_base_uri,
-        put_permissions,
+        register_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -27,7 +27,7 @@ def test_register_dataset(tmp_app_client):   # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    put_permissions(base_uri, permissions)
+    register_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -84,7 +84,7 @@ def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
     from dserver.utils import (
         register_users,
         register_base_uri,
-        put_permissions,
+        register_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -103,7 +103,7 @@ def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    put_permissions(base_uri, permissions)
+    register_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -160,7 +160,7 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client): 
     from dserver.utils import (
         register_users,
         register_base_uri,
-        put_permissions,
+        register_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
         get_readme_from_uri_by_user,
@@ -179,7 +179,7 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client): 
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    put_permissions(base_uri, permissions)
+    register_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)
@@ -235,7 +235,7 @@ def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
     from dserver.utils import (
         register_users,
         register_base_uri,
-        put_permissions,
+        register_permissions,
         register_dataset,
         get_admin_metadata_from_uri,
     )
@@ -253,7 +253,7 @@ def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
         "users_with_search_permissions": ["grumpy", "sleepy"],
         "users_with_register_permissions": ["grumpy"],
     }
-    put_permissions(base_uri, permissions)
+    register_permissions(base_uri, permissions)
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
     uri = "{}/{}".format(base_uri, uuid)

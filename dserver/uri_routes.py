@@ -25,8 +25,6 @@ from dserver.utils import (
     search_datasets_by_user,
     get_dataset_by_user_and_uri,
     register_dataset,
-    put_update_dataset,
-    patch_update_dataset,
     delete_dataset,
     dataset_uri_exists,
     url_suffix_to_uri,
@@ -43,7 +41,7 @@ bp = Blueprint("uris", __name__, url_prefix="/uris")
 @bp.response(200, DatasetSchema(many=True))
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
-def search_datasets(query: SearchDatasetSchema,
+def uris_get(query: SearchDatasetSchema,
                     pagination_parameters: PaginationParameters,
                     sort_parameters: SortParameters):
     """Search the datasets a user has access to."""
@@ -75,7 +73,7 @@ def search_datasets(query: SearchDatasetSchema,
 @bp.response(200, DatasetSchema(many=True))
 @bp.alt_response(401, description="Not registered")
 @jwt_required()
-def search_datasets(query: SearchDatasetSchema,
+def uris_post(query: SearchDatasetSchema,
                    pagination_parameters: PaginationParameters,
                    sort_parameters: SortParameters):
     """Search the datasets a user has access to."""
@@ -104,7 +102,7 @@ def search_datasets(query: SearchDatasetSchema,
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
-def get_dataset_by_uri(uri):
+def uri_get(uri):
     """Return dataset information by URI."""
     username = get_jwt_identity()
 
@@ -135,7 +133,7 @@ def get_dataset_by_uri(uri):
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
-def put_update(dataset : RegisterDatasetSchema, uri):
+def uri_put(dataset : RegisterDatasetSchema, uri):
     """Update a dataset entry in the dtool lookup server by replacing entry.
 
     The user needs to have register permissions on the base_uri.
@@ -162,7 +160,7 @@ def put_update(dataset : RegisterDatasetSchema, uri):
         success_code = 200  # updated
 
     try:
-        dataset_uri = put_update_dataset(dataset)
+        dataset_uri = register_dataset(dataset)
     except ValidationError as message:
         # this should only be reached if plugins fail with a validation error
         abort(400, message)
@@ -175,7 +173,7 @@ def put_update(dataset : RegisterDatasetSchema, uri):
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def delete(uri):
+def uri_delete(uri):
     """Delete a dataset entry from the dtool lookup server.
 
     The user needs to have register permissions on the base_uri.

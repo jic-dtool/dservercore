@@ -260,7 +260,7 @@ def test_put_dataset_by_uri_route(
     assert r.status_code == 201
 
     # do not check against README as updating README mus happen and be tested
-    # in retrieve plugin, and the implementation of a put_update_dataset method
+    # in retrieve plugin, and the implementation of a register_dataset method
     # is not enforced on a plugin
     # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
 
@@ -327,7 +327,7 @@ def test_put_dataset_by_uri_route(
     }
 
     # do not check against README as updating README mus happen and be tested
-    # in retrieve plugin, and the implementation of a put_update_dataset method
+    # in retrieve plugin, and the implementation of a register_dataset method
     # is not enforced on a plugin
     # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
     assert get_admin_metadata_from_uri(uri) == expected_content

@@ -213,6 +213,26 @@ def get_user_obj(username):
     return user
 
 
+def register_user(username, data):
+    """Register or update a single user in the system by replacing entry. Idempotent.
+
+    Example input structure::
+
+        {"is_admin": True},
+
+    If a user is missing in the system it is skipped. The ``is_admin`` status
+    defaults to False.
+    """
+    is_admin = data.get("is_admin", False)
+
+    for sqlalch_user_obj in (
+        sql_db.session.query(User).filter_by(username=username).all()
+    ):
+        sqlalch_user_obj.is_admin = is_admin
+
+    sql_db.session.commit()
+
+
 def register_users(users):
     """Register a list of users in the system.
 
@@ -241,29 +261,6 @@ def register_users(users):
         user = User(username=username, is_admin=is_admin)
         sql_db.session.add(user)
 
-    sql_db.session.commit()
-
-
-def register_user(username, data):
-    """Register a single user in the system.
-
-    Example input structure::
-
-        {"is_admin": True}
-
-    If a user is already registered in the system it is skipped. To change the
-    ``is_admin`` status of an existing user use the :func:`.update_users``
-    function. The ``is_admin`` status defaults to False.
-    """
-
-    is_admin = data.get("is_admin", False)
-
-    # Skip existing users.
-    if sql_db.session.query(exists().where(User.username == username)).scalar():  # NOQA
-        return
-
-    user = User(username=username, is_admin=is_admin)
-    sql_db.session.add(user)
     sql_db.session.commit()
 
 
@@ -338,47 +335,6 @@ def update_users(users):
             sqlalch_user_obj.is_admin = is_admin
 
     sql_db.session.commit()
-
-
-def put_user(username, data):
-    """Update a single user in the system by replacing entry.
-
-    Example input structure::
-
-        {"is_admin": True},
-
-    If a user is missing in the system it is skipped. The ``is_admin`` status
-    defaults to False.
-    """
-    is_admin = data.get("is_admin", False)
-
-    for sqlalch_user_obj in (
-        sql_db.session.query(User).filter_by(username=username).all()
-    ):
-        sqlalch_user_obj.is_admin = is_admin
-
-    sql_db.session.commit()
-
-
-def patch_user(username, data):
-    """Update a single user in the system by only updating specified fields.
-
-    Example input structure::
-
-        {"is_admin": True},
-
-    If a user is missing in the system it is skipped.
-    """
-
-    if "is_admin" in data:
-        is_admin = data.get("is_admin", False)
-
-        for sqlalch_user_obj in (
-            sql_db.session.query(User).filter_by(username=username).all()
-        ):
-            sqlalch_user_obj.is_admin = is_admin
-
-        sql_db.session.commit()
 
 
 def get_user_info(username):
@@ -725,53 +681,8 @@ def get_permission_info(base_uri_str):
     return base_uri.as_dict()
 
 
-def patch_permissions(base_uri, permissions):
-    """Patch permissions on base_uri (without clearing previous permissions)."""
-    base_uri = get_base_uri_obj(base_uri)
-
-    # Do not clear existing permissions.
-
-    if "users_with_search_permissions" in permissions:
-        for username in permissions["users_with_search_permissions"]:
-            if user_exists(username):
-                user = get_user_obj(username)
-                if user not in base_uri.search_users:
-                    base_uri.search_users.append(user)
-
-    if "users_with_register_permissions" in permissions:
-        for username in permissions["users_with_register_permissions"]:
-            if user_exists(username):
-                user = get_user_obj(username)
-                if user not in base_uri.register_users:
-                    base_uri.register_users.append(user)
-
-    sql_db.session.commit()
-
-
-def register_permissions(permissions):
-    """Legacy function to allow usage of deprecated permissions schema.
-
-    Legacy schema adheres to
-        permissions = {
-            "base_uri": "s3://test-bucket"
-            "users_with_search_permissions": ["user1", "user2", ...]
-            "users_with_register_permissions": ["user2", ...]
-        }
-    """
-    base_uri = permissions["base_uri"]
-
-    new_permissions = {}
-    if "users_with_search_permissions" in permissions:
-        new_permissions["users_with_search_permissions"] = permissions["users_with_search_permissions"]
-
-    if "users_with_register_permissions" in permissions:
-        new_permissions["users_with_register_permissions"] = permissions["users_with_register_permissions"]
-
-    return put_permissions(base_uri, new_permissions)
-
-
-def put_permissions(base_uri, permissions):
-    """Put permissions on base_uri."""
+def register_permissions(base_uri, permissions):
+    """Register or update permissions on base_uri. Idempotent."""
     base_uri = get_base_uri_obj(base_uri)
 
     # Clear all the existing permissions.
@@ -869,16 +780,6 @@ def create_dataset_obj_from_admin_metadata(admin_metadata):
 
 
 def register_dataset_admin_metadata(admin_metadata):
-    """Register the admin metadata in the dataset SQL table."""
-    dataset = create_dataset_obj_from_admin_metadata(admin_metadata)
-
-    sql_db.session.add(dataset)
-    sql_db.session.commit()
-
-    return dataset.uri
-
-
-def put_update_dataset_admin_metadata(admin_metadata):
     """Update the admin metadata in the dataset SQL table by replacing a possibly existing dataset entry."""
 
     # first, validate dataset info
@@ -893,87 +794,6 @@ def put_update_dataset_admin_metadata(admin_metadata):
     sql_db.session.commit()
 
     return new_dataset_entry.uri
-
-
-def patch_update_dataset_admin_metadata(admin_metadata):
-    """Update the admin metadata in the dataset SQL table by modifying specific fields of an existing dataset entry.
-
-    :param admin_metadata: dict-like object, expected to adhere to
-                           schemas.RegisterDatasetSchema
-    :returns: URI of updated dataset entry
-
-    :raises UnknownURIError: if dataset entry for URI does not exist.
-    :raises ValidationError: if the possibly provided base URI does not agree
-                             with the base RUI of the existing entry.
-    """
-
-    # uri must have been provided
-    uri = admin_metadata["uri"]
-
-    dataset = sql_db.session.query(Dataset).filter_by(uri=uri).first()
-
-    if dataset is None:
-        raise UnknownURIError(f"Entry '{uri} does not exist.")
-
-    # otherwise, we assume no required field
-    if "base_uri" in admin_metadata:
-        base_uri = get_base_uri_obj(admin_metadata["base_uri"])
-    else:
-        base_uri_str = uri.rsplit("/", 1)[0]
-        base_uri = get_base_uri_obj(base_uri_str)
-
-    if base_uri != dataset.base_uri:
-        raise ValidationError(f"Provided base_uri and base_uri of existing entry '{uri} disagree.")
-
-    try:
-        frozen_at = admin_metadata["frozen_at"]
-        frozen_at = float(frozen_at)
-        frozen_at = datetime.utcfromtimestamp(frozen_at)
-        dataset.frozen_at = frozen_at
-    except KeyError:
-        logger.info("No valid 'frozen_at' field provided in admin metadata of '%s'", uri)
-
-    try:
-        created_at = admin_metadata["created_at"]
-        created_at = float(created_at)
-        return datetime.utcfromtimestamp(created_at)
-        dataset.created_at = created_at
-    except KeyError:
-        logger.info("No valid 'created_at' field provided in admin metadata of '%s'", uri)
-
-    try:
-        number_of_items = admin_metadata["number_of_items"]
-        dataset.number_of_items = number_of_items
-    except KeyError:
-        logger.info("No valid 'number_of_items' field provided in admin metadata of '%s'", uri)
-
-    try:
-        size_in_bytes = admin_metadata["size_in_bytes"]
-        dataset.size_in_bytes = size_in_bytes
-    except KeyError:
-        logger.info("No valid 'size_in_bytes' field provided in admin metadata of '%s'", uri)
-
-    try:
-        uuid = str(admin_metadata["uuid"])
-        dataset.uuid = uuid
-    except KeyError:
-        logger.info("No valid 'uuid' field provided in admin metadata of '%s'", uri)
-
-    try:
-        name = admin_metadata["name"]
-        dataset.name = name
-    except KeyError:
-        logger.info("No valid 'name' field provided in admin metadata of '%s'", uri)
-
-    try:
-        creator_username = admin_metadata["creator_username"]
-        dataset.creator_username = creator_username
-    except KeyError:
-        logger.info("No valid 'creator_username' field provided in admin metadata of '%s'", uri)
-
-    sql_db.session.commit()
-
-    return uri
 
 
 def delete_dataset_admin_metadata(uri):
@@ -994,51 +814,6 @@ def delete_dataset_admin_metadata(uri):
 
 
 def register_dataset(dataset_info):
-    """Register a dataset in the lookup server."""
-    if not dataset_info_is_valid(dataset_info):
-        raise (ValidationError("Dataset info not valid: {}".format(dataset_info)))  # NOQA
-
-    base_uri = dataset_info["base_uri"]
-    if not base_uri_exists(base_uri):
-        raise (ValidationError("Base URI is not registered: {}".format(base_uri)))  # NOQA
-
-    # Take a copy as register_dataset_descriptive_metadata makes
-    # changes to the dictionary, in particular it changes the
-    # types of the dates to datetime objects.
-    # On the core search and retrieve plugins, we are strict. We expect them
-    # to raise ValidationError on failure, we log those, and reraise
-    try:
-        current_app.search.register_dataset(dataset_info.copy())
-    except ValidationError as message:
-        # Instead of reporting the error with the logging module, we will want
-        # to do some bookkeeping on registration errors per URI in the
-        # core SQL db
-        logger.error(message)
-        raise
-
-    try:
-        current_app.retrieve.register_dataset(dataset_info.copy())
-    except ValidationError as message:
-        logger.error(message)
-        raise
-
-    # On any other optional extension, we want to be lenient. We still
-    # want to keep track of any error, but the registration should not fail.
-    for ex in current_app.custom_extensions:
-        try:
-            ex.register_dataset(dataset_info.copy())
-        except Exception as message:
-            logger.warning(message)
-
-    # this is double bookkeeping, next to delegating dataset registration to
-    # the search plugin, we also store metadata in an sql table
-    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
-        register_dataset_admin_metadata(dataset_info)
-
-    return dataset_info["uri"]
-
-
-def put_update_dataset(dataset_info):
     """Put-update a dataset in the lookup server. Put is idempotent."""
 
     if not dataset_info_is_valid(dataset_info):
@@ -1054,10 +829,10 @@ def put_update_dataset(dataset_info):
     # On the core search and retrieve plugins, we are strict. We expect them
     # to raise ValidationError on failure, we log those, and reraise
     try:
-        if hasattr(current_app.search, "put_update_dataset"):
-            current_app.search.put_update_dataset(dataset_info.copy())
+        if hasattr(current_app.search, "register_dataset"):
+            current_app.search.register_dataset(dataset_info.copy())
         else:
-            logger.warning("Search plugin has no method 'put_update_dataset'")
+            logger.warning("Search plugin has no method 'register_dataset'")
             logger.warning("Applied modifications to dataset entry '%s' will not take effect in search database.'",
                            dataset_info["uri"])
     except ValidationError as message:
@@ -1068,10 +843,10 @@ def put_update_dataset(dataset_info):
         raise
 
     try:
-        if hasattr(current_app.retrieve, "put_update_dataset"):
-            current_app.retrieve.put_update_dataset(dataset_info.copy())
+        if hasattr(current_app.retrieve, "register_dataset"):
+            current_app.retrieve.register_dataset(dataset_info.copy())
         else:
-            logger.warning("Retrieve plugin has no method 'patch_update_dataset'")
+            logger.warning("Retrieve plugin has no method 'register_dataset'")
             logger.warning("Applied modifications to dataset entry '%s' will not take effect in retrieve database.'",
                            dataset_info["uri"])
     except ValidationError as message:
@@ -1082,80 +857,13 @@ def put_update_dataset(dataset_info):
     # want to keep track of any error, but the registration should not fail.
     for ex in current_app.custom_extensions:
         try:
-            ex.put_update_dataset(dataset_info.copy())
+            ex.register_dataset(dataset_info.copy())
         except Exception as message:
             logger.warning(message)
 
     # this is double bookkeeping, next to delegating dataset registration to
     # the search plugin, we also store metadata in an sql table
-    put_update_dataset_admin_metadata(dataset_info)
-
-    return dataset_info["uri"]
-
-
-def patch_update_dataset(dataset_info):
-    """Patch-update a dataset in the lookup server. Patch does only operate on already existing entries.
-
-    :raises ValidationError: if no URI provided"""
-
-    # no wholesome dataset validity check as information may only be partial, only minimal check
-
-    # uri must have been provided
-    try:
-        uri = dataset_info["uri"]
-    except KeyError:
-        raise ValidationError("No URI provied.")
-
-    # infer base URI, if not provided
-    if "base_uri" in dataset_info:
-        base_uri = dataset_info["base_uri"]
-    else:
-        base_uri = uri.rsplit("/", 1)[0]
-
-    if not base_uri_exists(base_uri):
-        raise (ValidationError("Base URI is not registered: {}".format(base_uri)))  # NOQA
-
-    # Take a copy as register_dataset_descriptive_metadata makes
-    # changes to the dictionary, in particular it changes the
-    # types of the dates to datetime objects.
-    # On the core search and retrieve plugins, we are strict. We expect them
-    # to raise ValidationError on failure, we log those, and reraise
-    try:
-        if hasattr(current_app.search, "patch_update_dataset"):
-            current_app.search.patch_update_dataset(dataset_info.copy())
-        else:
-            logger.warning("Search plugin has no method 'patch_update_dataset'")
-            logger.warning("Applied modifications to dataset entry '%s' will not take effect in search database.'",
-                           dataset_info["uri"])
-    except ValidationError as message:
-        # Instead of reporting the error with the logging module, we will want
-        # to do some bookkeeping on registration errors per URI in the
-        # core SQL db
-        logger.error(message)
-        raise
-
-    try:
-        if hasattr(current_app.retrieve, "patch_update_dataset"):
-            current_app.retrieve.patch_update_dataset(dataset_info.copy())
-        else:
-            logger.warning("Retrieve plugin has no method 'patch_update_dataset'")
-            logger.warning("Applied modifications to dataset entry '%s' will not take effect in retrieve database.'",
-                           dataset_info["uri"])
-    except ValidationError as message:
-        logger.error(message)
-        raise
-
-    # On any other optional extension, we want to be lenient. We still
-    # want to keep track of any error, but the registration should not fail.
-    for ex in current_app.custom_extensions:
-        try:
-            ex.patch_update_dataset(dataset_info.copy())
-        except Exception as message:
-            logger.warning(message)
-
-    # this is double bookkeeping, next to delegating dataset registration to
-    # the search plugin, we also store metadata in an sql table
-    patch_update_dataset_admin_metadata(dataset_info)
+    register_dataset_admin_metadata(dataset_info)
 
     return dataset_info["uri"]
 
