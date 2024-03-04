@@ -302,9 +302,9 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'id': 1, 'is_admin': True, 'username': 'snow-white'},
-        {'id': 2, 'is_admin': False, 'username': 'grumpy'},
-        {'id': 3, 'is_admin': False, 'username': 'sleepy'}
+        {'is_admin': False, 'username': 'grumpy'},
+        {'is_admin': False, 'username': 'sleepy'},
+        {'is_admin': True, 'username': 'snow-white'}
     ]
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -317,9 +317,9 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'id': 1, 'is_admin': True, 'username': 'snow-white'},
-        {'id': 3, 'is_admin': False, 'username': 'sleepy'},
-        {'id': 2, 'is_admin': False, 'username': 'grumpy'}
+        {'is_admin': True, 'username': 'snow-white'},
+        {'is_admin': False, 'username': 'sleepy'},
+        {'is_admin': False, 'username': 'grumpy'}
     ]
 
     # Only admins allowed.

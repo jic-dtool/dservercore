@@ -212,9 +212,9 @@ def test_sort_parameters(tmp_app_with_dummy_sort_blueprint_client):
 
     assert len(data) == 3
 
-    assert data[0] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
-    assert data[1] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
-    assert data[2] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
+    assert data[0] == {'is_admin': False, 'username': 'grumpy'}
+    assert data[1] == {'is_admin': False, 'username': 'sleepy'}
+    assert data[2] == {'is_admin': True, 'username': 'snow-white'}
 
     # order 2
     response = tmp_app_with_dummy_sort_blueprint_client.get(
@@ -226,9 +226,9 @@ def test_sort_parameters(tmp_app_with_dummy_sort_blueprint_client):
 
     assert len(data) == 3
 
-    assert data[0] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
-    assert data[1] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
-    assert data[2] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
+    assert data[0] == {'is_admin': True, 'username': 'snow-white'}
+    assert data[1] == {'is_admin': False, 'username': 'grumpy'}
+    assert data[2] == {'is_admin': False, 'username': 'sleepy'}
 
     # order 3
     response = tmp_app_with_dummy_sort_blueprint_client.get(
@@ -240,9 +240,9 @@ def test_sort_parameters(tmp_app_with_dummy_sort_blueprint_client):
 
     assert len(data) == 3
 
-    assert data[0] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
-    assert data[1] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
-    assert data[2] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
+    assert data[0] == {'is_admin': True, 'username': 'snow-white'}
+    assert data[1] == {'is_admin': False, 'username': 'sleepy'}
+    assert data[2] == {'is_admin': False, 'username': 'grumpy'}
 
     # order 4
     response = tmp_app_with_dummy_sort_blueprint_client.get(
@@ -254,23 +254,9 @@ def test_sort_parameters(tmp_app_with_dummy_sort_blueprint_client):
 
     assert len(data) == 3
 
-    assert data[0] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
-    assert data[1] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
-    assert data[2] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
-
-    # order 5
-    response = tmp_app_with_dummy_sort_blueprint_client.get(
-        "/test/", query_string={"sort": "-id"}
-    )
-
-    assert response.status_code == 200
-    data = response.json
-
-    assert len(data) == 3
-
-    assert data[0] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
-    assert data[1] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
-    assert data[2] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
+    assert data[0] == {'is_admin': False, 'username': 'sleepy'}
+    assert data[1] == {'is_admin': False, 'username': 'grumpy'}
+    assert data[2] == {'is_admin': True, 'username': 'snow-white'}
 
     # order 6 - default
     response = tmp_app_with_dummy_sort_blueprint_client.get(
@@ -282,9 +268,9 @@ def test_sort_parameters(tmp_app_with_dummy_sort_blueprint_client):
 
     assert len(data) == 3
 
-    assert data[0] == {'id': 3, 'is_admin': True, 'username': 'snow-white'}
-    assert data[1] == {'id': 1, 'is_admin': False, 'username': 'grumpy'}
-    assert data[2] == {'id': 2, 'is_admin': False, 'username': 'sleepy'}
+    assert data[0] == {'is_admin': True, 'username': 'snow-white'}
+    assert data[1] == {'is_admin': False, 'username': 'grumpy'}
+    assert data[2] == {'is_admin': False, 'username': 'sleepy'}
 
 
 @pytest.mark.parametrize("header_name", ("X-Dummy-Name", None))

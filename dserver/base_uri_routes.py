@@ -12,7 +12,6 @@ from flask_smorest.pagination import PaginationParameters
 from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
 from dserver.sql_models import BaseURISchema, BaseURI
-from dserver.schemas import UserPermissionsOnBaseURISchema
 import dserver.utils_auth
 from dserver.utils import (
     base_uri_exists,
@@ -27,7 +26,7 @@ bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 
 
 @bp.route("", methods=["GET"])
-@bp.sort(sort=["+id"], allowed_sort_fields=["id", "base_uri"])
+@bp.sort(sort=["+base_uri"], allowed_sort_fields=["base_uri"])
 @bp.paginate()
 @bp.response(200, BaseURISchema(many=True))
 @bp.alt_response(401, description="Not registered")
@@ -69,7 +68,7 @@ def base_uris_get(pagination_parameters : PaginationParameters,
 # slash '/' and a period '.'. To include a forward slash in the parameter, you
 # can specify a custom converter for the route parameter, e.g. <path:base_uri>
 @bp.route("/<path:base_uri>", methods=["GET"])
-@bp.response(200, UserPermissionsOnBaseURISchema)
+@bp.response(200, BaseURISchema)
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
@@ -97,13 +96,13 @@ def base_uri_get(base_uri):
 
 
 @bp.route("/<path:base_uri>", methods=["PUT"])
-@bp.arguments(UserPermissionsOnBaseURISchema)
+@bp.arguments(BaseURISchema)
 @bp.response(200)
 @bp.alt_response(201, description="Created")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def base_uri_put(permissions : UserPermissionsOnBaseURISchema, base_uri):
+def base_uri_put(permissions : BaseURISchema, base_uri):
     """Update a user in the dtool lookup server by replacing entry.
 
     The user in the Authorization token needs to be admin.

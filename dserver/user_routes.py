@@ -14,7 +14,7 @@ import dserver.utils_auth
 
 from dserver.blueprint import Blueprint
 from dserver.sort import SortParameters, ASCENDING, DESCENDING
-from dserver.schemas import RegisterUserSchema, SummarySchema
+from dserver.schemas import SummarySchema
 from dserver.sql_models import User, UserSchema
 from dserver.utils import register_user, delete_user, summary_of_datasets_by_user
 
@@ -23,7 +23,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 
 
 @bp.route("", methods=["GET"])
-@bp.sort(sort=["+id"], allowed_sort_fields=["id", "username", "is_admin"])
+@bp.sort(sort=["+username"], allowed_sort_fields=["username", "is_admin"])
 @bp.paginate()
 @bp.response(200, UserSchema(many=True))
 @bp.alt_response(401, description="Not registered")
@@ -90,13 +90,13 @@ def user_get(username):
 
 
 @bp.route("/<username>", methods=["PUT"])
-@bp.arguments(RegisterUserSchema(many=False, partial=("username", "is_admin",)))
+@bp.arguments(UserSchema(many=False, partial=("username", "is_admin",)))
 @bp.response(200)
 @bp.alt_response(201, description="Created")
 @bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
-def user_put(data: RegisterUserSchema, username):
+def user_put(data: UserSchema, username):
     """Update a user in the dtool lookup server by replacing entry.
 
     The user in the Authorization token needs to be admin.

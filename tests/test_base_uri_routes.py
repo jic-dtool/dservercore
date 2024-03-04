@@ -201,8 +201,8 @@ def test_base_uri_list_route(
 
     assert len(json.loads(r.data.decode("utf-8"))) == 2
     expected_content = [
-        {'base_uri': 's3://snow-white'},
-        {'base_uri': 's3://mr-men'}
+        {'base_uri': 's3://mr-men'},
+        {'base_uri': 's3://snow-white'}
     ]
     assert json.loads(r.data.decode("utf-8")) == expected_content
 
@@ -220,34 +220,6 @@ def test_base_uri_list_route(
     )
     assert r.status_code == 201
     assert base_uri_exists(base_uri)
-
-    # test ascending sorting by id
-    r = tmp_app_with_data_client.get(
-        "/base-uris",
-        query_string={"sort": "+id"},
-        headers=headers
-    )
-    assert r.status_code == 200
-    expected_content = [
-        {'base_uri': 's3://snow-white'},
-        {'base_uri': 's3://mr-men'},
-        {'base_uri': 's3://snow-white-again'}
-    ]
-    assert json.loads(r.data.decode("utf-8")) == expected_content
-
-    # test descending sorting by id
-    r = tmp_app_with_data_client.get(
-        "/base-uris",
-        query_string={"sort": "-id"},
-        headers=headers
-    )
-    assert r.status_code == 200
-    expected_content = [
-        {'base_uri': 's3://snow-white-again'},
-        {'base_uri': 's3://mr-men'},
-        {'base_uri': 's3://snow-white'}
-    ]
-    assert json.loads(r.data.decode("utf-8")) == expected_content
 
     # test ascending sorting by alphabet
     r = tmp_app_with_data_client.get(

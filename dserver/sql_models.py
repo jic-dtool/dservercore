@@ -130,12 +130,16 @@ class Dataset(db.Model):
 class BaseURISchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
-        fields = ('base_uri',)
+        exclude = ("id",)
+
+    users_with_search_permissions = fields.List(fields.String)
+    users_with_register_permissions = fields.List(fields.String)
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
+        exclude = ("id",)
 
     register_permissions_on_base_uris = fields.List(fields.String)
     search_permissions_on_base_uris = fields.List(fields.String)

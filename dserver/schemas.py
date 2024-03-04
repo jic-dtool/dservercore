@@ -21,17 +21,6 @@ class VersionSchema(Schema):
     versions = Dict(keys=String(), values=String())
 
 
-class RegisterUserSchema(Schema):
-    username = String()
-    is_admin = Boolean()
-
-
-class UserPermissionsOnBaseURISchema(Schema):
-    base_uri = String()
-    users_with_search_permissions = List(String)
-    users_with_register_permissions = List(String)
-
-
 class ItemSchema(Schema):
     hash = String()
     relpath = String()
