@@ -34,10 +34,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+
       - name: install package
         run: |
-          pip install setuptools_scm
+          python -m pip install --upgrade pip
+          pip install --upgrade setuptools wheel setuptools-scm[toml] importlib-metadata
           pip install .
+          pip list
 
       - name: install docs dependencies
         run: |
