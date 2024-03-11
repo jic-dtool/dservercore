@@ -44,19 +44,3 @@ packages = ["dtool_lookup_server"]
 "user" = "dtool_lookup_server.cli:user_cli"
 "config" = "dtool_lookup_server.cli:config_cli"
 "dataset" = "dtool_lookup_server.cli:dataset_cli"
-
-[tool.poetry.dependencies]
-python = "^3.6"
-flask = "<3"
-pymongo = "*"
-alembic = "*"
-flask-sqlalchemy = "*"
-flask-migrate = "*"
-flask-pymongo = "*"
-flask-marshmallow = "*"
-flask-smorest = "*"
-marshmallow-sqlalchemy = "*"
-flask-cors = "*"
-dtoolcore = ">=3.18.0"
-flask-jwt-extended = {version = ">=4.0", extras = ["asymmetric_crypto"]}
-pyyaml = "*"
