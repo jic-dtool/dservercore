@@ -1,10 +1,10 @@
 name: test
+
 on:
   push:
     branches:
-      - master
       - main
-      - "mongo-refactor"
+      - master
     tags:
       - '*'
   pull_request:
