@@ -3,7 +3,7 @@
 
 def test_uri_management_helper_functions(tmp_app_client):  # NOQA
 
-    from dserver.utils import (
+    from dtool_lookup_server.utils import (
         register_base_uri,
         list_base_uris,
     )

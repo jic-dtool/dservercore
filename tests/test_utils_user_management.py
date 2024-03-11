@@ -3,7 +3,7 @@
 
 def test_user_management_helper_functions(tmp_app_client):  # NOQA
 
-    from dserver.utils import (
+    from dtool_lookup_server.utils import (
         register_users,
         get_user_info,
         list_users,
@@ -95,7 +95,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     assert list_users() == expected_content
 
     # Test deleting users.
-    from dserver.utils import delete_users
+    from dtool_lookup_server.utils import delete_users
 
     users_to_delete = [
         {
@@ -130,7 +130,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     assert list_users() == expected_content
 
     # Test updating users admin privileges.
-    from dserver.utils import update_users
+    from dtool_lookup_server.utils import update_users
 
     users_to_update = [
         {"username": admin_username},  # The is_admin value defaults to False.

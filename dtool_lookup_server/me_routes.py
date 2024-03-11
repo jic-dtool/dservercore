@@ -8,13 +8,13 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-import dserver.utils
-import dserver.utils_auth
+import dtool_lookup_server.utils
+import dtool_lookup_server.utils_auth
 
-from dserver.blueprint import Blueprint
-from dserver.sql_models import UserSchema, UserWithPermissionsSchema
-from dserver.schemas import SummarySchema
-from dserver.utils import summary_of_datasets_by_user
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.sql_models import UserSchema, UserWithPermissionsSchema
+from dtool_lookup_server.schemas import SummarySchema
+from dtool_lookup_server.utils import summary_of_datasets_by_user
 
 
 bp = Blueprint("me", __name__, url_prefix="/me")
@@ -28,10 +28,10 @@ def me_get():
     """Return information on me (the user currently authenticated)."""
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    return dserver.utils.get_user_info(identity)
+    return dtool_lookup_server.utils.get_user_info(identity)
 
 
 @bp.route("/summary", methods=["GET"])
@@ -42,7 +42,7 @@ def me_summary_get():
     """Global summary of the datasets the currently authenticated user has access to."""
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         # Authenticated user does not exist
         abort(401)
 

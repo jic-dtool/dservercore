@@ -1,17 +1,17 @@
 """Test command line utilities."""
 
 import json
-import dserver
+import dtool_lookup_server
 
 from operator import itemgetter
 
 
 def test_cli_register_user(tmp_cli_runner):  # NOQA
-    from dserver.utils import user_exists, get_user_obj
+    from dtool_lookup_server.utils import user_exists, get_user_obj
 
     assert not user_exists("admin")
 
-    from dserver.cli import register_user
+    from dtool_lookup_server.cli import register_user
 
     result = tmp_cli_runner.invoke(register_user, ["--is_admin", "admin"])
     assert result.exit_code == 0
@@ -41,8 +41,8 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
 
 
 def test_cli_list_users(tmp_cli_runner):  # NOQA
-    from dserver.utils import register_users
-    from dserver.cli import list_users
+    from dtool_lookup_server.utils import register_users
+    from dtool_lookup_server.cli import list_users
 
     register_users([
         {"username": "admin", "is_admin": True},
@@ -70,12 +70,12 @@ def test_cli_list_users(tmp_cli_runner):  # NOQA
 
 
 def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
-    from dserver.utils import get_base_uri_obj, base_uri_exists
+    from dtool_lookup_server.utils import get_base_uri_obj, base_uri_exists
 
     b_uri = "s3://snow-white"
     assert not base_uri_exists(b_uri)
 
-    from dserver.cli import add_base_uri
+    from dtool_lookup_server.cli import add_base_uri
 
     result = tmp_cli_runner.invoke(add_base_uri, [b_uri])
     assert result.exit_code == 0
@@ -90,13 +90,13 @@ def test_cli_register_base_uri(tmp_cli_runner):  # NOQA
 
 
 def test_cli_list_base_uri(tmp_cli_runner):  # NOQA
-    from dserver.utils import register_base_uri
+    from dtool_lookup_server.utils import register_base_uri
 
     base_uris = ["s3://snow-white", "s3://mr-men"]
     for uri in base_uris:
         register_base_uri(uri)
 
-    from dserver.cli import list_base_uris
+    from dtool_lookup_server.cli import list_base_uris
 
     result = tmp_cli_runner.invoke(list_base_uris, [])
     assert result.exit_code == 0
@@ -115,7 +115,7 @@ def test_cli_list_base_uri(tmp_cli_runner):  # NOQA
 
 def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
-    from dserver.utils import (
+    from dtool_lookup_server.utils import (
         get_base_uri_obj,
         register_users,
         register_base_uri,
@@ -127,7 +127,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
     register_users([{"username": username1}, {"username": username2}])
     register_base_uri(base_uri_str)
 
-    from dserver.cli import give_search_permission
+    from dtool_lookup_server.cli import give_search_permission
 
     result = tmp_cli_runner.invoke(
         give_search_permission,
@@ -176,7 +176,7 @@ def test_cli_give_search_permission(tmp_cli_runner):  # NOQA
 
 def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
-    from dserver.utils import (
+    from dtool_lookup_server.utils import (
         get_base_uri_obj,
         register_users,
         register_base_uri,
@@ -188,7 +188,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
     register_users([{"username": username1}, {"username": username2}])
     register_base_uri(base_uri_str)
 
-    from dserver.cli import give_register_permission
+    from dtool_lookup_server.cli import give_register_permission
 
     result = tmp_cli_runner.invoke(
         give_register_permission,
@@ -236,7 +236,7 @@ def test_cli_give_register_permission(tmp_cli_runner):  # NOQA
 
 
 def test_cli_config_versions(tmp_cli_runner):  # NOQA
-    from dserver.cli import config_versions
+    from dtool_lookup_server.cli import config_versions
 
     result = tmp_cli_runner.invoke(config_versions, [])
     assert result.exit_code == 0
@@ -244,7 +244,7 @@ def test_cli_config_versions(tmp_cli_runner):  # NOQA
     response = json.loads(result.output)
 
     expected_content = {
-        'dserver': dserver.__version__,
+        'dtool_lookup_server': dtool_lookup_server.__version__,
     }
 
     for k, v in expected_content.items():

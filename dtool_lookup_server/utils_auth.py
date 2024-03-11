@@ -1,6 +1,6 @@
 """Auth utility functions."""
 
-from dserver.sql_models import (
+from dtool_lookup_server.sql_models import (
     User,
     BaseURI,
 )

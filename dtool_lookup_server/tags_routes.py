@@ -9,11 +9,11 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-from dserver import UnknownURIError
-from dserver.blueprint import Blueprint
-from dserver.schemas import TagSchema
-import dserver.utils_auth
-from dserver.utils import (
+from dtool_lookup_server import UnknownURIError
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.schemas import TagSchema
+import dtool_lookup_server.utils_auth
+from dtool_lookup_server.utils import (
     url_suffix_to_uri,
     get_tags_from_uri_by_user
 )
@@ -29,12 +29,12 @@ bp = Blueprint("tags", __name__, url_prefix="/tags")
 def manifest(uri):
     """Request the dataset manifest."""
     username = get_jwt_identity()
-    if not dserver.utils_auth.user_exists(username):
+    if not dtool_lookup_server.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
     uri = url_suffix_to_uri(uri)
-    if not dserver.utils_auth.may_access(username, uri):
+    if not dtool_lookup_server.utils_auth.may_access(username, uri):
         # Authorization errors should return 400.
         abort(403)
 

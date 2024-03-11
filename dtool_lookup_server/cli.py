@@ -11,9 +11,9 @@ from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 
 from dtoolcore import iter_datasets_in_base_uri
-import dserver
-import dserver.utils
-from dserver.utils import (
+import dtool_lookup_server
+import dtool_lookup_server.utils
+from dtool_lookup_server.utils import (
     base_uri_exists,
     user_exists,
     delete_users,
@@ -27,7 +27,7 @@ from dserver.utils import (
     obj_to_dict,
     versions_to_dict
 )
-from dserver.config import CONFIG_EXCLUSIONS
+from dtool_lookup_server.config import CONFIG_EXCLUSIONS
 
 app = Flask(__name__)
 
@@ -82,7 +82,7 @@ def delete_user(username):
 @user_cli.command(name="list")
 def list_users():
     """List the users in the dtool lookup server."""
-    click.secho(json.dumps(dserver.utils.list_users(), indent=2))
+    click.secho(json.dumps(dtool_lookup_server.utils.list_users(), indent=2))
 
 
 @base_uri_cli.command(name="add")
@@ -102,7 +102,7 @@ def add_base_uri(base_uri):
 @base_uri_cli.command(name="list")
 def list_base_uris():
     """List the base URIs in the dtool lookup server."""
-    click.secho(json.dumps(dserver.utils.list_base_uris(), indent=2))
+    click.secho(json.dumps(dtool_lookup_server.utils.list_base_uris(), indent=2))
 
 
 @user_cli.command(name="search_permission")
@@ -205,7 +205,7 @@ def index_base_uri(base_uri):
 
         try:
             r = register_dataset(dataset_info)
-        except dserver.ValidationError as message:
+        except dtool_lookup_server.ValidationError as message:
             click.secho(
                 "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red"
             )

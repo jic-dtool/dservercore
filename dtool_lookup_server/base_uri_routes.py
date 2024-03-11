@@ -9,11 +9,11 @@ from flask_jwt_extended import (
 
 from flask_smorest.pagination import PaginationParameters
 
-from dserver.blueprint import Blueprint
-from dserver.sort import SortParameters, ASCENDING, DESCENDING
-from dserver.sql_models import BaseURISchema, BaseURIWithPermissionsSchema, BaseURI
-import dserver.utils_auth
-from dserver.utils import (
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
+from dtool_lookup_server.sql_models import BaseURISchema, BaseURIWithPermissionsSchema, BaseURI
+import dtool_lookup_server.utils_auth
+from dtool_lookup_server.utils import (
     base_uri_exists,
     get_permission_info,
     register_base_uri,
@@ -40,10 +40,10 @@ def base_uris_get(pagination_parameters : PaginationParameters,
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     order_by_args = []
@@ -80,10 +80,10 @@ def base_uri_get(base_uri):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
@@ -109,10 +109,10 @@ def base_uri_put(permissions : BaseURIWithPermissionsSchema, base_uri):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)
@@ -140,10 +140,10 @@ def base_uri_delete(base_uri):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     base_uri = url_suffix_to_uri(base_uri)

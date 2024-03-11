@@ -1,11 +1,11 @@
-"""Test the dserver.utils.register_dataset helper function."""
+"""Test the dtool_lookup_server.utils.register_dataset helper function."""
 
 import pytest
 
 
 def test_register_dataset(tmp_app_client):   # NOQA
-    from dserver import ValidationError
-    from dserver.utils import (
+    from dtool_lookup_server import ValidationError
+    from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
         register_permissions,
@@ -80,8 +80,8 @@ def test_register_dataset(tmp_app_client):   # NOQA
 
 
 def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
-    from dserver import ValidationError
-    from dserver.utils import (
+    from dtool_lookup_server import ValidationError
+    from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
         register_permissions,
@@ -156,8 +156,8 @@ def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
 
 
 def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client):   # NOQA
-    from dserver import ValidationError
-    from dserver.utils import (
+    from dtool_lookup_server import ValidationError
+    from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
         register_permissions,
@@ -231,8 +231,8 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client): 
 
 def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
 
-    from dserver import ValidationError
-    from dserver.utils import (
+    from dtool_lookup_server import ValidationError
+    from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
         register_permissions,
@@ -293,8 +293,8 @@ def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
     # The dataset_info is too large and raises:
     # pymongo.errors.DocumentTooLarge: BSON document too large (28978543 bytes)
     # - the connected server supports BSON document sizes up to 16793598 bytes.
-    # See https://github.com/jic-dtool/dserver/issues/16
-    # So the code catches this and raises dserver.ValidationError
+    # See https://github.com/jic-dtool/dtool_lookup_server/issues/16
+    # So the code catches this and raises dtool_lookup_server.ValidationError
     # instead.
     with pytest.raises(ValidationError):
         register_dataset(dataset_info)

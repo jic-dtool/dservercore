@@ -13,12 +13,12 @@ from apispec.utils import build_reference
 from flask.views import MethodView
 from flask_smorest import Api
 
-from dserver.blueprint import Blueprint
-from dserver.sort import (
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.sort import (
     CommaSeparatedListFlaskParser,
     SortParameters, ASCENDING, DESCENDING
 )
-from dserver.sql_models import User, UserSchema
+from dtool_lookup_server.sql_models import User, UserSchema
 
 from unittest.mock import MagicMock
 

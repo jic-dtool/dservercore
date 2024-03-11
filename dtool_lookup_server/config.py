@@ -2,7 +2,7 @@
 import json
 import os
 
-import dserver
+import dtool_lookup_server
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
 

@@ -2,7 +2,7 @@
 
 
 def test_timestamp_consistency(tmp_app_with_data_client):  # NOQA
-    from dserver.utils import (
+    from dtool_lookup_server.utils import (
         lookup_datasets_by_user_and_uuid,
         search_datasets_by_user,
     )

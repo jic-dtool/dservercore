@@ -3,7 +3,7 @@
 
 def test_summary_of_datasets_by_user(tmp_app_with_data_client):  # NOQA
 
-    from dserver.utils import summary_of_datasets_by_user
+    from dtool_lookup_server.utils import summary_of_datasets_by_user
 
     summary = summary_of_datasets_by_user("grumpy")
     exected_output = {

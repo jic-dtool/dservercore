@@ -3,7 +3,7 @@
 
 def test_preprocess_query_base_uris(tmp_app_with_users_client):  # NOQA
 
-    from dserver.utils import preprocess_query_base_uris
+    from dtool_lookup_server.utils import preprocess_query_base_uris
 
     grumpy_expected_query = {"base_uris": ["s3://snow-white"]}
 

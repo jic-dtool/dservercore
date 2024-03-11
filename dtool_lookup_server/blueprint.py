@@ -1,6 +1,6 @@
 """Custom dserver Blueprint"""
 from flask_smorest.blueprint import Blueprint as FlaskSmorestBlueprint
-from dserver.sort import SortMixin
+from dtool_lookup_server.sort import SortMixin
 
 
 class Blueprint(FlaskSmorestBlueprint, SortMixin):

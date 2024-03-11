@@ -9,14 +9,14 @@ from flask_jwt_extended import (
 )
 from flask_smorest.pagination import PaginationParameters
 
-import dserver.utils
-import dserver.utils_auth
+import dtool_lookup_server.utils
+import dtool_lookup_server.utils_auth
 
-from dserver.blueprint import Blueprint
-from dserver.sort import SortParameters, ASCENDING, DESCENDING
-from dserver.schemas import SummarySchema
-from dserver.sql_models import User, UserSchema, UserWithPermissionsSchema
-from dserver.utils import register_user, delete_user, summary_of_datasets_by_user
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
+from dtool_lookup_server.schemas import SummarySchema
+from dtool_lookup_server.sql_models import User, UserSchema, UserWithPermissionsSchema
+from dtool_lookup_server.utils import register_user, delete_user, summary_of_datasets_by_user
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -36,10 +36,10 @@ def users_get(pagination_parameters: PaginationParameters, sort_parameters: Sort
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     order_by_args = []
@@ -74,19 +74,19 @@ def user_get(username):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
     # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         if identity != username:
             abort(403)
 
-    if not dserver.utils_auth.user_exists(username):
+    if not dtool_lookup_server.utils_auth.user_exists(username):
         abort(404)
 
-    return dserver.utils.get_user_info(username)
+    return dtool_lookup_server.utils.get_user_info(username)
 
 
 @bp.route("/<username>", methods=["PUT"])
@@ -103,14 +103,14 @@ def user_put(data: UserSchema, username):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     success_code = 201  # create
-    if dserver.utils_auth.user_exists(username):
+    if dtool_lookup_server.utils_auth.user_exists(username):
         success_code = 200  # update
 
     register_user(username, data)
@@ -130,10 +130,10 @@ def user_delete(username):
     """
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         abort(401)
 
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         abort(403)
 
     delete_user(username)
@@ -151,17 +151,17 @@ def user_summary_get(username):
     """Global summary of the datasets a user has access to."""
     identity = get_jwt_identity()
 
-    if not dserver.utils_auth.user_exists(identity):
+    if not dtool_lookup_server.utils_auth.user_exists(identity):
         # Authenticated user does not exist
         abort(401)
 
     # Return 403 if the user is not admin and the token username
     # does not match up with the username in the URL.
-    if not dserver.utils_auth.has_admin_rights(identity):
+    if not dtool_lookup_server.utils_auth.has_admin_rights(identity):
         if identity != username:
             abort(403)
 
-    if not dserver.utils_auth.user_exists(username):
+    if not dtool_lookup_server.utils_auth.user_exists(username):
         # Authenticated user is admin, but user summary requested does not exist
         abort(404)
 
