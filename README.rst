@@ -1,16 +1,21 @@
 dserver
 =======
 
-.. image:: https://badge.fury.io/py/dserver.svg
-   :target: http://badge.fury.io/py/dserver
+.. image:: data/icons/22x22/dtool_logo.png
+    :height: 20px
+    :target: https://github.com/livMatS/dtool-lookup-server
+    :alt: dtool icon
+
+.. image:: https://badge.fury.io/py/dtool-lookup-server.svg
+   :target: http://badge.fury.io/py/dtool-lookup-server
    :alt: PyPi package
 
-.. image:: https://img.shields.io/github/actions/workflow/status/livMatS/dserver/test.yml?branch=main
+.. image:: https://img.shields.io/github/actions/workflow/status/livMatS/dtool-lookup-server/test.yml?branch=main
     :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
     :alt: GitHub Workflow Status
 
-- GitHub: https://github.com/livMatS/dserver
-- PyPI: https://pypi.python.org/pypi/dserver
+- GitHub: https://github.com/livMatS/dtool-lookup-server
+- PyPI: https://pypi.python.org/pypi/dtool-lookup-server
 - Free software: MIT License
 
 
@@ -44,8 +49,8 @@ access metadata associated with datasets stored in base URI's that they have
 been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
-dserver is consumed by the `dserver-client
-<https://github.com/livMatS/dserver-client>`_, and the
+dserver is consumed by the `dtool-lookup-client
+<https://github.com/livMatS/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
 created, notably the `livMatS/dtool-lookup-gui
@@ -55,9 +60,9 @@ created, notably the `livMatS/dtool-lookup-gui
 Installation
 ------------
 
-Install the dtool lookup server::
+Install the dtool lookup server core::
 
-    $ pip install dserver
+    $ pip install dtool_lookup_server
 
 For a minimal setup, the lookup server requires search and retrieve plugins.
 Pick search and retrieve plugins of your choice and install those. Here, the
@@ -76,7 +81,7 @@ Configure the Flask app
 The dtool lookup server is a Flask app. Flask needs to know where to look for
 the app. One therefore needs to define the ``FLASK_APP`` environment variable::
 
-    $ export FLASK_APP=dserver
+    $ export FLASK_APP=dtool_lookup_server
 
 Configure search and retrieve plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,7 +206,7 @@ Inspect the installed dserver components with::
 
     $ flask config versions
     {
-      "dserver": "0.17.2",
+      "dtool_lookup_server": "0.17.2",
       "dserver_retrieve_plugin_mongo": "0.1.0",
       "dserver_search_plugin_mongo": "0.1.0"
     }
@@ -549,7 +554,7 @@ Below is an example of how to register a dataset::
         http://localhost:5000/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The required keys are defined in the variable
-``dserver.utils.DATASET_INFO_REQUIRED_KEYS``.
+``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
 
 
 Admin user usage
@@ -714,7 +719,7 @@ will return all components, i.e. server core, search, retrieve
 and extension plugins with their versions, i.e.::
 
     {
-      "dserver": "0.17.2",
+      "dtool_lookup_server": "0.17.2",
       "dserver_retrieve_plugin_mongo": "0.1.0",
       "dserver_search_plugin_mongo": "0.1.0"
     }
@@ -751,7 +756,7 @@ The ``__init__.py`` file could contain the code below.
 
 
 The Flask blueprint object(s) need to be associated with the
-``dserver.blueprints`` entrypoint in the Python package
+``dtool_lookup_server.blueprints`` entrypoint in the Python package
 ``setup.py`` file. The ``setup.py`` file would need to look something along the
 lines of the below.
 
@@ -766,7 +771,7 @@ lines of the below.
             "flask",
         ],
         entry_points={
-            "dserver.blueprints": [
+            "dtool_lookup_server.blueprints": [
                 "my_plugin=my_plugin:my_plugin_bp",
             ],
         }
