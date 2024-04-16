@@ -1,5 +1,5 @@
-dtool-lookup-server, or short "dserver"
-=======================================
+dtool-lookup-server
+===================
 
 .. image:: icons/22x22/dtool_logo.png
     :height: 20px

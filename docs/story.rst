@@ -11,6 +11,7 @@ academic world to: (1) summarise the essence of *dtool*
 and basic requirements on, *dserver*; (3) motivate design decisions for
 our implementation of *dserver*.
 
+.. include:: story_dtool.rst
 .. include:: story_dserver.rst
 .. include:: story_plugins.rst
 

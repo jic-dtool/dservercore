@@ -435,7 +435,7 @@ GET /config/versions (accessible without authorization)
 Return the JSON-serialised server component versions.
 
 User stories that lead to the design of our *dserver* implementation
-====================================================================
+####################################################################
 
 Modular design
 --------------
@@ -513,6 +513,7 @@ tailor-made plugins.
     :alt: abstract base classes
 
 .. _Fig. 1:
+
 Figure 1: UML diagram of abstract base classes in the
 *dtool-lookup-server* Python package and a few examples of plugin
 implementations in other packages. Adhering to UML notation conventions,

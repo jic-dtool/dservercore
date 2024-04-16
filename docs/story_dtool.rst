@@ -1,5 +1,5 @@
 User stories that lead to *dtool*
-=================================
+#################################
 
 Packaging data and metadata into a unified whole
 ------------------------------------------------
@@ -11,17 +11,16 @@ standardised way and keeping notes on folder contents in README files
 and I just want a little tool that formalises this good practice.”*
 
 The core of good data management is data documentation
-`[16] <https://paperpile.com/c/s8ZTYM/km0e>`__. Thus, bundling data and
+:cite:p:`wilson2017good`. Thus, bundling data and
 documentation into a unified whole lies at the core of decentralised
 data management ecosystems. *dtool* is no exception and the design
 decisions for the *dtool* *dataset* have been described in detail by
-Olsson and Hartley `[3] <https://paperpile.com/c/s8ZTYM/LcXt>`__.
+Olsson and Hartley :cite:p:`olsson2019lightweight`.
 Importantly, the datasets hold administrative (such as username, date of
 creation, or file sizes) and descriptive (such as experimental
 conditions or simulation parameters) metadata in machine-processable
-plain text formats such as JavaScript Object Notation (JSON)
-`[17] <https://paperpile.com/c/s8ZTYM/BvRD>`__ and Yet Another Markup
-Language (YAML) `[18] <https://paperpile.com/c/s8ZTYM/epGs>`__. A
+plain text formats such as JavaScript Object Notation (JSON) :cite:p:`bray2017javascript` and `Yet Another Markup
+Language (YAML)`_. A
 dataset’s README.yml file contains descriptive metadata that should be
 formatted as machine-processable YAML. Plain text is not strictly
 forbidden, but the file extension strongly encourages the use of YAML. A
@@ -62,11 +61,9 @@ operations on the underlying storage infrastructure of a specific
 referred to as *base uniform resource identifier (base URI)*. Examples
 of base URIs are,
 
--  file:///path/to/repository,
-
--  s3://some-bucket or
-
--  smb://some-network-share.
+* ``file:///path/to/repository``,
+* ``s3://some-bucket`` or
+* ``smb://some-network-share``.
 
 The base URI consists of a *scheme* that determines the *storage
 broker*, in these examples file for the local storage, s3 for Amazon’s
@@ -75,11 +72,15 @@ Block protocol, followed by a resource endpoint name like a server name
 or a location within the specific storage system. The generic base URI
 hence adheres to
 
-{scheme}://{storage_endpoint_name}
+.. code-block::
+
+    {scheme}://{storage_endpoint_name}
 
 A simple command like
 
-dtool cp /path/to/local/dataset smb://group-wide-share
+.. code-block::
+
+    dtool cp /path/to/local/dataset smb://group-wide-share
 
 will copy a dataset from the local file system to a preconfigured
 Windows network share.
@@ -97,7 +98,7 @@ description and a machine-readable structure documentation of the
 dataset representation specific to the storage infrastructure specific
 to each dataset instance. For the example of hierarchical file systems,
 textual description and machine-readable structural documentation are
-found within the .dtool/README.txt and .dtool/structure.json files,
+found within the ``.dtool/README.txt`` and ``.dtool/structure.json`` files,
 respectively.
 
 URI, UUID, and freezing
@@ -125,12 +126,12 @@ hashes that are stored in the manifest and computed when a *prototype*
 dataset is made immutable by *freezing*. One instance of a dataset at a
 particular storage location is uniquely identified by its URI. This URI
 is composed of the base URI and a locally unique identifier, i.e. a
-local folder name file:///home/my-user/some-dataset or the UUID as a
-suffix s3://some-bucket/1a1f9fad-8589-413e-9602-5bbd66bfe675.
+local folder name ``file:///home/my-user/some-dataset`` or the UUID as a
+suffix ``s3://some-bucket/1a1f9fad-8589-413e-9602-5bbd66bfe675``.
 
 The generic scheme of a dataset URI hence adheres to
 
-{scheme}://{storage_endpoint_name}/{localized_dataset_id}
+    {scheme}://{storage_endpoint_name}/{localized_dataset_id}
 
 Encouraging, not enforcing standardised metadata
 ------------------------------------------------
@@ -142,6 +143,7 @@ funding body information.”*
 This is achieved by distributing README.yml templates such as
 
 .. code-block::yaml
+
     project: Project name
     description: Project description
     owners:
@@ -154,3 +156,5 @@ This is achieved by distributing README.yml templates such as
       code: EXC 2193
 
 and recommending or requiring their use among group members.
+
+.. _Yet Another Markup Language (YAML): https://yaml.org/spec/1.2.2/
