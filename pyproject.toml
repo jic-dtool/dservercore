@@ -26,6 +26,18 @@ dependencies = [
         "pyyaml"
     ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib-spelling",
+    "myst-parser==2.0.0"
+]
+
 [project.urls]
 Documentation = "https://livmats.github.io/dserver"
 Repository = "https://github.com/livMatS/dserver"
