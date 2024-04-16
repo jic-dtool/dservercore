@@ -1,7 +1,5 @@
-
-
 User stories that lead to *dserver*
-===================================
+###################################
 
 Making a collection of *dtool* datasets searchable
 --------------------------------------------------
@@ -32,8 +30,8 @@ evolution and extension of dserver implementations specifically.”*
 
 *dserver* needs an immutable core interface that lives on a slowly
 evolving technological layer. We choose a web server that serves
-HTTP/HTTPS requests. We draft a RESTful API adhering to the OpenAPI v3
-specification `[19] <https://paperpile.com/c/s8ZTYM/z7Ar>`__ that
+HTTP/HTTPS requests. We draft a RESTful API adhering to the `OpenAPI v3
+specification`_ that
 defines *dserver* at its core irrespective of implementation details.
 Adhering to OpenAPI specification provides a way for automatically
 documenting and validating API requests both on the web interface and
@@ -45,41 +43,38 @@ information of this publication defines version 1.0 of the REST API of
 *dserver*. Future implementations of *dserver* should be able to serve
 older versions of the API.
 
-A generic unique resource identifier (URI)
-`[9] <https://paperpile.com/c/s8ZTYM/9gBV>`__ adheres to the scheme
+A generic `unique resource identifier (URI)`_ adheres to the scheme
 
-URI = scheme "://" authority "/" path [ "?" query ] [ "#" fragment ]
+.. code-block::
+
+    URI = scheme "://" authority "/" path [ "?" query ] [ "#" fragment ]
 
 The definition of the REST API below discusses *routes* made up of the
 path, query and possibly fragment components of such a URI together with
 the intended HTTP methods for operating on them. In condensing the REST
 API, we aim to adhere to the following fundamental concepts
-`[10] <https://paperpile.com/c/s8ZTYM/mEKn>`__:
+:cite:p:`masse2012rest`:
 
--  Slashes ‘/’ are used to indicate a hierarchical relationship.
-
--  We distinguish between the *collection* and *document* resource
+* Slashes ‘/’ are used to indicate a hierarchical relationship.
+* We distinguish between the *collection* and *document* resource
       archetypes, e.g. a *collection* /users and a nested *document*
       /users/hoermann
-
--  A plural noun should be used for collection names, such as
-
--  CRUD (create, read, update, delete) function names are not used in
+* A plural noun should be used for collection names, such as
+* CRUD (create, read, update, delete) function names are not used in
       URIs. Instead, all such operations are handled by the appropriate
       HTTP method chosen from POST, GET, PUT or PATCH, and DELETE.
-
--  The query component of a URI is used to paginate and sort collection
+* The query component of a URI is used to paginate and sort collection
       results.
 
 Roles and permissions
 ---------------------
 
-   *“As a group leader, I want my group members to be able to search
-   dserver, but I want to stay in control of who is allowed to search
-   what, just as I am in control of who in my group has read and write
-   access to which storage infrastructure. I want to have the choice to
-   make use of my institution’s central identity management system for
-   authentication.”*
+*“As a group leader, I want my group members to be able to search
+dserver, but I want to stay in control of who is allowed to search
+what, just as I am in control of who in my group has read and write
+access to which storage infrastructure. I want to have the choice to
+make use of my institution’s central identity management system for
+authentication.”*
 
 *dserver* must allow simple role and permissions management. Underlying
 the permission system are two types of users: *standard* and *admin*. An
@@ -94,7 +89,7 @@ The core REST API does not prescribe any specific authentication
 mechanisms. Any API route defined below requires a successfully
 authorised user unless stated otherwise. In our reference
 implementation, a client application must send a JSON Web Token (JWT)
-`[11] <https://paperpile.com/c/s8ZTYM/F278>`__ in the authorisation
+:cite:p:`jones2015json` in the authorisation
 header of the HTTP request to the server. Authentication and provision
 of valid JWT tokens may be handled by an external service or by
 *dserver* itself via a plugin.
@@ -103,7 +98,7 @@ Users are managed through API calls directed at the *collection* /users.
 
 A user name may contain special characters that are transformed to a
 valid URL suffix {encoded_username} by percent encoding
-`[9] <https://paperpile.com/c/s8ZTYM/9gBV>`__.
+:cite:p:`berners-lee2005uniform`.
 
 GET /users (paginated)
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -115,21 +110,15 @@ This route and other paginated routes below expect page and page_size as
 query parameters and return pagination information in the response
 headers, e.g.
 
-x-pagination: {
-
-"total": 284,
-
-"total_pages": 29,
-
-"first_page": 1,
-
-"last_page": 29,
-
-"page": 1,
-
-"next_page": 2
-
-}
+.. code-block::json
+    x-pagination: {
+        "total": 284,
+        "total_pages": 29,
+        "first_page": 1,
+        "last_page": 29,
+        "page": 1,
+        "next_page": 2
+    }
 
 GET /users/{encoded_username}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,17 +170,21 @@ be robust with respect to multiple registrations of the same dataset.
 Base URIs and permissions on them are managed through API calls directed
 at the *collection* /base_uris. Base URIs adhere to the generic scheme
 
-{storage_broker}://{storage_endpoint_name}
+.. code-block::
+
+    {storage_broker}://{storage_endpoint_name}
 
 where {storage_broker} is always an alphanumeric prefix like file, s3,
 smb or similar, while {storage_endpoint_name} may contain slashes (’/’)
 or other special characters. This bijectively translates to the valid
 URL suffix
 
-{encoded_base_uri} = {storage_broker}/{encoded_storage_endpoint_name}
+.. code-block::
+
+    {encoded_base_uri} = {storage_broker}/{encoded_storage_endpoint_name}
 
 where {encoded_storage_endpoint_name} is the percent-encoded
-`[9] <https://paperpile.com/c/s8ZTYM/9gBV>`__ {storage_endpoint_name}
+:cite:p:`berners-lee2005uniform` {storage_endpoint_name}
 with slashes (’/’) exempt from encoding.
 
 GET /base_uris (paginated)
@@ -229,8 +222,7 @@ Overview on numbers
 numbers of registered datasets I have access to.”*
 
 *“As a group leader, I want to be able to retrieve a summary of base
-URIs, users and datasets registered in the system.”
-*
+URIs, users and datasets registered in the system.”*
 
 As a consequence, *dserver* will exhibit a route to retrieve an overview
 on all base URIs, all creators, all tags, the total number of datasets
@@ -262,27 +254,18 @@ UUIDs.
 The core schema of all dataset-centred operations is the *Dataset,*
 comprising at least all fields within this example:
 
+.. code-block::json
    {
-
-   "base_uri": "smb://test-share",
-
-   "created_at": 1604860720.736269,
-
-   "creator_username": "jotelha",
-
-   "frozen_at": 1604864525.691079,
-
-   "name": "simple_test_dataset",
-
-   "number_of_items": 1,
-
-   "size_in_bytes": 17,
-
-   "uri": "smb://test-share/1a1-[...]-675",
-
-   "uuid": "1a1f9fad-8589-413e-9602-5bbd66bfe675"
-
-}
+       "base_uri": "smb://test-share",
+       "created_at": 1604860720.736269,
+       "creator_username": "jotelha",
+       "frozen_at": 1604864525.691079,
+       "name": "simple_test_dataset",
+       "number_of_items": 1,
+       "size_in_bytes": 17,
+       "uri": "smb://test-share/1a1-[...]-675",
+       "uuid": "1a1f9fad-8589-413e-9602-5bbd66bfe675"
+    }
 
 All operations that returns a list of such datasets and marked as
 *sorted* may return results in alphanumerically ascending (+) or
@@ -290,14 +273,18 @@ descending (-) order by any combination of these minimum set of fields
 provided via the query parameter *sort* in a comma-separated list and
 prefixed by plus or minus signs, e.g.
 
-?sort=+base_uri,-created_at
+.. code-block::
+
+    ?sort=+base_uri,-created_at
 
 Dataset entries in the index are managed through API calls located at
 the prefix /uris.
 
 Full dataset URIs adhere to the generic scheme
 
-{storage_broker}://{storage_endpoint_name}/{dataset_identifier}
+.. code-block::
+
+    {storage_broker}://{storage_endpoint_name}/{dataset_identifier}
 
 where {storage_broker} is always an alphanumeric prefix like file, s3,
 smb or similar, while {storage_endpoint_name} may contain slashes (’/’)
@@ -305,21 +292,26 @@ or other special characters. The {dataset_identifier} does not contain
 slashes (’/’), but might contain other special characters. This
 bijectively translates to the valid URL suffix
 
-{encoded_uri} =
-{storage_broker}/{encoded_storage_endpoint_name}/{encoded_dataset_identifier}
+.. code-block::
+
+    {encoded_uri} = {storage_broker}/{encoded_storage_endpoint_name}/{encoded_dataset_identifier}
 
 where {encoded_dataset_identifier} is the percent-encoded
 `[9] <https://paperpile.com/c/s8ZTYM/9gBV>`__ {dataset_identifier} and
 {encoded_storage_endpoint_name} is the percent-encoded
 {storage_endpoint_name}, latter with slashes (’/’) exempt from encoding.
 
-GET /uris ?
-[ free_text = encoded free text ]
-[ & base_uri = percent-encoded base URI, may be used repeatedly ]
-[ & creator_username = percent-encoded username, may be used repeatedly ]
-[ & uuid = UUID, may be used repeatedly ]
-[ & tag = percent-encoded tag, may be used repeatedly ] (paginated, sorted)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET /uris (paginated, sorted)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+
+    GET /uris ?
+        [ free_text = encoded free text ]
+        [ & base_uri = percent-encoded base URI, may be used repeatedly ]
+        [ & creator_username = percent-encoded username, may be used repeatedly ]
+        [ & uuid = UUID, may be used repeatedly ]
+        [ & tag = percent-encoded tag, may be used repeatedly ]
 
 List datasets the user has access to matching the query.
 
@@ -466,18 +458,7 @@ metadata such as readme, manifest, or annotations for registered
 datasets efficiently on demand and may maintain its own database as
 well. Beyond these three core components, *dserver* should support
 arbitrary plugins that provide extended functionality, usually by
-introducing additional REST API routes. This conceptual design
-illustrated in Fig. 2 makes *dserver* agnostic in terms of the database
-technologies used. The plugin architecture alleviates the need to modify
-the core code when introducing new features and facilitates extending
-*dserver* for niche use cases with tailor-made plugins.
-
-|image0|
-
-Figure 2: Generic components of a minimal *dserver* instance. Splitting
-our implementation into the trinity of core app, search plugin and
-retrieve plugin makes *dserver* agnostic and flexible in terms of
-database technologies.
+introducing additional REST API routes.
 
 Language and framework
 ----------------------
@@ -497,11 +478,10 @@ it is a popular language with many scientists. It renders the framework
 straightforward to extend for scientists with only moderate code
 development knowledge. Ultimately, leveraging the Python-implemented
 *dtoolcore* API at the server’s heart dictates the language choice. For
-a lean implementation via Python’s web server gateway interface (WSGI)
-[cite], we choose Flask [cite] as the web application framework and
-flask-smorest [cite] as REST API framework for OpenAPI specification
+a lean implementation via Python’s web server gateway interface (WSGI) :cite:p:`pep3333`, we choose `Flask`_ as the web application framework and
+`flask-smorest`_ as REST API framework for OpenAPI specification
 auto generation and pagination. Authorisation is handled by
-flask-jwt-extended `[20] <https://paperpile.com/c/s8ZTYM/NWxe>`__. The
+`flask-jwt-extended`_. The
 generation of JSON Web Token (JWT) tokens can be easily delegated to
 external microservices to authenticate against.
 
@@ -514,12 +494,12 @@ into the system without having to touch any of the code used to run the
 base installation of dserver, and I want to have access to abstract base
 classes to inherit from to help guide my development efforts.”*
 
-We realise the modular plugin structure described above with Python
-entry points [cite]. Search and retrieve plugins as well as any other
+We realise the modular plugin structure described above with `Python
+entry points`_. Search and retrieve plugins as well as any other
 custom extension to the server must adhere to abstract base classes
 (ABC) provided by the core application. These abstract base classes
 prescribe a minimal set of virtual methods that plugins must implement.
-The Unified Modeling Language (UML) class diagram in Fig. S1 illustrates
+The Unified Modeling Language (UML) class diagram in :ref:`Fig. 1` illustrates
 this design. The application-central *PluginABC* and its children
 *SearchABC, RetrieveABC* and *ExtensionABC* are used to guide the
 development of external plugin packages. Importantly, any plugin must
@@ -529,9 +509,11 @@ alleviates the need to modify the core code when introducing new
 features and facilitates extending *dserver* for niche use cases with
 tailor-made plugins.
 
-|image1|
+.. image:: fig/classes.png
+    :alt: abstract base classes
 
-Figure S1: UML diagram of abstract base classes in the
+.. _Fig. 1:
+Figure 1: UML diagram of abstract base classes in the
 *dtool-lookup-server* Python package and a few examples of plugin
 implementations in other packages. Adhering to UML notation conventions,
 tabbed frames define modules. Classes are blocks of three stacked
@@ -545,3 +527,10 @@ retrieving readme, manifest and annotations for a dataset. Examples of
 plugins shown in this diagram are introduced briefly in the
 supplementary information and find application in practical applications
 of *dserver* discussed below.
+
+.. _OpenAPI v3 specification: https://spec.openapis.org/oas/v3.1.0
+.. _unique resource identifier (URI): https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+.. _Flask: https://flask.palletsprojects.com/en/3.0.x/
+.. _flask-smorest: https://flask-smorest.readthedocs.io/en/latest/
+.. _flask-jwt-extended: https://flask-jwt-extended.readthedocs.io/en/stable/
+.. _Python entry points: https://packaging.python.org/en/latest/specifications/entry-points/
