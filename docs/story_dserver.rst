@@ -126,20 +126,14 @@ GET /users/{encoded_username}
 Return a user's information. The authorised user needs to be an admin or
 the requested user themselves.
 
-POST /users/{encoded_username}
+PUT /users/{encoded_username}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Register a user with the *dserver* instance. The authorised user needs
+Register or update a user with the *dserver* instance. The authorised user needs
 to be an admin. The explicit registration of a new user is not enforced.
 The server will implicitly treat any successfully authenticated user as
 a new non-admin user without any permissions on their first interaction
 with the server.
-
-PUT, PATCH /users/{encoded_username}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Update a user with the *dserver* instance. The authorised user needs to
-be an admin.
 
 DELETE /users/{encoded_username}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -198,17 +192,11 @@ GET /base_uris/{encoded_base_uri}
 Get information about the permissions on a base URI. The user needs to
 be an admin.
 
-POST /base_uris/{encoded_base_uri}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PUT /base_uris/{encoded_base_uri}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Register a base URI with the initial permissions specified in the
+Register or update a base URI with the permissions specified in the
 request body. The authorised user needs to be an admin.
-
-PUT, PATCH /base_uris/{encoded_base_uri}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Update the permissions on a base URI. The authorised user needs to be an
-admin.
 
 DELETE /base_uris/{encoded_base_uri}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -326,16 +314,10 @@ GET /uris/{encoded_uri}
 
 Get the specific entry for a localised dataset instance.
 
-POST /uris/{encoded_uri} (POST)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PUT /uris/{encoded_uri}
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Register a dataset. The user needs to have register permissions on the
-base_uri.
-
-PUT, PATCH /uris/{encoded_uri}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Update a dataset. The user needs to have register permissions on the
+Register or update a dataset. The user needs to have register permissions on the
 base_uri.
 
 DELETE /uris/{encoded_uri}
@@ -381,7 +363,7 @@ content of an registered dataset’s README.yml., avoiding the detour of
 accessing the actual dataset on the respective storage infrastructure
 directly via dtool.”*
 
-*“As a researcher, I want to quickly retrieve annotations of a
+*“As a researcher, I want to quickly retrieve tags and annotations of a
 registered dataset.”*
 
 *dserver* stores *manifest, readme* and *annotations* in a quickly
@@ -405,6 +387,12 @@ GET /annotations/{encoded_uri}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Request the dataset annotations.
+
+GET /tags/{encoded_uri}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Request the dataset tags.
+
 
 Retrieving server-side configuration
 ------------------------------------
