@@ -50,5 +50,5 @@ spelling_show_suggestions = True
 
 # bibliography with sphinxcontrib.bibtex
 bibtex_bibfiles = ['refs.bib']
-# bibtex_default_style = 'unsrt'
+bibtex_default_style = 'unsrt'
 bibtex_reference_style = 'label'
