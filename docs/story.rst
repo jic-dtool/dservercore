@@ -1,5 +1,5 @@
-*dtool* and *dserver*
-=====================
+*dtool* and *dserver* stories
+=============================
 
 This document illustrates design decisions for
 the *dserver* REST API, for our implementation and for the condensation
