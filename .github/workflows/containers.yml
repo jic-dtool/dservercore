@@ -18,7 +18,10 @@ jobs:
 
     steps:
 
-    - name: Docker meta
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: docker meta
       id: docker_meta
       uses: crazy-max/ghaction-docker-meta@v5.5.1
       with:
@@ -26,10 +29,10 @@ jobs:
         tags: |
           type=raw,value=sha-${{ github.sha }}
 
-    - name: Set up docker buildx
+    - name: set up docker buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Cache docker layers
+    - name: cache docker layers
       uses: actions/cache@v4.0.0
       env:
         cache-name: cache-docker-layers
@@ -39,7 +42,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx
 
-    - name: Build
+    - name: build
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -51,10 +54,10 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-    - name: Move cache
+    - name: move cache
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-    - name: Image digest
+    - name: image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
