@@ -10,7 +10,7 @@ from flask import Flask, current_app
 from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 
-from dtoolcore import iter_datasets_in_base_uri
+from dtoolcore import iter_datasets_in_base_uri, DataSet
 import dtool_lookup_server
 import dtool_lookup_server.utils
 from dtool_lookup_server.utils import (

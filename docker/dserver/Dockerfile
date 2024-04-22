@@ -1,4 +1,4 @@
-FROM python:3.6-jessie
+FROM python:3.10-bullseye
 
 RUN adduser --disabled-password --gecos '' dserver
 
@@ -7,7 +7,7 @@ RUN pip install -U pip  && \
     pip install dserver==0.6.0  && \
     rm -rf /root/.cache/pip
 
-ENV FLASK_APP=dserver
+ENV FLASK_APP=dtool_lookup_server
 
 WORKDIR /home/dserver
 
