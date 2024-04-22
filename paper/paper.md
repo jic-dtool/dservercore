@@ -1,5 +1,5 @@
 ---
-title: 'dserver: a REST API-centered Flask app for finding dtool datasets'
+title: 'dtool-lookup-server: a REST API-centered Flask app for finding dtool datasets'
 tags:
   - Python
   - Research data management
@@ -45,20 +45,11 @@ bibliography: paper.bib
 Summary
 =======
 
-*dtool* is a suite of software for managing scientific data and making it 
-accessible programatically. It consists of a command line interface
-[dtool](https://github.com/jic-dtool/dtool) and a Python API,
-[dtoolcore](https://github.com/jic-dtool/dtoolcore).
-*dtool* bundles data and metadata into a unified whole, the dataset,
-without the need for a central database. However, if one has to manage more than 
-a hundred datasets it can be helpful to have the datasets’ metadata stored in a
-central server to enable one to quickly find datasets of interest.
-*dserver*, shorthand for the *dtool lookup server*, provides a web API for
-registering datasets’ metadata and provides functionality to look up, list and
-search for datasets. Here, we introduce *dserver*'s core, the
-[Flask](https://flask.palletsprojects.com/) app *dtool-lookup-server*. 
-Just like *dtool* and *dtoolcore*, the design of *dtool-lookup-server* and the
-surrounding plugin ecosystem puts a focus on simplicity and modularity.
+This repository and Python package *dtool-lookup-server* is the core of a
+lean [Flask](https://flask.palletsprojects.com/) app of the same name, or
+short *dserver*. *dserver* provides a REST API for registering metadata for
+*dtool* datasets and provides functionality to look up, list and search for
+datasets.
 
 Keywords: Research data management, Findability, FAIR data, datasets,
 provenance
@@ -66,42 +57,63 @@ provenance
 Statement of need
 =================
 
+*dtool* is a suite of software for managing scientific data and making it
+accessible programmatically. It consists of a command line interface
+[dtool](https://github.com/jic-dtool/dtool) and a Python API,
+[dtoolcore](https://github.com/jic-dtool/dtoolcore).
+*dtool* bundles data and metadata into a unified whole, the dataset,
+without the need for a central database.
+
 In the wide spectrum of disciplines in academia, many niche communities are far
-removed from the ideal of FAIR data. 
-
-Even in this context, individual researchers may benefit from  
-a little technical support in terms of research data management that just goes 
-a single step beyond custom file naming and folder hierarchy conventions
+removed from the ideal of FAIR data [@wilkinson2016fair].
+Even in this context, individual researchers may benefit from
+a little technical support in terms of research data management that just goes
+a small step beyond custom file naming and folder hierarchy conventions
 towards documentation with metadata, without scaring anyone away by enforcing
-a corset of metadata schemas and adherence to ontologies.
+a corset of metadata schemas. Here, *dtool* has proven a helpful, lean utility
+[@olsson2019lightweight, hormann2022lightweight].
 
-Here, *dtool* has proven a helpful, lean utility filling in a niche [cite].
+Making *dtool* datasets findable with *dserver* [@hormann2024dtool] helps to
+bridge from entirely decentralized, individual data management towards
+repositories on the small scale, e.g. on arbitrary group- or institute-wide
+storage infrastructure.
 
-Making *dtool* datasets findable with *dserver* helps to bridge from entirely 
-decentralized, individual RDM towards repositories on the small scale, 
-e.g. on arbitrary group- or institute-wide storage infrastructure.
-
-Such repositories curated by more than two eyes add a layer of quality assurance
-between an individual's local hard drive and fully FAIR data publication 
-platforms, helping both researcher and supervisor to stay on top of their data,
-while simultaneously increasing the likelihood of high-quality data actually
+Such repositories, even if instantiated ad-hoc on arbitrary storage
+infrastructure at hand, are curated by more than two eyes and may add a layer of
+quality control between an individual's local hard drive and fully FAIR data
+publication platforms, helping both researcher and supervisor to stay on top of
+their data, while simultaneously increasing the likelihood of high-quality data
 making the (peer-reviewed) way into the public.
 
-Design
-======
+Just like *dtool* and *dtoolcore*, the design of
+[*dtool-lookup-server*](https://github.com/jic-dtool/dtool-lookup-server)
+and the surrounding plugin ecosystem puts a focus on simplicity and modularity.
+*dtool* at its core is defined by a set of atomic operations performed on
+datasets [@olsson2019lightweight]. Analogously, *dserver* is defined by atomic
+operations on an index of dataset metadata, cast into a minimal REST API that
+adheres to the [OpenAPI Specification v3.1.0](https://spec.openapis.org/oas/v3.1.0).
 
-*dserver* is consumed by the *dtool-lookup-webapp*, *dtool-lookup-api*,
-the *dtool-lookup-client*, and the *dtool-lookup-gui*.
+*dtool* and *dserver* fill an unoccupied niche between other distributed data
+management ecosystems such as *DataLad*
+[@halchenko2021datalad] and *RO-Crate* [@soiland-reyes2022packaging], having
+found applications from improving individual data hygiene
+to an important building block of complex computational workflows
+in the fields of machine learning [@hartley2020dtoolai], solid mechanics
+[@sanner2023why, @sanner2023how, @sanner2022crack], multiscale simulations
+[@holey2022height, @holey2023entwicklung] and  molecular dynamics simulations
+[@hormann2023molecular].
 
 
 Source code and documentation
 =============================
 
 Implementations of *dtool* and *dserver* are freely available under the
-liberal MIT licence on GitHub. The codebases of *dtool* and *dserver*
-are available at
-[https://github.com/jic-dtool/](https://github.com/jic-dtool). Several
-optional extension plugins and a standalone GUI are available at
+liberal MIT licence on GitHub. The codebase of *dtool* and *dserver*
+is available at
+[https://github.com/jic-dtool/](https://github.com/jic-dtool).
+Importantly, *dserver*'s core with extensive documentation lives at
+[https://github.com/jic-dtool/dtool-lookup-server](https://github.com/jic-dtool/dtool-lookup-server).
+Several extension plugins are available at
 <https://github.com/livMatS>. <https://demo.dtool.dev> exposes a
 *dserver* demonstrator instance with a documentation of the REST API.
 
