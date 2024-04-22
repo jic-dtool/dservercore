@@ -2,7 +2,7 @@
 .gitignore
 .travis.yml
 .idea
-.git
+# .git
 .github
 .pytest_cache
 app.db
