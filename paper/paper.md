@@ -45,8 +45,7 @@ bibliography: paper.bib
 Summary
 =======
 
-This repository and Python package *dtool-lookup-server* is the core of a
-lean [Flask](https://flask.palletsprojects.com/) app of the same name, or
+*dtool-lookup-server* is the core of a lean Flask app of the same name, or
 short *dserver*. *dserver* provides a REST API for registering metadata for
 *dtool* datasets and provides functionality to look up, list and search for
 datasets.
@@ -71,7 +70,7 @@ a little technical support in terms of research data management that just goes
 a small step beyond custom file naming and folder hierarchy conventions
 towards documentation with metadata, without scaring anyone away by enforcing
 a corset of metadata schemas. Here, *dtool* has proven a helpful, lean utility
-[@olsson2019lightweight, hormann2022lightweight].
+[@olsson2019lightweight; @hormann2022lightweight].
 
 Making *dtool* datasets findable with *dserver* [@hormann2024dtool] helps to
 bridge from entirely decentralized, individual data management towards
@@ -89,9 +88,13 @@ Just like *dtool* and *dtoolcore*, the design of
 [*dtool-lookup-server*](https://github.com/jic-dtool/dtool-lookup-server)
 and the surrounding plugin ecosystem puts a focus on simplicity and modularity.
 *dtool* at its core is defined by a set of atomic operations performed on
-datasets [@olsson2019lightweight]. Analogously, *dserver* is defined by atomic
-operations on an index of dataset metadata, cast into a minimal REST API that
-adheres to the [OpenAPI Specification v3.1.0](https://spec.openapis.org/oas/v3.1.0).
+datasets [@olsson2019lightweight]. Analogously,
+[*dtool-lookup-server*](https://github.com/jic-dtool/dtool-lookup-server) is
+defined by atomic operations on an index of dataset metadata, cast into a
+minimal REST API that adheres to the
+[OpenAPI Specification v3.1.0](https://spec.openapis.org/oas/v3.1.0).
+[*dtool-lookup-server*](https://github.com/jic-dtool/dtool-lookup-server) is realized with the Python frameworks [Flask](https://flask.palletsprojects.com/)
+and [flask-smorest](https://flask-smorest.readthedocs.io/en/latest/).
 
 *dtool* and *dserver* fill an unoccupied niche between other distributed data
 management ecosystems such as *DataLad*
@@ -99,8 +102,8 @@ management ecosystems such as *DataLad*
 found applications from improving individual data hygiene
 to an important building block of complex computational workflows
 in the fields of machine learning [@hartley2020dtoolai], solid mechanics
-[@sanner2023why, @sanner2023how, @sanner2022crack], multiscale simulations
-[@holey2022height, @holey2023entwicklung] and  molecular dynamics simulations
+[@sanner2024why; @sanner2022crackfront], multiscale simulations
+[@holey2022heightaveraged] and molecular dynamics simulations
 [@hormann2023molecular].
 
 
@@ -108,10 +111,11 @@ Source code and documentation
 =============================
 
 Implementations of *dtool* and *dserver* are freely available under the
-liberal MIT licence on GitHub. The codebase of *dtool* and *dserver*
-is available at
+liberal MIT licence on GitHub. The codebases of *dtool* and *dserver*
+are available at
 [https://github.com/jic-dtool/](https://github.com/jic-dtool).
-Importantly, *dserver*'s core with extensive documentation lives at
+Importantly, *dtool-lookup-server*,
+*dserver*'s core with extensive documentation, lives at
 [https://github.com/jic-dtool/dtool-lookup-server](https://github.com/jic-dtool/dtool-lookup-server).
 Several extension plugins are available at
 <https://github.com/livMatS>. <https://demo.dtool.dev> exposes a
