@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
         mongodb-version: ['4.2', '4.4', '5.0', '6.0']
 
     steps:
@@ -49,6 +49,13 @@ jobs:
         pip install git+https://github.com/livMatS/dserver-search-plugin-mongo.git@main
         pip install git+https://github.com/livMatS/dserver-retrieve-plugin-mongo.git@main
 
-    - name: Test with pytest
+    - name: test with pytest
       run: |
         pytest -sv
+
+    - name: lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
