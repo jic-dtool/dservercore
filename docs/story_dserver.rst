@@ -487,7 +487,7 @@ entry points`_. Search and retrieve plugins as well as any other
 custom extension to the server must adhere to abstract base classes
 (ABC) provided by the core application. These abstract base classes
 prescribe a minimal set of virtual methods that plugins must implement.
-The Unified Modeling Language (UML) class diagram in :ref:`Fig. 1` illustrates
+The Unified Modeling Language (UML) class diagram in :ref:`Fig. 1 <fig>` illustrates
 this design. The application-central *PluginABC* and its children
 *SearchABC, RetrieveABC* and *ExtensionABC* are used to guide the
 development of external plugin packages. Importantly, any plugin must
@@ -497,10 +497,9 @@ alleviates the need to modify the core code when introducing new
 features and facilitates extending *dserver* for niche use cases with
 tailor-made plugins.
 
+.. _fig:
 .. image:: fig/classes.png
     :alt: abstract base classes
-
-.. _Fig. 1:
 
 Figure 1: UML diagram of abstract base classes in the
 *dtool-lookup-server* Python package and a few examples of plugin
