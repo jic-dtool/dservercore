@@ -42,7 +42,7 @@ docs = [
 [project.urls]
 Documentation = "https://dtool-lookup-server.readthedocs.io"
 Repository = "https://github.com/jic-dtool/dtool-lookup-server"
-Changelog = "https://github.com/jic-dtool/dserver/blob/main/CHANGELOG.rst"
+Changelog = "https://github.com/jic-dtool/dtool-lookup-server/blob/main/CHANGELOG.rst"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
