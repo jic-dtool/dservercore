@@ -40,9 +40,9 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://livmats.github.io/dserver"
-Repository = "https://github.com/livMatS/dserver"
-Changelog = "https://github.com/livMatS/dserver/blob/main/CHANGELOG.rst"
+Documentation = "https://dtool-lookup-server.readthedocs.io"
+Repository = "https://github.com/jic-dtool/dtool-lookup-server"
+Changelog = "https://github.com/jic-dtool/dtool-lookup-server/blob/main/CHANGELOG.rst"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"

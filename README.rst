@@ -3,7 +3,7 @@ dtool-lookup-server
 
 .. |dtool| image:: icons/22x22/dtool_logo.png
     :height: 20px
-    :target: https://github.com/livMatS/dtool-lookup-server
+    :target: https://github.com/jic-dtool/dtool-lookup-server
 .. |pypi| image:: https://badge.fury.io/py/dtool-lookup-server.svg
     :target: http://badge.fury.io/py/dtool-lookup-server
 .. |test| image:: https://img.shields.io/github/actions/workflow/status/jic-dtool/dtool-lookup-server/test.yml?branch=master
@@ -11,7 +11,7 @@ dtool-lookup-server
 
 |dtool| |pypi| |test|
 
-- GitHub: https://github.com/livMatS/dtool-lookup-server
+- GitHub: https://github.com/jic-dtool/dtool-lookup-server
 - PyPI: https://pypi.python.org/pypi/dtool-lookup-server
 - Free software: MIT License
 
@@ -47,7 +47,7 @@ been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
 dserver is consumed by the `dtool-lookup-client
-<https://github.com/livMatS/dtool-lookup-client>`_, and the
+<https://github.com/jic-dtool/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
 created, notably the `livMatS/dtool-lookup-gui
