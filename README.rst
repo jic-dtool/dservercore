@@ -1,16 +1,15 @@
 dtool-lookup-server
 ===================
 
-.. image:: icons/22x22/dtool_logo.png
+.. |dtool| image:: icons/22x22/dtool_logo.png
     :height: 20px
     :target: https://github.com/livMatS/dtool-lookup-server
-    :alt: dtool icon
-.. image:: https://badge.fury.io/py/dtool-lookup-server.svg
-   :target: http://badge.fury.io/py/dtool-lookup-server
-   :alt: PyPi package
-.. image:: https://img.shields.io/github/actions/workflow/status/livMatS/dtool-lookup-server/test.yml?branch=main
-    :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
-    :alt: GitHub Workflow Status
+.. |pypi| image:: https://badge.fury.io/py/dtool-lookup-server.svg
+    :target: http://badge.fury.io/py/dtool-lookup-server
+.. |test| image:: https://img.shields.io/github/actions/workflow/status/jic-dtool/dtool-lookup-server/test.yml?branch=master
+    :target: https://github.com/jic-dtool/dtool-lookup-gui/actions/workflows/test.yml
+
+|dtool| |pypi| |test|
 
 - GitHub: https://github.com/livMatS/dtool-lookup-server
 - PyPI: https://pypi.python.org/pypi/dtool-lookup-server
