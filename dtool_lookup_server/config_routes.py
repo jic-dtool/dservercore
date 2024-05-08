@@ -1,3 +1,4 @@
+"""Routes for retrieving server and server-side plugin configuration"""
 from flask import (
     abort,
     current_app,
@@ -8,10 +9,11 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_smorest import Blueprint
 
 import dtool_lookup_server
 import dtool_lookup_server.utils_auth
+from dtool_lookup_server.blueprint import Blueprint
+from dtool_lookup_server.schemas import ConfigSchema, VersionSchema
 from dtool_lookup_server.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
@@ -19,6 +21,8 @@ bp = Blueprint("config", __name__, url_prefix="/config")
 
 
 @bp.route("/info", methods=["GET"])
+@bp.response(200, ConfigSchema)
+@bp.alt_response(401, description="Not registered")
 @jwt_required()
 def server_config():
     """Return the JSON-serialized Flask app configuration."""
@@ -28,15 +32,16 @@ def server_config():
         # Unregistered users should see 401.
         abort(401)
 
-    return jsonify(obj_to_lowercase_key_dict(
+    return jsonify({"config": obj_to_lowercase_key_dict(
         current_app.config,
-        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"]))
+        exclusions=current_app.config["CONFIG_SECRETS_TO_OBFUSCATE"])})
 
 
 @bp.route("/versions", methods=["GET"])
+@bp.response(200, VersionSchema)
 def server_versions():
     """Return the JSON-serialized server component versions.
 
     This does not require authorization."""
 
-    return jsonify(versions_to_dict())
+    return jsonify({"versions": versions_to_dict()})

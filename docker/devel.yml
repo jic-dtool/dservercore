@@ -7,11 +7,11 @@ volumes:
   key_data: {}
 
 services:
-  dtool_lookup_server:
+  dserver:
     build:
       context: ..
-      dockerfile: ./docker/dtool_lookup_server_devel/Dockerfile
-    image: local_dtool_lookup_server
+      dockerfile: ./docker/dserver_devel/Dockerfile
+    image: local_dserver
     depends_on:
       postgres:
         condition: service_started
@@ -33,6 +33,9 @@ services:
       - RETRIEVE_MONGO_URI=mongodb://mongo:27017/
       - RETRIEVE_MONGO_DB=dtool_info
       - RETRIEVE_MONGO_COLLECTION=datasets
+      - MONGO_URI=mongodb://mongo:27017/
+      - MONGO_DB=dtool_info
+      - MONGO_COLLECTION=metadata
       - JWT_PUBLIC_KEY_FILE=/keys/jwt_key.pub
       - JWT_PRIVATE_KEY_FILE=/keys/jwt_key
       - DUMP_HTTP_REQUESTS=True
@@ -105,7 +108,7 @@ services:
     depends_on:
       ldap:
         condition: service_started
-      dtool_lookup_server:
+      dserver:
         condition: service_started
     environment:
       - FLASK_APP=app.py

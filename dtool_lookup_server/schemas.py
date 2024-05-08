@@ -1,3 +1,4 @@
+"""marshmallow schema for (de-) serialization and validation"""
 from marshmallow import Schema
 from marshmallow.fields import (
     String,
@@ -7,17 +8,17 @@ from marshmallow.fields import (
     Boolean,
     Integer,
     Nested,
-    Float
+    Float,
+    Raw
 )
 
 
-class URISchema(Schema):
-    uri = String()
+class ConfigSchema(Schema):
+    config = Dict(keys=String(), values=Raw())
 
 
-class RegisterUserSchema(Schema):
-    username = String()
-    is_admin = Boolean()
+class VersionSchema(Schema):
+    versions = Dict(keys=String(), values=String())
 
 
 class ItemSchema(Schema):
@@ -27,10 +28,23 @@ class ItemSchema(Schema):
     utc_timestamp = Float()
 
 
+class ReadmeSchema(Schema):
+    readme = String()
+
+
 class ManifestSchema(Schema):
     items = Dict(keys=String, values=Nested(ItemSchema))
     hash_function = String()
     dtoolcore_version = String()
+
+
+# Define a schema for the response
+class AnnotationSchema(Schema):
+    annotations = Dict(keys=String(), values=String())
+
+
+class TagSchema(Schema):
+    tags = List(String())
 
 
 class RegisterDatasetSchema(Schema):
@@ -51,12 +65,6 @@ class RegisterDatasetSchema(Schema):
     size_in_bytes = Integer()
 
 
-class URIPermissionSchema(Schema):
-    base_uri = String()
-    users_with_register_permissions = List(String)
-    users_with_search_permissions = List(String)
-
-
 class SearchDatasetSchema(Schema):
     free_text = String()
     creator_usernames = List(String)
@@ -73,10 +81,3 @@ class SummarySchema(Schema):
     datasets_per_base_uri = Dict(keys=String, values=Integer)
     tags = List(String)
     datasets_per_tag = Dict(keys=String, values=Integer)
-
-
-class UserResponseSchema(Schema):
-    username = String()
-    is_admin = Boolean()
-    register_permissions_on_base_uris = List(String)
-    search_permissions_on_base_uris = List(String)

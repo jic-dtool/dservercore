@@ -31,7 +31,7 @@ def has_admin_rights(username):
 
 
 def may_search(username, base_uri):
-    """Return True if user has priviliges to search the base URI."""
+    """Return True if user has privileges to search the base URI."""
     user = _get_user_obj(username)
     if user is None:
         return False
@@ -40,13 +40,15 @@ def may_search(username, base_uri):
         return False
     return base_uri in user.search_base_uris
 
+
 def may_access(username, uri):
-    """Return True if user has priviliges to access the dataset URI."""
+    """Return True if user has privileges to access the dataset URI."""
     base_uri = uri.rsplit("/", 1)[0]
     return may_search(username, base_uri)
 
+
 def may_register(username, base_uri):
-    """Return True if user has priviliges to register on the base URI."""
+    """Return True if user has privileges to register on the base URI."""
     user = _get_user_obj(username)
     if user is None:
         return False

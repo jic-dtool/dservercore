@@ -1,9 +1,7 @@
 """Test dtool lookup server preprocess_query_base_uris  helper function."""
 
-from . import tmp_app_with_users  # NOQA
 
-
-def test_preprocess_query_base_uris(tmp_app_with_users):  # NOQA
+def test_preprocess_query_base_uris(tmp_app_with_users_client):  # NOQA
 
     from dtool_lookup_server.utils import preprocess_query_base_uris
 

@@ -5,8 +5,6 @@ import dtool_lookup_server
 
 from operator import itemgetter
 
-from . import tmp_cli_runner  # NOQA
-
 
 def test_cli_register_user(tmp_cli_runner):  # NOQA
     from dtool_lookup_server.utils import user_exists, get_user_obj

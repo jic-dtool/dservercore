@@ -1,19 +1,18 @@
-Dtool Lookup Server
+dtool-lookup-server
 ===================
 
+.. image:: icons/22x22/dtool_logo.png
+    :height: 20px
+    :target: https://github.com/livMatS/dtool-lookup-server
+    :alt: dtool icon
 .. image:: https://badge.fury.io/py/dtool-lookup-server.svg
    :target: http://badge.fury.io/py/dtool-lookup-server
    :alt: PyPi package
+.. image:: https://img.shields.io/github/actions/workflow/status/livMatS/dtool-lookup-server/test.yml?branch=main
+    :target: https://github.com/livMatS/dtool-lookup-gui/actions/workflows/test.yml
+    :alt: GitHub Workflow Status
 
-.. image:: https://travis-ci.org/jic-dtool/dtool-lookup-server.svg?branch=master
-   :target: https://travis-ci.org/jic-dtool/dtool-lookup-server
-   :alt: Travis CI build status (Linux)
-
-.. image:: https://codecov.io/github/jic-dtool/dtool-lookup-server/coverage.svg?branch=master
-   :target: https://codecov.io/github/jic-dtool/dtool-lookup-server?branch=master
-   :alt: Code Coverage
-
-- GitHub: https://github.com/jic-dtool/dtool-lookup-server
+- GitHub: https://github.com/livMatS/dtool-lookup-server
 - PyPI: https://pypi.python.org/pypi/dtool-lookup-server
 - Free software: MIT License
 
@@ -40,36 +39,36 @@ However, if one has to manage more than a hundred datasets it can be helpful
 to have the datasets' metadata stored in a central server to enable one to
 quickly find datasets of interest.
 
-The dtool-lookup-server provides a web API for registering datasets' metadata
+dserver provides a web API for registering datasets' metadata
 and provides functionality to lookup, list and search for datasets.
 
 When managing many groups data it can be useful to ensure that users can only
 access metadata associated with datasets stored in base URI's that they have
-been given access to. The dtool-lookup-server therefore provides means to
+been given access to. dserver therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
-The dtool-lookup-server is consumed by the `dtool-lookup-client
-<https://github.com/jic-dtool/dtool-lookup-client>`_, and the
+dserver is consumed by the `dtool-lookup-client
+<https://github.com/livMatS/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
-Third party applications making use of the dtool-lookup-server have also been
-created, notably the `IMTEK-Simulation/dtool-lookup-gui
-<https://github.com/IMTEK-Simulation/dtool-lookup-gui>`_.
+Third party applications making use of the dserver have also been
+created, notably the `livMatS/dtool-lookup-gui
+<https://github.com/livMatS/dtool-lookup-gui>`_.
 
 
 Installation
 ------------
 
-Install the dtool lookup server::
+Install the dtool lookup server core::
 
-    $ pip install dtool-lookup-server
+    $ pip install dtool_lookup_server
 
 For a minimal setup, the lookup server requires search and retrieve plugins.
 Pick search and retrieve plugins of your choice and install those. Here, the
-``dtool-lookup-server-search-plugin-mongo`` and ``dtool-lookup-server-retrieve-plugin-mongo``
+``dserver-search-plugin-mongo`` and ``dserver-retrieve-plugin-mongo``
 serve as default for demonstration::
 
-    $ pip install dtool-lookup-server-search-plugin-mongo
-    $ pip install dtool-lookup-server-retrieve-plugin-mongo
+    $ pip install dserver-search-plugin-mongo
+    $ pip install dserver-retrieve-plugin-mongo
 
 Setup and configuration
 -----------------------
@@ -89,8 +88,8 @@ The dtool lookup server is agnostic of how descriptive data is stored and
 searched. The implementation is delegated to search and retrieve plugins.
 Refer to their documentation for details on their configuration.
 
-In the sample case of ``dtool-lookup-server-search-plugin-mongo`` and
-``dtool-lookup-server-retrieve-plugin-mongo``, the same Mongo database
+In the sample case of ``dserver-search-plugin-mongo`` and
+``dserver-retrieve-plugin-mongo``, the same Mongo database
 can be used for both search and information retrieval.
 
 Create a directory where the MongoDB data will be stored::
@@ -104,13 +103,13 @@ Start Mongo DB, for example using docker::
 Configure the search plugin with::
 
     export SEARCH_MONGO_URI="mongodb://localhost:27017/"
-    export SEARCH_MONGO_DB="dtool_lookup_server"
+    export SEARCH_MONGO_DB="dserver"
     export SEARCH_MONGO_COLLECTION="datasets"
 
 and the retrieve plugin with::
 
     export RETRIEVE_MONGO_URI="mongodb://localhost:27017/"
-    export RETRIEVE_MONGO_DB="dtool_lookup_server"
+    export RETRIEVE_MONGO_DB="dserver"
     export RETRIEVE_MONGO_COLLECTION="datasets"
 
 This must happen before issuing any ``flask`` commands as below.
@@ -201,13 +200,13 @@ Inspect the Flask app configuration with::
 The output is JSON-formatted with lower-case keys and will include plugin
 configuration parameters as well.
 
-Inspect the installed dtool-lookup-server components with::
+Inspect the installed dserver components with::
 
     $ flask config versions
     {
       "dtool_lookup_server": "0.17.2",
-      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
-      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+      "dserver_retrieve_plugin_mongo": "0.1.0",
+      "dserver_search_plugin_mongo": "0.1.0"
     }
 
 Starting the flask app
@@ -367,7 +366,7 @@ in the s3://dtool-demo bucket::
 It is possible to list all the location a dataset is located in using the
 command below::
 
-    $ curl -H $HEADER http://localhost:5000/dataset/lookup/$UUID
+    $ curl -H $HEADER http://localhost:5000/uuids/$UUID
 
 Response content::
 
@@ -389,7 +388,7 @@ Summary information about datasets
 
 An overall summary of datasets accessible to a user can be accessed using the request below::
 
-    $ curl -H "$HEADER" http://localhost:5000/dataset/summary
+    $ curl -H "$HEADER" http://localhost:5000/users/olssont/summary
 
 The response will contain JSON content along the lines of::
 
@@ -410,7 +409,7 @@ Listing all datasets
 All the dataset's that a user has permissions to search for can be listed using
 the request below::
 
-    $ curl -H "$HEADER" http://localhost:5000/dataset/list
+    $ curl -H "$HEADER" http://localhost:5000/uris
 
 Some of the output of the command above is displayed below::
 
@@ -439,7 +438,7 @@ The command below does a full text search for the word "microscopy" in the descr
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         -X POST -d '{"free_text": "microscopy"}'  \
-        http://localhost:5000/dataset/search
+        http://localhost:5000/uris
 
 Below is the result of this search::
 
@@ -481,25 +480,19 @@ The command below retrieves the readme for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/readme
+        http://localhost:5000/readmes/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The command below retrieves the annotations for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/annotations
+        http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The command below retrieves the manifest for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d  \
-        '{"uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db"}'  \
-        http://localhost:5000/dataset/manifest
+        http://localhost:5000/manifests/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 
 Getting information about one's own permissions
@@ -507,7 +500,7 @@ Getting information about one's own permissions
 
 A user can find out about his/her own permissions using the command below::
 
-    $ curl -H "$HEADER" http://localhost:5000/user/info/olssont
+    $ curl -H "$HEADER" http://localhost:5000/user/olssont
 
 Response content::
 
@@ -556,7 +549,7 @@ Below is an example of how to register a dataset::
     }'
     $ curl -H $HEADER -H "Content-Type: application/json"  \
         -X POST -d $DATASET_INFO  \
-        http://localhost:5000/dataset/register
+        http://localhost:5000/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The required keys are defined in the variable
 ``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
@@ -578,7 +571,7 @@ Listing registered users
 
 To list all the registered users an admin user can use the below::
 
-    $ curl -H "$HEADER" http://localhost:5000/admin/user/list
+    $ curl -H "$HEADER" http://localhost:5000/users
 
 Response content::
 
@@ -609,7 +602,7 @@ An admin user can register other users in batch::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         -X POST -d '[{"username": "admin", "is_admin": true}, {"username": "joe"}]'  \
-        http://localhost:5000/admin/user/register
+        http://localhost:5000/users/joe
 
 
 
@@ -617,11 +610,10 @@ An admin user can register other users in batch::
 Registering a base URI
 ~~~~~~~~~~~~~~~~~~~~~~
 
-An admin user can register a new base URI::
+An admin user can register a new base URI ``s3://another-bucket``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
-        http://localhost:5000/admin/base_uri/register
+        -X POST http://localhost:5000/base-uris/s3/another-bucket
 
 
 Listing registered base URIs
@@ -629,7 +621,7 @@ Listing registered base URIs
 
 An admin user can list all registered base URIs::
 
-    $ curl -H "$HEADER" http://localhost:5000/admin/base_uri/list
+    $ curl -H "$HEADER" http://localhost:5000/base-uris
 
 Response content::
 
@@ -657,8 +649,7 @@ Updating the permissions on a base URI
 An admin user can update the permissions on a base URI::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{
-          "base_uri": "s3://another-bucket",
+        -X PUT -d '{
           "users_with_register_permissions": [
             "olssont"
           ],
@@ -666,16 +657,16 @@ An admin user can update the permissions on a base URI::
             "olssont"
           ]
         }'  \
-        http://localhost:5000/admin/permission/update_on_base_uri
+        http://localhost:5000/base-uris/s3/another-bucket
 
 Note that the request below can be used to clear all existing permissions::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{
+        -X PUT -d '{
           "base_uri": "s3://another-bucket",
           "users_with_register_permissions": [],
           "users_with_search_permissions": []}'  \
-        http://localhost:5000/admin/permission/update_on_base_uri
+        http://localhost:5000/base-uris/s3/another-bucket
 
 
 Getting information about the permissions on a base URI
@@ -684,8 +675,7 @@ Getting information about the permissions on a base URI
 An admin user can get information about the permissions on a base URI::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '{"base_uri": "s3://another-bucket"}'  \
-        http://localhost:5000/admin/permission/info
+        http://localhost:5000/base-uris/s3/another-bucket
 
 Response content::
 
@@ -728,8 +718,8 @@ and extension plugins with their versions, i.e.::
 
     {
       "dtool_lookup_server": "0.17.2",
-      "dtool_lookup_server_retrieve_plugin_mongo": "0.1.0",
-      "dtool_lookup_server_search_plugin_mongo": "0.1.0"
+      "dserver_retrieve_plugin_mongo": "0.1.0",
+      "dserver_search_plugin_mongo": "0.1.0"
     }
 
 This request does not require any authorization.
@@ -787,9 +777,9 @@ lines of the below.
 
 Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
 <https://github.com/jotelha>`_ can be found in
-`dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_.
+`dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_.
 
 Examples of actual plugins include:
 
-- `dtool-lookup-server-dependency-graph-plugin <https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin>`_
-- `dtool-lookup-server-plugin-scaffolding <https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding>`_
+- `dserver-dependency-graph-plugin <https://github.com/livMatS/dserver-dependency-graph-plugin>`_
+- `dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_

@@ -1,3 +1,4 @@
+"""dserver Flask app configuration"""
 import json
 import os
 
@@ -48,7 +49,7 @@ class Config(object):
 
     JSONIFY_PRETTYPRINT_REGULAR = True
 
-    API_TITLE = "dtool-lookup-server API"
+    API_TITLE = "dserver API"
     API_VERSION = "v1"
 
     # flask_smorest.Blueprint.paginate embeds pagination information like

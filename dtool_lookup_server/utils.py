@@ -7,6 +7,7 @@ import logging
 from pkg_resources import iter_entry_points
 
 from flask import current_app
+from flask_smorest.pagination import PaginationParameters
 from sqlalchemy.sql import exists
 
 import dtoolcore.utils
@@ -17,6 +18,7 @@ from dtool_lookup_server import (
     AuthorizationError,
     ValidationError,
     UnknownBaseURIError,
+    UnknownURIError,
     __version__
 )
 from dtool_lookup_server.sql_models import (
@@ -24,7 +26,7 @@ from dtool_lookup_server.sql_models import (
     BaseURI,
     Dataset,
 )
-from dtool_lookup_server.config import Config
+from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
 
 
 from dtool_lookup_server.date_utils import (
@@ -48,9 +50,20 @@ DATASET_INFO_REQUIRED_KEYS = (
 )
 
 
+DATASET_SORT_FIELDS = [
+    "base_uri",
+    "created_at",
+    "creator_username",
+    "frozen_at",
+    "name",
+    "uri",
+    "uuid"
+]
+
+
 # These entrypoints might point to plugin modules with
 # config objects to be serialized as part of the global server config:
-DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
+DSERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 
 
 logger = logging.getLogger(__name__)
@@ -84,6 +97,10 @@ def _get_base_uri_obj(base_uri):
     return BaseURI.query.filter_by(base_uri=base_uri).first()
 
 
+def _get_dataset_obj(uri):
+    return Dataset.query.filter_by(uri=uri).first()
+
+
 #############################################################################
 # Public helper functions.
 #############################################################################
@@ -113,13 +130,13 @@ def versions_to_dict():
 
         {
             'dtool_lookup_server': '0.17.2',
-            'dtool_lookup_server_retrieve_plugin_mongo': '0.1.0',
-            'dtool_lookup_server_search_plugin_mongo': '0.1.0'
+            'dserver_retrieve_plugin_mongo': '0.1.0',
+            'dserver_search_plugin_mongo': '0.1.0'
         }
    """
 
     versions_dict = {'dtool_lookup_server': __version__}
-    for ep_group in DTOOL_LOOKUP_SERVER_PLUGIN_ENTRYPOINTS:
+    for ep_group in DSERVER_PLUGIN_ENTRYPOINTS:
         for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
             module_name = ep.module_name.split(".")[0]
 
@@ -182,16 +199,38 @@ def generate_dataset_info(dataset, base_uri):
 
 
 def user_exists(username):
+    """Check whether user is registered in the system."""
     if _get_user_obj(username) is None:
         return False
     return True
 
 
 def get_user_obj(username):
+    """Retrieve User object from username."""
     user = _get_user_obj(username)
     if user is None:
         raise (AuthenticationError())
     return user
+
+
+def register_user(username, data):
+    """Register or update a single user in the system by replacing entry. Idempotent.
+
+    Example input structure::
+
+        {"is_admin": True},
+
+    If a user is missing in the system it is skipped. The ``is_admin`` status
+    defaults to False.
+    """
+    is_admin = data.get("is_admin", False)
+
+    for sqlalch_user_obj in (
+        sql_db.session.query(User).filter_by(username=username).all()
+    ):
+        sqlalch_user_obj.is_admin = is_admin
+
+    sql_db.session.commit()
 
 
 def register_users(users):
@@ -261,6 +300,16 @@ def delete_users(users):
     sql_db.session.commit()
 
 
+def delete_user(username):
+    """Delete a single user from the system."""
+    for sqlalch_user_obj in (
+        sql_db.session.query(User).filter_by(username=username).all()
+    ):  # NOQA
+        sql_db.session.delete(sqlalch_user_obj)
+
+    sql_db.session.commit()
+
+
 def update_users(users):
     """Update a list of users in the system.
 
@@ -305,71 +354,64 @@ def get_user_info(username):
 # Dataset list/search/lookup helper functions.
 #############################################################################
 
+def _dataset_order_by_args(sort_parameters):
+    """Convert SortParameters to SQLAlchemy sort argument for Dataset model."""
 
-def list_datasets_by_user(username):
+    order_by_args = []
+    for field, order in sort_parameters.order.items():
+        if not hasattr(Dataset, field):
+            continue
+        # special treatment for base_uri:
+        # we want to sort by the string field BaseURI.base_uri, not by
+        # the relationship field Dataset.base_uri
+        if field in ['base_uri']:
+            model = BaseURI
+        else:
+            model = Dataset
+        if order == DESCENDING:
+            order_by_args.append(getattr(model, field).desc())
+        else:  # ascending
+            order_by_args.append(getattr(model, field))
+    return order_by_args
+
+
+def list_datasets_by_user(username,
+                          pagination_parameters: PaginationParameters = None,
+                          sort_parameters: SortParameters = None):
     """List the datasets the user has access to.
+
+    :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
+    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
     Raises AuthenticationError if user is invalid.
     """
-    user = get_user_obj(username)
+    user = get_user_obj(username)  # raises AuthenticationError
 
-    datasets = []
-    for base_uri in user.search_base_uris:
-        for ds in base_uri.datasets:
-            datasets.append(ds.as_dict())
-    return datasets
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
+    )
 
+    if sort_parameters is not None:
+        order_by_args = _dataset_order_by_args(sort_parameters)
+        query = query.order_by(*order_by_args)
 
-def _preprocess_privileges(username, query):
-    """Preprocess a query dict according to per-user privileges."""
-    user = get_user_obj(username)
-
-    # Deal with base URIs. If not specified on the query add the ones that the
-    # user has search privileges on. If specified filter out any that the user
-    # does not have search privileges on.
-    allowed_uris = [bu.base_uri for bu in user.search_base_uris]
-    if "base_uris" not in query:
-        query["base_uris"] = allowed_uris
+    if pagination_parameters is not None:
+        pagination_parameters.item_count = query.count()
+        queried_items = query.paginate(
+            page=pagination_parameters.page,
+            per_page=pagination_parameters.page_size,
+            error_out=True).items
     else:
-        selected_uris = [str(bu) for bu in query["base_uris"] if bu in allowed_uris]  # NOQA
-        query["base_uris"] = selected_uris
+        queried_items = query.all()
 
-    return query
+    datasets = [ds for ds, user in queried_items]
 
-
-def preprocess_query_base_uris(username, query):
-    """Return query with appropriate base URIs.
-
-    If no base URIs are in the query add all the allowed ones.
-    If base URIs are provided only include the ones allowed.
-    """
-    return _preprocess_privileges(username, query)
-
-
-def search_datasets_by_user(username, query):
-    """Search the datasets the user has access to.
-
-    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
-    the query dictionary is empty all datasets, that a user has access to, are
-    returned.
-
-    :param username: username
-    :param query: dictionary specifying query
-    :returns: List of dicts if user is valid and has access to datasets.
-              Empty list if user is valid but has not got access to any
-              datasets.
-    :raises: AuthenticationError if user is invalid.
-    """
-
-    query = preprocess_query_base_uris(username, query)
-    # If there are no base URIs at this point it means that the user is not
-    # allowed to search for anything.
-    if len(query["base_uris"]) == 0:
-        return []
-
-    return current_app.search.search(query)
+    return datasets
 
 
 def summary_of_datasets_by_user(username):
@@ -378,6 +420,7 @@ def summary_of_datasets_by_user(username):
     Return dictionary of summary information.
     Raises AuthenticationError if user is invalid.
     """
+    user = get_user_obj(username)  # raises AuthenticationError
 
     # Get all the datasets the user has access to.
     datasets = search_datasets_by_user(username, query={})
@@ -414,34 +457,173 @@ def summary_of_datasets_by_user(username):
     return summary
 
 
-def lookup_datasets_by_user_and_uuid(username, uuid):
+def lookup_datasets_by_user_and_uuid(username, uuid,
+                                     pagination_parameters: PaginationParameters = None,
+                                     sort_parameters: SortParameters = None):
     """Return list of dataset with matching uuid.
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
     Raises AuthenticationError if user is invalid.
     """
-    user = get_user_obj(username)
+    user = get_user_obj(username)  # raises AuthenticationError
 
-    datasets = []
     query = (
         sql_db.session.query(Dataset, User)
         .join(User.search_base_uris)
         .filter(Dataset.uuid == uuid)
         .filter(User.username == username)
         .filter(BaseURI.id == Dataset.base_uri_id)
+    )
+
+    if sort_parameters is not None:
+        order_by_args = _dataset_order_by_args(sort_parameters)
+        query = query.order_by(*order_by_args)
+
+    if pagination_parameters is not None:
+        pagination_parameters.item_count = query.count()
+        queried_items = query.paginate(
+            page=pagination_parameters.page,
+            per_page=pagination_parameters.page_size,
+            error_out=True).items
+    else:
+        queried_items = query.all()
+
+    datasets = [ds for ds, user in queried_items]
+
+    return datasets
+
+
+def get_dataset_by_user_and_uri(username, uri):
+    """Return single dataset with matching uri if user has rights to see it.
+
+    Returns single Dataset if user is valid and has access to datasets.
+    Returns None if user is valid but has not got access to the dataset.
+    Raises AuthenticationError if user is invalid.
+    """
+
+    # datasets = []
+    query = (
+        sql_db.session.query(Dataset, User)
+        .join(User.search_base_uris)
+        .filter(Dataset.uri == uri)
+        .filter(User.username == username)
+        .filter(BaseURI.id == Dataset.base_uri_id)
         .all()
     )
 
-    for ds, user in query:
-        datasets.append(ds.as_dict())
+    datasets = [ds for ds, user in query]
 
-    return datasets
+    if len(datasets) > 0:
+        ret = datasets[0]
+    else:
+        ret = None
+
+    return ret
+
+
+#############################################################################
+# Search plugin interface
+#############################################################################
+
+def _preprocess_privileges(username, query):
+    """Preprocess a query dict according to per-user privileges."""
+    user = get_user_obj(username)
+
+    # Deal with base URIs. If not specified on the query add the ones that the
+    # user has search privileges on. If specified filter out any that the user
+    # does not have search privileges on.
+    allowed_uris = [bu.base_uri for bu in user.search_base_uris]
+    if "base_uris" not in query:
+        query["base_uris"] = allowed_uris
+    else:
+        selected_uris = [str(bu) for bu in query["base_uris"] if bu in allowed_uris]  # NOQA
+        query["base_uris"] = selected_uris
+
+    return query
+
+
+def preprocess_query_base_uris(username, query):
+    """Return query with appropriate base URIs.
+
+    If no base URIs are in the query add all the allowed ones.
+    If base URIs are provided only include the ones allowed.
+    """
+    return _preprocess_privileges(username, query)
+
+
+def search_datasets_by_user(username, query,
+                            pagination_parameters: PaginationParameters = None,
+                            sort_parameters: SortParameters = None):
+    """Search the datasets the user has access to.
+
+    Valid keys for the query are: creator_usernames, base_uris, free_text.  If
+    the query dictionary is empty all datasets, that a user has access to, are
+    returned.
+
+    :param username: username
+    :param query: dictionary specifying query
+    :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
+    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
+    :returns: List of dicts if user is valid and has access to datasets.
+              Empty list if user is valid but has not got access to any
+              datasets.
+    :raises: AuthenticationError if user is invalid.
+    """
+
+    query = preprocess_query_base_uris(username, query)
+    # If there are no base URIs at this point it means that the user is not
+    # allowed to search for anything.
+    if len(query["base_uris"]) == 0:
+        return []
+
+    return current_app.search.search(query,
+                                     pagination_parameters=pagination_parameters,
+                                     sort_parameters=sort_parameters)
 
 
 #############################################################################
 # Base URI helper functions
 #############################################################################
+
+
+def url_suffix_to_uri(url_suffix):
+    """Translates a URL suffix like
+
+            s3/bucket
+
+    to a valid URI, e.g.
+
+            s3://bucket
+    """
+
+    # first, make sure url_suffix isn't already a valid URI
+    uri = url_suffix
+    index = uri.find('://')
+    if index == -1:  # not found
+        uri = uri.replace('/', '://', 1)
+
+    uri = dtoolcore.utils.sanitise_uri(uri)
+    return uri
+
+
+def uri_to_url_suffix(uri):
+    """Translates a URI like
+
+            s3://bucket
+
+    to a URL suffix like
+
+            s3/bucket
+    """
+    url_suffix = dtoolcore.utils.sanitise_uri(uri)
+
+    # first, make sure uri has the :// separator, then replace with simple /
+    index = url_suffix.find('://')
+    if index != -1:  # not found
+        url_suffix = url_suffix.replace('://', '/', 1)
+
+    return url_suffix
 
 
 def base_uri_exists(base_uri):
@@ -455,7 +637,7 @@ def get_base_uri_obj(base_uri):
     """Return SQLAlchemy BaseURI object."""
     base_uri_obj = _get_base_uri_obj(base_uri)
     if base_uri_obj is None:
-        raise (ValidationError("Base URI {} not registered".format(base_uri)))
+        raise (UnknownBaseURIError("Base URI {} not registered".format(base_uri)))
     return base_uri_obj
 
 
@@ -463,7 +645,20 @@ def register_base_uri(base_uri):
     """Register a base URI in the dtool lookup server."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     base_uri = BaseURI(base_uri=base_uri)
+
     sql_db.session.add(base_uri)
+    sql_db.session.commit()
+
+
+def delete_base_uri(base_uri):
+    """Delete a base URI from the dtool lookup server."""
+    base_uri = dtoolcore.utils.sanitise_uri(base_uri)
+
+    for sqlalch_base_uri_obj in (
+        sql_db.session.query(BaseURI).filter_by(base_uri=base_uri).all()
+    ):  # NOQA
+        sql_db.session.delete(sqlalch_base_uri_obj)
+
     sql_db.session.commit()
 
 
@@ -481,28 +676,30 @@ def list_base_uris():
 
 
 def get_permission_info(base_uri_str):
-    """Return the permissions of on a base URI as a dictionary."""
+    """Return the permissions on a base URI as a dictionary."""
     base_uri = get_base_uri_obj(base_uri_str)
     return base_uri.as_dict()
 
 
-def update_permissions(permissions):
-    """Rewrite permissions."""
-    base_uri = get_base_uri_obj(permissions["base_uri"])
+def register_permissions(base_uri, permissions):
+    """Register or update permissions on base_uri. Idempotent."""
+    base_uri = get_base_uri_obj(base_uri)
 
     # Clear all the existing permissions.
     base_uri.search_users = []
     base_uri.register_users = []
 
-    for username in permissions["users_with_search_permissions"]:
-        if user_exists(username):
-            user = get_user_obj(username)
-            base_uri.search_users.append(user)
+    if "users_with_search_permissions" in permissions:
+        for username in permissions["users_with_search_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                base_uri.search_users.append(user)
 
-    for username in permissions["users_with_register_permissions"]:
-        if user_exists(username):
-            user = get_user_obj(username)
-            base_uri.register_users.append(user)
+    if "users_with_register_permissions" in permissions:
+        for username in permissions["users_with_register_permissions"]:
+            if user_exists(username):
+                user = get_user_obj(username)
+                base_uri.register_users.append(user)
 
     sql_db.session.commit()
 
@@ -510,6 +707,21 @@ def update_permissions(permissions):
 #############################################################################
 # Register dataset helper functions
 #############################################################################
+
+
+def dataset_uri_exists(uri):
+    """Return True if the dataset URI has been registered."""
+    if _get_dataset_obj(uri) is None:
+        return False
+    return True
+
+
+def get_dataset_obj(uri):
+    """Return SQLAlchemy Dataset object."""
+    dataset_obj = _get_dataset_obj(uri)
+    if dataset_obj is None:
+        raise (UnknownURIError("URI {} not registered".format(uri)))
+    return dataset_obj
 
 
 def dataset_info_is_valid(dataset_info):
@@ -535,8 +747,9 @@ def dataset_info_is_valid(dataset_info):
     return True
 
 
-def register_dataset_admin_metadata(admin_metadata):
-    """Register the admin metadata in the dataset SQL table."""
+def create_dataset_obj_from_admin_metadata(admin_metadata):
+    """Create an object adhering to the Dataset model from a dict-like object admin_metadata."""
+
     base_uri = get_base_uri_obj(admin_metadata["base_uri"])
 
     frozen_at = extract_frozen_at_as_datetime(admin_metadata)
@@ -563,12 +776,46 @@ def register_dataset_admin_metadata(admin_metadata):
         number_of_items=number_of_items,
         size_in_bytes=size_in_bytes,
     )
-    sql_db.session.add(dataset)
+    return dataset
+
+
+def register_dataset_admin_metadata(admin_metadata):
+    """Update the admin metadata in the dataset SQL table by replacing a possibly existing dataset entry."""
+
+    # first, validate dataset info
+    new_dataset_entry = create_dataset_obj_from_admin_metadata(admin_metadata)
+
+    uri = admin_metadata["uri"]
+
+    # there must only be one object, as URI is the unique index
+    sql_db.session.query(Dataset).filter_by(uri=uri).delete()
+
+    sql_db.session.add(new_dataset_entry)
     sql_db.session.commit()
+
+    return new_dataset_entry.uri
+
+
+def delete_dataset_admin_metadata(uri):
+    """Delete the admin metadata from the dataset SQL table.
+
+    :param uri: URI of dataset entry to delete.
+    :returns: URI of successfully deleted dataset entry"""
+
+    # there must only be one object, as URI is the unique index
+    for old_dataset_entry in (
+            sql_db.session.query(Dataset).filter_by(uri=uri).all()
+    ):
+        sql_db.session.delete(old_dataset_entry)
+
+    sql_db.session.commit()
+
+    return uri
 
 
 def register_dataset(dataset_info):
-    """Register a dataset in the lookup server."""
+    """Put-update a dataset in the lookup server. Put is idempotent."""
+
     if not dataset_info_is_valid(dataset_info):
         raise (ValidationError("Dataset info not valid: {}".format(dataset_info)))  # NOQA
 
@@ -582,7 +829,12 @@ def register_dataset(dataset_info):
     # On the core search and retrieve plugins, we are strict. We expect them
     # to raise ValidationError on failure, we log those, and reraise
     try:
-        current_app.search.register_dataset(dataset_info.copy())
+        if hasattr(current_app.search, "register_dataset"):
+            current_app.search.register_dataset(dataset_info.copy())
+        else:
+            logger.warning("Search plugin has no method 'register_dataset'")
+            logger.warning("Applied modifications to dataset entry '%s' will not take effect in search database.'",
+                           dataset_info["uri"])
     except ValidationError as message:
         # Instead of reporting the error with the logging module, we will want
         # to do some bookkeeping on registration errors per URI in the
@@ -591,7 +843,12 @@ def register_dataset(dataset_info):
         raise
 
     try:
-        current_app.retrieve.register_dataset(dataset_info.copy())
+        if hasattr(current_app.retrieve, "register_dataset"):
+            current_app.retrieve.register_dataset(dataset_info.copy())
+        else:
+            logger.warning("Retrieve plugin has no method 'register_dataset'")
+            logger.warning("Applied modifications to dataset entry '%s' will not take effect in retrieve database.'",
+                           dataset_info["uri"])
     except ValidationError as message:
         logger.error(message)
         raise
@@ -604,14 +861,62 @@ def register_dataset(dataset_info):
         except Exception as message:
             logger.warning(message)
 
-    if get_admin_metadata_from_uri(dataset_info["uri"]) is None:
-        register_dataset_admin_metadata(dataset_info)
+    # this is double bookkeeping, next to delegating dataset registration to
+    # the search plugin, we also store metadata in an sql table
+    register_dataset_admin_metadata(dataset_info)
 
     return dataset_info["uri"]
 
 
+def delete_dataset(uri):
+    """Delete a dataset in the lookup server. Idempotent.
+
+    :param uri: URI of dataset entry to remove from dserver.
+    :returns: URI of successfully removed dataset entry.
+
+    :raises ValidationError: if deletion fails within dserver core, or within search and retrieve plugin."""
+
+    # On the core search and retrieve plugins, we are strict. We expect them
+    # to raise ValidationError on failure, we log those, and reraise
+    try:
+        if hasattr(current_app.search, "delete_dataset"):
+            current_app.search.delete_dataset(uri)
+        else:
+            logger.warning("Search plugin has no method 'delete_dataset'")
+            logger.warning("Deletion of dataset entry '%s' will not take effect in search database.'", uri)
+    except ValidationError as message:
+        # Instead of reporting the error with the logging module, we will want
+        # to do some bookkeeping on registration errors per URI in the
+        # core SQL db
+        logger.error(message)
+        raise
+
+    try:
+        if hasattr(current_app.retrieve, "delete_dataset"):
+            current_app.retrieve.delete_dataset(uri)
+        else:
+            logger.warning("Retrieve plugin has no method 'delete_dataset'")
+            logger.warning("Deletion of dataset entry '%s' will not take effect in retrieve database.'", uri)
+    except ValidationError as message:
+        logger.error(message)
+        raise
+
+    # On any other optional extension, we want to be lenient. We still
+    # want to keep track of any error, but the registration should not fail.
+    for ex in current_app.custom_extensions:
+        try:
+            ex.delete_dataset(uri)
+        except Exception as message:
+            logger.warning(message)
+
+    # this is double bookkeeping, next to delegating dataset registration to
+    # the search plugin, we also store metadata in an sql table
+    delete_dataset_admin_metadata(uri)
+
+    return uri
+
 #############################################################################
-# Dataset information retrieval helper functions.
+# Dataset information retrieval helper functions
 #############################################################################
 
 
@@ -633,6 +938,11 @@ def list_admin_metadata_in_base_uri(base_uri_str):
         return None
 
     return [ds.as_dict() for ds in base_uri.datasets]
+
+
+#############################################################################
+# Retrieve plugin interface
+#############################################################################
 
 
 def get_readme_from_uri_by_user(username, uri):
@@ -683,6 +993,31 @@ def get_manifest_from_uri_by_user(username, uri):
         raise (AuthorizationError())
 
     return current_app.retrieve.get_manifest(uri)
+
+
+def get_tags_from_uri_by_user(username, uri):
+    """Return tags.
+
+    :param username: username
+    :param uri: dataset URI
+    :returns: dataset tags
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to read
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    if base_uri not in user.search_base_uris:
+        raise (AuthorizationError())
+
+    return current_app.retrieve.get_tags(uri)
 
 
 def get_annotations_from_uri_by_user(username, uri):

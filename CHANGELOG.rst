@@ -12,15 +12,48 @@ TODO
 ^^^^
 
 - Simplify code cleaning up created_at and frozen_at types
-- Create response schemas
+- Create response schemas for readme, annotations, tags, config, and versions routes
 
 Added
 ^^^^^
 
+- Sorting mechanism in analogy to ``flask_smorest``'s Pagination mechanism
+- Deletion, put, and patch routes
+- ``/tags`` tag retrieval route
 
 Changed
 ^^^^^^^
 
+- Renamed package from ``dtool_lookup_server`` to ``dserver``.
+- All routes refactored to adhere to a few simple REST API conventions from "Mark Masse, REST API Design Rulebook, O'Reilly Media, Inc., 2011", namely
+   - Forward slash separator indicates hierarchical relationship,
+     and URI path conveys the REST API's resource model,
+     e.g. ``/users/test-user``, ``/base-uris/smb/test-share``, ``/uris/s3/test-bucket/aad1c62b-b184-422b-841e-ac68eda26fe7``
+   - Hyphens used to improve readability and underscores avoided in URIs,
+     e.g. ``/base-uris`` instead of ``/base_uris``
+   - Plural nouns are used for collections, e.g. ``/users``, ``/base-uris``
+   - Singular nouns are used for specific documents, e.g. ``/users/test-user/summary``
+   - Query component of a URI used to filter collections, e.g. ``/uris?creator_usernames=test-user&free_text=apple``
+   - Query component of URI used to paginate and sort collections , e.g. ``/users?page=2&page_size=5&sort=is_admin,-username``
+- use HTTP methods GET, PUT, DELETE for managing resources in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods:
+   - GET retrieves a resource, e.g. GET ``/users/test-user``
+   - PUT registers a resource or replaces an existing resource and behaves idempotent,
+     e.g. PUT ``/users/test-user`` will create the user `test-user` or replace them if already existing
+   - DELETE removes a resource from dserver
+- use HTTP response codes to transparently indicate errors in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Status, e.g.
+   - 200 OK, Request succeeded, e.g. used by
+      - GET to indicate the resource has been fetched and transmitted,
+      - PUT to indicate an existing resource has been updated successfully,
+      - DELETE to indicate successful removal of a resource
+   - 201 Created, The request succeeded, and a new resource was created as a result,
+     e.g. used by PUT if the resource had not existed before the request and has been newly created
+   - 400 Bad Request, e.g. a dataset to be registered is not valid.
+   - 401 Unauthorized, semantically this response means "unauthenticated",
+     e.g. user needs to authenticate to access the resource.
+   - 403 Forbidden, client does not have access rights to the content,
+     e.g. user is authenticated and known to the server, but lacks admin rights to access the specified resource
+   - 404 Not Found, server cannot find the requested resource,
+     e.g. user is authenticated and has permissions to search a specific base URI, but no dataset entry exists for the requested URI
 
 Deprecated
 ^^^^^^^^^^
@@ -65,8 +98,8 @@ Changed
   shall happen in the API client.
 - When registering a dataset the readme should now be provided as a string
   (text) rather than as a dictionary of key value entries
-- The ``/config/info```route now provides a dump of the actual Flask app config
-- Epoxe ``X-Pagination`` headers per default.
+- The ``/config/info`` route now provides a dump of the actual Flask app config
+- Expose ``X-Pagination`` headers per default.
 
 
 Removed
@@ -147,11 +180,11 @@ Added
 
 - Added hook to allow the loading of plugins. Scaffold code for implementing a
   plugin can be found in
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding.
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding.
   For examples of actual plugins see:
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-dependency-graph-plugin
+  https://github.com/livMatS/dtool-lookup-server-dependency-graph-plugin
   and
-  https://github.com/IMTEK-Simulation/dtool-lookup-server-plugin-scaffolding
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding
 - Added /config route; see
   https://github.com/jic-dtool/dtool-lookup-server/pull/6
 - Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of

@@ -1,3 +1,6 @@
+"""Database models and derived schemas"""
+import datetime
+from marshmallow import fields
 import dtoolcore.utils
 from dtool_lookup_server import ma
 from dtool_lookup_server import sql_db as db
@@ -17,6 +20,20 @@ register_permissions = db.Table(
         "base_uri_id", db.Integer, db.ForeignKey("base_uri.id"), primary_key=True
     ),
 )
+
+
+class FloatDateTimeField(fields.Field):
+    """Always serialize datetime to float timestamp, and deserialize assuming UTC."""
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+        return dtoolcore.utils.timestamp(value)
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value is None:
+            return None
+        return datetime.utcfromtimestamp(float(value))
 
 
 class User(db.Model):
@@ -113,14 +130,44 @@ class Dataset(db.Model):
 class BaseURISchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = BaseURI
-        fields = ('base_uri',)
+        exclude = ("id",)
+
+
+class BaseURIWithPermissionsSchema(BaseURISchema):
+    users_with_search_permissions = fields.List(fields.String)
+    users_with_register_permissions = fields.List(fields.String)
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
+        exclude = ("id",)
+
+
+class UserWithPermissionsSchema(UserSchema):
+    register_permissions_on_base_uris = fields.List(fields.String)
+    search_permissions_on_base_uris = fields.List(fields.String)
+
 
 class DatasetSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Dataset
-        fields = ('base_uri', 'created_at', 'creator_username', 'frozen_at', 'created_at', 'name', 'uri', 'uuid')
+        fields = (
+            'base_uri',
+            'created_at',
+            'creator_username',
+            'frozen_at',
+            'name',
+            'uri',
+            'uuid')
+
+    base_uri = fields.Method("get_base_uri_string")
+    frozen_at = FloatDateTimeField()
+    created_at = FloatDateTimeField()
+
+    def get_base_uri_string(self, obj):
+        """Always serialize base_uri as string, no matter whether object is Dataset or simple dict"""
+        if isinstance(obj, Dataset):
+            return obj.base_uri.base_uri
+        elif isinstance(obj, dict):
+            return obj["base_uri"]

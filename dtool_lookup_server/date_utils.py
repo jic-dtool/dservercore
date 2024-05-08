@@ -1,4 +1,4 @@
-"""Validatoin utility functions."""
+"""Validation utility functions."""
 
 from datetime import datetime
 

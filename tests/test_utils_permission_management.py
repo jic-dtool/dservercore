@@ -1,16 +1,14 @@
 """Test dtool lookup server permission management helper functions."""
 
-from . import tmp_app  # NOQA
 
-
-def test_user_management_helper_functions(tmp_app):  # NOQA
+def test_user_management_helper_functions(tmp_app_client):  # NOQA
 
     from dtool_lookup_server.utils import (
         register_users,
         register_base_uri,
         list_users,
         list_base_uris,
-        update_permissions,
+        register_permissions,
         get_permission_info,
     )
 
@@ -27,7 +25,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
 
     register_base_uri(base_uri)
     register_users(users)
-    update_permissions(permissions)
+    register_permissions(base_uri, permissions)
 
     assert get_permission_info(base_uri) == permissions
 
@@ -66,7 +64,7 @@ def test_user_management_helper_functions(tmp_app):  # NOQA
         "users_with_search_permissions": [],
         "users_with_register_permissions": [],
     }
-    update_permissions(permissions)
+    register_permissions(base_uri, permissions)
     assert get_permission_info(base_uri) == permissions
 
     expected_content = [
