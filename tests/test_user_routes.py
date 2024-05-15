@@ -103,6 +103,25 @@ def test_put_user_route(
 
     assert r.status_code == 201
 
+    r = tmp_app_with_users_client.get(
+        "/users/noone",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+
+    expected_response = UserWithPermissionsSchema().load(
+        {
+            'is_admin': False,
+            'register_permissions_on_base_uris': [],
+            'search_permissions_on_base_uris': [],
+            'username': 'noone'
+        })
+
+    assert user_response == expected_response
+
     # 5 - check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)
 
