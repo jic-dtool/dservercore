@@ -96,12 +96,31 @@ def test_put_user_route(
 
     # 4 - check creation for non-existing user
     r = tmp_app_with_users_client.put(
-        "/users/noone",
+        "/users/dopey",
         headers=headers,
         json={"is_admin": True}
     )
 
     assert r.status_code == 201
+
+    r = tmp_app_with_users_client.get(
+        "/users/dopey",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+
+    expected_response = UserWithPermissionsSchema().load(
+        {
+            'is_admin': True,
+            'register_permissions_on_base_uris': [],
+            'search_permissions_on_base_uris': [],
+            'username': 'dopey'
+        })
+
+    assert user_response == expected_response
 
     # 5 - check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)
