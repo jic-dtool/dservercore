@@ -96,7 +96,7 @@ def test_put_user_route(
 
     # 4 - check creation for non-existing user
     r = tmp_app_with_users_client.put(
-        "/users/noone",
+        "/users/dopey",
         headers=headers,
         json={"is_admin": True}
     )
