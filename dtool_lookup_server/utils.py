@@ -225,10 +225,15 @@ def register_user(username, data):
     """
     is_admin = data.get("is_admin", False)
 
-    for sqlalch_user_obj in (
-        sql_db.session.query(User).filter_by(username=username).all()
-    ):
-        sqlalch_user_obj.is_admin = is_admin
+    # User already exists, update
+    if sql_db.session.query(exists().where(User.username == username)).scalar():
+        for sqlalch_user_obj in (
+            sql_db.session.query(User).filter_by(username=username).all()
+        ):
+            sqlalch_user_obj.is_admin = is_admin
+    else:  # user does not exist yet, create
+        user = User(username=username, is_admin=is_admin)
+        sql_db.session.add(user)
 
     sql_db.session.commit()
 
