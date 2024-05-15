@@ -94,27 +94,7 @@ def test_put_user_route(
 
     assert user_response == expected_response
 
-    # 4 - check failure for non-admins
-    headers = dict(Authorization="Bearer " + sleepy_token)
-
-    r = tmp_app_with_users_client.put(
-        "/users/grumpy",
-        headers=headers,
-        json={"is_admin": True}
-    )
-    assert r.status_code == 403
-
-    # 5 - check failure for non-registered users
-    headers = dict(Authorization="Bearer " + noone_token)
-
-    r = tmp_app_with_users_client.put(
-        "/users/grumpy",
-        headers=headers,
-        json={"is_admin": True}
-    )
-    assert r.status_code == 401
-
-    # 6 - check creation for non-existing user
+    # 4 - check creation for non-existing user
     r = tmp_app_with_users_client.put(
         "/users/noone",
         headers=headers,
@@ -124,7 +104,7 @@ def test_put_user_route(
     assert r.status_code == 201
 
     r = tmp_app_with_users_client.get(
-        "/users/noone",
+        "/users/dopey",
         headers=headers
     )
     assert r.status_code == 200
@@ -137,10 +117,30 @@ def test_put_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'noone'
+            'username': 'dopey'
         })
 
     assert user_response == expected_response
+
+    # 5 - check failure for non-admins
+    headers = dict(Authorization="Bearer " + sleepy_token)
+
+    r = tmp_app_with_users_client.put(
+        "/users/grumpy",
+        headers=headers,
+        json={"is_admin": True}
+    )
+    assert r.status_code == 403
+
+    # 6 - check failure for non-registered users
+    headers = dict(Authorization="Bearer " + noone_token)
+
+    r = tmp_app_with_users_client.put(
+        "/users/grumpy",
+        headers=headers,
+        json={"is_admin": True}
+    )
+    assert r.status_code == 401
 
 
 def test_get_user_route(
