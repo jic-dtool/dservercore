@@ -114,7 +114,7 @@ def test_put_user_route(
 
     expected_response = UserWithPermissionsSchema().load(
         {
-            'is_admin': False,
+            'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
             'username': 'noone'
