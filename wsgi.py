@@ -10,7 +10,7 @@ Environment variable
 import logging
 import os
 import pprint
-from dserver import create_app
+from dtool_lookup_server import create_app
 
 
 LOGLEVELS_STR = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']
