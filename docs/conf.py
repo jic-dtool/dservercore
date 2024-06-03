@@ -20,7 +20,6 @@ release = dtool_lookup_server.__version__
 extensions = [
     'sphinx.ext.autosummary',
     'sphinxcontrib.spelling',
-    'sphinxcontrib.bibtex',
     'myst_parser'
 ]
 
@@ -47,8 +46,3 @@ autodoc_default_options = {
 # spell check with sphinxcontrib.spelling
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
-
-# bibliography with sphinxcontrib.bibtex
-bibtex_bibfiles = ['refs.bib']
-bibtex_default_style = 'unsrt'
-bibtex_reference_style = 'label'
