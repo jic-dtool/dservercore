@@ -12,7 +12,6 @@ Overview
 
    self
    readme
-   story
    changelog
    api
 
