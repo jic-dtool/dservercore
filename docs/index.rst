@@ -12,8 +12,6 @@ Overview
 
    self
    readme
-   story
-   development
    changelog
    api
 
