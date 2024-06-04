@@ -35,7 +35,7 @@ docs = [
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib-spelling",
-    "myst-parser==2.0.0"
+    "myst-parser==3.0.1"
 ]
 
 [project.urls]
