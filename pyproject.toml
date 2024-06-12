@@ -12,7 +12,7 @@ authors = [
 ]
 dynamic = ["version"]
 dependencies = [
-        "flask<3",
+        "flask<4",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",
