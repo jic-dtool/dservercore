@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dtool-lookup-server"
 description = "Web API to register/lookup/search for dtool dataset metadata"
+readme = "README.rst"
 license = {file = "LICENSE"}
 authors = [
     {name = "Tjelvar Olsson", email = "tjelvar.olsson@gmail.com"}
