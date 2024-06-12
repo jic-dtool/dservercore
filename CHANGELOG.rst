@@ -5,8 +5,8 @@ This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
 
-[Unreleased]
-------------
+[0.19.0]
+--------
 
 TODO
 ^^^^
@@ -24,7 +24,6 @@ Added
 Changed
 ^^^^^^^
 
-- Renamed package from ``dtool_lookup_server`` to ``dserver``.
 - All routes refactored to adhere to a few simple REST API conventions from "Mark Masse, REST API Design Rulebook, O'Reilly Media, Inc., 2011", namely
    - Forward slash separator indicates hierarchical relationship,
      and URI path conveys the REST API's resource model,
@@ -38,7 +37,7 @@ Changed
 - use HTTP methods GET, PUT, DELETE for managing resources in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods:
    - GET retrieves a resource, e.g. GET ``/users/test-user``
    - PUT registers a resource or replaces an existing resource and behaves idempotent,
-     e.g. PUT ``/users/test-user`` will create the user `test-user` or replace them if already existing
+     e.g. PUT ``/users/test-user`` will create the user ``test-user`` or replace them if already existing
    - DELETE removes a resource from dserver
 - use HTTP response codes to transparently indicate errors in the sense of https://developer.mozilla.org/en-US/docs/Web/HTTP/Status, e.g.
    - 200 OK, Request succeeded, e.g. used by
