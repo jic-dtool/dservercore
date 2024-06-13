@@ -12,6 +12,7 @@ authors = [
 ]
 dynamic = ["version"]
 dependencies = [
+        "setuptools",
         "flask<3",
         "pymongo",
         "alembic",
