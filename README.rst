@@ -8,7 +8,7 @@ dservercore
     :target: https://pypi.org/project/dservercore/
 .. |tag| image:: https://img.shields.io/github/v/tag/livMatS/dservercore
     :target: https://github.com/livMatS/dservercore/tags
-.. |test| image:: https://img.shields.io/github/actions/workflow/status/livMatS/dservercore/test.yml?branch=master
+.. |test| image:: https://img.shields.io/github/actions/workflow/status/livMatS/dservercore/test.yml?branch=main
     :target: https://github.com/livMatS/dservercore/actions/workflows/test.yml
 
 |dtool| |pypi| |tag| |test|
