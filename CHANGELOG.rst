@@ -4,15 +4,16 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[unreleased]
+------------
 
-[0.19.0]
---------
+Changed
+^^^^^^^
 
-TODO
-^^^^
+- Renamed from ``dtool-lookup-server`` to ``dservercore``
 
-- Simplify code cleaning up created_at and frozen_at types
-- Create response schemas for readme, annotations, tags, config, and versions routes
+[0.19.0] - 2024-06-12
+---------------------
 
 Added
 ^^^^^
