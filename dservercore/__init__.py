@@ -11,12 +11,12 @@ from flask_smorest import Blueprint as FlaskSmorestBlueprint
 from flask_smorest.pagination import PaginationParameters
 from flask_migrate import Migrate
 
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.config import Config
-from dtool_lookup_server.extensions import sql_db, jwt, ma
-from dtool_lookup_server.schemas import SearchDatasetSchema, RegisterDatasetSchema
-from dtool_lookup_server.sort import SortParameters
-from dtool_lookup_server.sql_models import DatasetSchema
+from dservercore.blueprint import Blueprint
+from dservercore.config import Config
+from dservercore.extensions import sql_db, jwt, ma
+from dservercore.schemas import SearchDatasetSchema, RegisterDatasetSchema
+from dservercore.sort import SortParameters
+from dservercore.sql_models import DatasetSchema
 
 
 from pkg_resources import iter_entry_points
@@ -211,7 +211,7 @@ class ExtensionABC(ABC):
         capitalized module name
       - retrieve config parameters in a Flask-typical fashion, i.e.
         from the environment or from file as done within the core at
-        dtool_lookup_server.config.Config
+        dservercore.config.Config
       - provide these parameters via the get_config method.
       - access at runtime via global Flask config, i.e. app.config
     """
@@ -230,7 +230,7 @@ def create_app(test_config=None):
 
     # Load the search plugin.
     search_entrypoints = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.search"):
+    for entrypoint in iter_entry_points("dservercore.search"):
         logger.info("Discovered search plugin entrypoint %s", entrypoint)
         search_entrypoints.append(entrypoint.load())
     if len(search_entrypoints) < 1:
@@ -241,7 +241,7 @@ def create_app(test_config=None):
 
     # Load the retrieve plugin.
     retrieve_entrypoints = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.retrieve"):
+    for entrypoint in iter_entry_points("dservercore.retrieve"):
         logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
         retrieve_entrypoints.append(entrypoint.load())
     if len(retrieve_entrypoints) < 1:

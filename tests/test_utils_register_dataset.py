@@ -294,7 +294,7 @@ def test_register_too_large_metadata_dataset(tmp_app_client):  # NOQA
     # pymongo.errors.DocumentTooLarge: BSON document too large (28978543 bytes)
     # - the connected server supports BSON document sizes up to 16793598 bytes.
     # See https://github.com/jic-dtool/dservercore/issues/16
-    # So the code catches this and raises dtool_lookup_server.ValidationError
+    # So the code catches this and raises dservercore.ValidationError
     # instead.
     with pytest.raises(ValidationError):
         register_dataset(dataset_info)

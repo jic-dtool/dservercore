@@ -9,7 +9,7 @@ def test_get_annotations_from_uri_by_user(tmp_app_with_data_client):  # NOQA
         UnknownBaseURIError,
         UnknownURIError,
     )
-    from dtool_lookup_server.utils import (
+    from dservercore.utils import (
         get_annotations_from_uri_by_user,
     )
 

@@ -9,14 +9,14 @@ from flask_jwt_extended import (
 )
 from flask_smorest.pagination import PaginationParameters
 
-import dtool_lookup_server.utils
-import dtool_lookup_server.utils_auth
+import dservercore.utils
+import dservercore.utils_auth
 
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
-from dtool_lookup_server.schemas import SummarySchema
-from dtool_lookup_server.sql_models import User, UserSchema, UserWithPermissionsSchema
-from dtool_lookup_server.utils import register_user, delete_user, summary_of_datasets_by_user
+from dservercore.blueprint import Blueprint
+from dservercore.sort import SortParameters, ASCENDING, DESCENDING
+from dservercore.schemas import SummarySchema
+from dservercore.sql_models import User, UserSchema, UserWithPermissionsSchema
+from dservercore.utils import register_user, delete_user, summary_of_datasets_by_user
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")

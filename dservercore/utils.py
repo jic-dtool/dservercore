@@ -12,7 +12,7 @@ from sqlalchemy.sql import exists
 
 import dtoolcore.utils
 
-from dtool_lookup_server import (
+from dservercore import (
     sql_db,
     AuthenticationError,
     AuthorizationError,
@@ -21,15 +21,15 @@ from dtool_lookup_server import (
     UnknownURIError,
     __version__
 )
-from dtool_lookup_server.sql_models import (
+from dservercore.sql_models import (
     User,
     BaseURI,
     Dataset,
 )
-from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
+from dservercore.sort import SortParameters, ASCENDING, DESCENDING
 
 
-from dtool_lookup_server.date_utils import (
+from dservercore.date_utils import (
     extract_created_at_as_datetime,
     extract_frozen_at_as_datetime,
 )
@@ -129,15 +129,15 @@ def versions_to_dict():
     """Dumps installed components and their versions to dictionary, i.e.
 
         {
-            'dtool_lookup_server': '0.17.2',
+            'dservercore': '0.17.2',
             'dserver_retrieve_plugin_mongo': '0.1.0',
             'dserver_search_plugin_mongo': '0.1.0'
         }
    """
 
-    versions_dict = {'dtool_lookup_server': __version__}
+    versions_dict = {'dservercore': __version__}
     for ep_group in DSERVER_PLUGIN_ENTRYPOINTS:
-        for ep in iter_entry_points("dtool_lookup_server.{}".format(ep_group)):
+        for ep in iter_entry_points("dservercore.{}".format(ep_group)):
             module_name = ep.module_name.split(".")[0]
 
             # import module

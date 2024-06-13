@@ -116,9 +116,9 @@ Fixed
 ^^^^^
 
 - Made code compatible with flask-jwt-extended version 4 API
-  https://github.com/jic-dtool/dtool-lookup-server/issues/19
+  https://github.com/jic-dtool/dservercore/issues/19
 - Resolve SQLAlchemy warnings about conflicting relationships
-  https://github.com/jic-dtool/dtool-lookup-server/issues/20
+  https://github.com/jic-dtool/dservercore/issues/20
 - Resolve SQLAlchemy warning about cartesian product
 
 
@@ -130,7 +130,7 @@ Fixed
 ^^^^^
 
 - Fixed version of flask-jwt-extended to be less than 4 to fix
-  https://github.com/jic-dtool/dtool-lookup-server/issues/19
+  https://github.com/jic-dtool/dservercore/issues/19
 
 
 [0.17.0] - 2021-03-15
@@ -161,7 +161,7 @@ Fixed
 - Fixed issues registering datasets with "too much" metadata, resulting in datasets
   information JSON documents that were too large for the mongo database. These datasets
   are now ignored. See
-  `issue 16 <https://github.com/jic-dtool/dtool-lookup-server/issues/16>`_
+  `issue 16 <https://github.com/jic-dtool/dservercore/issues/16>`_
   for more information:
 
 
@@ -180,28 +180,28 @@ Added
 
 - Added hook to allow the loading of plugins. Scaffold code for implementing a
   plugin can be found in
-  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding.
+  https://github.com/livMatS/dserver-plugin-scaffolding.
   For examples of actual plugins see:
-  https://github.com/livMatS/dtool-lookup-server-dependency-graph-plugin
+  https://github.com/livMatS/dserver-dependency-graph-plugin
   and
-  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding
+  https://github.com/livMatS/dserver-plugin-scaffolding
 - Added /config route; see
-  https://github.com/jic-dtool/dtool-lookup-server/pull/6
+  https://github.com/jic-dtool/dservercore/pull/6
 - Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of
   UUIDs of interest to a query submitted to the /dataset/search route; see
-  https://github.com/jic-dtool/dtool-lookup-server/pull/8
+  https://github.com/jic-dtool/dservercore/pull/8
 - Added dtool_lookup_server.utils.preprocess_query_base_uris helper function; see
-  https://github.com/jic-dtool/dtool-lookup-server/pull/7 and
-  https://github.com/jic-dtool/dtool-lookup-server/issues/10
+  https://github.com/jic-dtool/dservercore/pull/7 and
+  https://github.com/jic-dtool/dservercore/issues/10
 
 Fixed
 ^^^^^
 
 - Fixed timestamps returned form /dataset/search route; they are now returned
   as floats rather than as strings; see
-  https://github.com/jic-dtool/dtool-lookup-server/issues/3
+  https://github.com/jic-dtool/dservercore/issues/3
 - Fixed defect in ``flask user token`` CLI command when using python3; see
-  https://github.com/jic-dtool/dtool-lookup-server/pull/5
+  https://github.com/jic-dtool/dservercore/pull/5
 
 
 [0.14.1] - 2020-04-02
@@ -387,7 +387,7 @@ New and replacement routes.
 - /admin/user/list
 - /admin/user/register
 
-Flask CLI utilities for managing the dtool lookup server.
+Flask CLI utilities for managing dserver.
 
 - ``flask base_uri add``
 - ``flask base_uri index``

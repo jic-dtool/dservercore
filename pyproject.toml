@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "setuptools_scm[toml]>=6.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dtool-lookup-server"
+name = "dservercore"
 description = "Web API to register/lookup/search for dtool dataset metadata"
 readme = "README.rst"
 license = {file = "LICENSE"}
@@ -40,9 +40,9 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://dtool-lookup-server.readthedocs.io"
-Repository = "https://github.com/jic-dtool/dtool-lookup-server"
-Changelog = "https://github.com/jic-dtool/dtool-lookup-server/blob/main/CHANGELOG.rst"
+Documentation = "https://dservercore.readthedocs.io"
+Repository = "https://github.com/jic-dtool/dservercore"
+Changelog = "https://github.com/jic-dtool/dservercore/blob/main/CHANGELOG.rst"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"

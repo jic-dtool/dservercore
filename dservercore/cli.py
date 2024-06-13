@@ -11,9 +11,9 @@ from flask.cli import AppGroup
 from flask_jwt_extended import create_access_token
 
 from dtoolcore import iter_datasets_in_base_uri, DataSet
-import dtool_lookup_server
-import dtool_lookup_server.utils
-from dtool_lookup_server.utils import (
+import dservercore
+import dservercore.utils
+from dservercore.utils import (
     base_uri_exists,
     user_exists,
     delete_users,
@@ -27,7 +27,7 @@ from dtool_lookup_server.utils import (
     obj_to_dict,
     versions_to_dict
 )
-from dtool_lookup_server.config import CONFIG_EXCLUSIONS
+from dservercore.config import CONFIG_EXCLUSIONS
 
 app = Flask(__name__)
 
@@ -82,7 +82,7 @@ def delete_user(username):
 @user_cli.command(name="list")
 def list_users():
     """List the users in dserver."""
-    click.secho(json.dumps(dtool_lookup_server.utils.list_users(), indent=2))
+    click.secho(json.dumps(dservercore.utils.list_users(), indent=2))
 
 
 @base_uri_cli.command(name="add")
