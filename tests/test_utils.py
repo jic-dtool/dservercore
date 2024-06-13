@@ -1,13 +1,13 @@
 """Test app instance-independent utility functions."""
 
-from dtool_lookup_server import __version__
+from dservercore import __version__
 
-from dtool_lookup_server.utils import (
+from dservercore.utils import (
     versions_to_dict
 )
 
 
 def test_versions_to_dict():
     versions_dict = versions_to_dict()
-    assert 'dtool_lookup_server' in versions_dict
-    assert versions_dict['dtool_lookup_server'] == __version__
+    assert 'dservercore' in versions_dict
+    assert versions_dict['dservercore'] == __version__

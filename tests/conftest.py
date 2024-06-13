@@ -68,13 +68,13 @@ def noone_token():
 def tmp_app(request):
 
     from flask import current_app
-    from dtool_lookup_server import create_app, sql_db
+    from dservercore import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 
     config = {
         "CONFIG_SECRETS_TO_OBFUSCATE": [],
-        "API_TITLE": 'dtool-lookup-server API',
+        "API_TITLE": 'dservercore API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
         "API_SPEC_OPTIONS": {
@@ -134,8 +134,8 @@ def tmp_app_with_users(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
-    from dtool_lookup_server.utils import (
+    from dservercore import create_app, sql_db
+    from dservercore.utils import (
         register_users,
         register_base_uri,
         register_permissions,
@@ -145,7 +145,7 @@ def tmp_app_with_users(request):
 
     config = {
         "CONFIG_SECRETS_TO_OBFUSCATE": [],
-        "API_TITLE": 'dtool-lookup-server API',
+        "API_TITLE": 'dservercore API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
         "SECRET_KEY": "secret",
@@ -208,8 +208,8 @@ def tmp_app_with_data(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
-    from dtool_lookup_server.utils import (
+    from dservercore import create_app, sql_db
+    from dservercore.utils import (
         register_users,
         register_base_uri,
         register_dataset,
@@ -219,7 +219,7 @@ def tmp_app_with_data(request):
     tmp_mongo_db_name = random_string()
 
     config = {
-        "API_TITLE": 'dtool-lookup-server API',
+        "API_TITLE": 'dservercore API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
@@ -338,12 +338,12 @@ def tmp_cli_runner(request):
 
     from flask import current_app
 
-    from dtool_lookup_server import create_app, sql_db
+    from dservercore import create_app, sql_db
 
     tmp_mongo_db_name = random_string()
 
     config = {
-        "API_TITLE": 'dtool-lookup-server API',
+        "API_TITLE": 'dservercore API',
         "API_VERSION": 'v1',
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",

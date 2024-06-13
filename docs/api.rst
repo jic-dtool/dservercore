@@ -5,4 +5,4 @@ Python API
    :toctree: generated
    :recursive:
 
-   dtool_lookup_server
+   dservercore

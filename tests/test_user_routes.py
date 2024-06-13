@@ -11,7 +11,7 @@ def test_put_user_route(
         sleepy_token):  # NOQA
     """Test updating user information by put method."""
 
-    from dtool_lookup_server.sql_models import UserWithPermissionsSchema
+    from dservercore.sql_models import UserWithPermissionsSchema
 
     # 1 - check original grumpy entry
     expected_response = UserWithPermissionsSchema().load(
@@ -96,12 +96,31 @@ def test_put_user_route(
 
     # 4 - check creation for non-existing user
     r = tmp_app_with_users_client.put(
-        "/users/noone",
+        "/users/dopey",
         headers=headers,
         json={"is_admin": True}
     )
 
     assert r.status_code == 201
+
+    r = tmp_app_with_users_client.get(
+        "/users/dopey",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+
+    expected_response = UserWithPermissionsSchema().load(
+        {
+            'is_admin': True,
+            'register_permissions_on_base_uris': [],
+            'search_permissions_on_base_uris': [],
+            'username': 'dopey'
+        })
+
+    assert user_response == expected_response
 
     # 5 - check failure for non-admins
     headers = dict(Authorization="Bearer " + sleepy_token)
@@ -132,7 +151,7 @@ def test_get_user_route(
         sleepy_token):
     """Test retrieving user information by get method."""
 
-    from dtool_lookup_server.sql_models import UserWithPermissionsSchema
+    from dservercore.sql_models import UserWithPermissionsSchema
 
     # 1 - snow-white by snow-white
     # Admin is allowed to query any user
@@ -236,7 +255,7 @@ def test_delete_user_route(
         sleepy_token):
     "Text deletein users"
 
-    from dtool_lookup_server.utils import user_exists
+    from dservercore.utils import user_exists
 
     assert user_exists("grumpy")
 

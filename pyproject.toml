@@ -3,14 +3,16 @@ requires = ["setuptools>=42", "setuptools_scm[toml]>=6.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dtool-lookup-server"
+name = "dservercore"
 description = "Web API to register/lookup/search for dtool dataset metadata"
+readme = "README.rst"
 license = {file = "LICENSE"}
 authors = [
     {name = "Tjelvar Olsson", email = "tjelvar.olsson@gmail.com"}
 ]
 dynamic = ["version"]
 dependencies = [
+        "setuptools",
         "flask<3",
         "pymongo",
         "alembic",
@@ -35,25 +37,24 @@ docs = [
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib-spelling",
-    "sphinxcontrib-bibtex",
-    "myst-parser==2.0.0"
+    "myst-parser==3.0.1"
 ]
 
 [project.urls]
-Documentation = "https://livmats.github.io/dserver"
-Repository = "https://github.com/livMatS/dserver"
-Changelog = "https://github.com/livMatS/dserver/blob/main/CHANGELOG.rst"
+Documentation = "https://dservercore.readthedocs.io"
+Repository = "https://github.com/jic-dtool/dservercore"
+Changelog = "https://github.com/jic-dtool/dservercore/blob/main/CHANGELOG.rst"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
-write_to = "dtool_lookup_server/version.py"
+write_to = "dservercore/version.py"
 
 [tool.setuptools]
-packages = ["dtool_lookup_server"]
+packages = ["dservercore"]
 
 [project.entry-points."flask.commands"]
-"base_uri" = "dtool_lookup_server.cli:base_uri_cli"
-"user" = "dtool_lookup_server.cli:user_cli"
-"config" = "dtool_lookup_server.cli:config_cli"
-"dataset" = "dtool_lookup_server.cli:dataset_cli"
+"base_uri" = "dservercore.cli:base_uri_cli"
+"user" = "dservercore.cli:user_cli"
+"config" = "dservercore.cli:config_cli"
+"dataset" = "dservercore.cli:dataset_cli"

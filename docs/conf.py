@@ -6,13 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'dtool-lookup-server'
+project = 'dservercore'
 copyright = '2024, Tjelvar S. G. Olsson, Johannes L. Hörmann, Lars Pastewka, Luis Yanes, Matthew Hartley'
 author = 'Tjelvar S. G. Olsson, Johannes L. Hörmann, Lars Pastewka, Luis Yanes, Matthew Hartley'
 
-import dtool_lookup_server
-version = dtool_lookup_server.__version__
-release = dtool_lookup_server.__version__
+import dservercore
+version = dservercore.__version__
+release = dservercore.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,7 +20,6 @@ release = dtool_lookup_server.__version__
 extensions = [
     'sphinx.ext.autosummary',
     'sphinxcontrib.spelling',
-    'sphinxcontrib.bibtex',
     'myst_parser'
 ]
 
@@ -47,8 +46,3 @@ autodoc_default_options = {
 # spell check with sphinxcontrib.spelling
 spelling_lang = 'en_US'
 spelling_show_suggestions = True
-
-# bibliography with sphinxcontrib.bibtex
-bibtex_bibfiles = ['refs.bib']
-bibtex_default_style = 'unsrt'
-bibtex_reference_style = 'label'
