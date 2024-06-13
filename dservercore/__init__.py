@@ -252,7 +252,7 @@ def create_app(test_config=None):
 
     # Load any extension plugins.
     app.custom_extensions = []
-    for entrypoint in iter_entry_points("dtool_lookup_server.extension"):
+    for entrypoint in iter_entry_points("dservercore.extension"):
         logger.info("Discovered extension plugin entrypoint %s", entrypoint)
         ep = entrypoint.load()
         app.custom_extensions.append(ep())
@@ -291,7 +291,7 @@ def create_app(test_config=None):
 
     api = Api(app)
 
-    from dtool_lookup_server import (
+    from dservercore import (
         config_routes,
         uri_routes,
         uuid_routes,

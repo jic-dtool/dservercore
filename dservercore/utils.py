@@ -386,7 +386,7 @@ def list_datasets_by_user(username,
     """List the datasets the user has access to.
 
     :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
-    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
+    :param sort_parameters: dservercore.sort.SortParameters object, optional
 
     Returns list of dicts if user is valid and has access to datasets.
     Returns empty list if user is valid but has not got access to any datasets.
@@ -569,7 +569,7 @@ def search_datasets_by_user(username, query,
     :param username: username
     :param query: dictionary specifying query
     :param pagination_parameters: flask_smorest.pagination.PaginationParameters object, optional
-    :param sort_parameters: dtool_lookup_server.sort.SortParameters object, optional
+    :param sort_parameters: dservercore.sort.SortParameters object, optional
     :returns: List of dicts if user is valid and has access to datasets.
               Empty list if user is valid but has not got access to any
               datasets.

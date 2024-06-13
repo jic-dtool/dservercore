@@ -102,7 +102,7 @@ def add_base_uri(base_uri):
 @base_uri_cli.command(name="list")
 def list_base_uris():
     """List the base URIs in dserver."""
-    click.secho(json.dumps(dtool_lookup_server.utils.list_base_uris(), indent=2))
+    click.secho(json.dumps(dservercore.utils.list_base_uris(), indent=2))
 
 
 @user_cli.command(name="search_permission")
@@ -205,7 +205,7 @@ def index_base_uri(base_uri):
 
         try:
             r = register_dataset(dataset_info)
-        except dtool_lookup_server.ValidationError as message:
+        except dservercore.ValidationError as message:
             click.secho(
                 "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red"
             )
@@ -239,7 +239,7 @@ def register(uri):
 
     try:
         r = register_dataset(dataset_info)
-    except dtool_lookup_server.ValidationError as message:
+    except dservercore.ValidationError as message:
         click.secho(
             "Failed to register: {} {}".format(dataset.name, dataset.uri), fg="red", err=True
         )
