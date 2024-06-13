@@ -34,7 +34,7 @@ bp = Blueprint("base-uris", __name__, url_prefix="/base-uris")
 @jwt_required()
 def base_uris_get(pagination_parameters : PaginationParameters,
                   sort_parameters : SortParameters):
-    """List all base_uris.
+    """List all base URIs.
 
     The user needs to be admin.
     """
@@ -103,7 +103,7 @@ def base_uri_get(base_uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def base_uri_put(permissions : BaseURIWithPermissionsSchema, base_uri):
-    """Update a user in dserver by replacing entry.
+    """Create or update a base URI in dserver by replacing entry.
 
     The user in the Authorization token needs to be admin.
     """
@@ -134,7 +134,7 @@ def base_uri_put(permissions : BaseURIWithPermissionsSchema, base_uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def base_uri_delete(base_uri):
-    """Delete a user from dserver.
+    """Delete a base URI from dserver.
 
     The user in the Authorization token needs to be admin.
     """

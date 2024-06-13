@@ -97,7 +97,7 @@ def user_get(username):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def user_put(data: UserSchema, username):
-    """Update a user in dserver by replacing entry.
+    """Create or update a user in dserver by replacing entry.
 
     The user in the Authorization token needs to be admin.
     """
