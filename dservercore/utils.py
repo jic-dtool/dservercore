@@ -647,7 +647,7 @@ def get_base_uri_obj(base_uri):
 
 
 def register_base_uri(base_uri):
-    """Register a base URI in the dtool lookup server."""
+    """Register a base URI in dserver."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     base_uri = BaseURI(base_uri=base_uri)
 
@@ -656,7 +656,7 @@ def register_base_uri(base_uri):
 
 
 def delete_base_uri(base_uri):
-    """Delete a base URI from the dtool lookup server."""
+    """Delete a base URI from dserver."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
 
     for sqlalch_base_uri_obj in (
@@ -668,7 +668,7 @@ def delete_base_uri(base_uri):
 
 
 def list_base_uris():
-    """List the base URIs in the dtool lookup server."""
+    """List the base URIs in dserver."""
     base_uris = []
     for bu in BaseURI.query.all():
         base_uris.append(bu.as_dict())

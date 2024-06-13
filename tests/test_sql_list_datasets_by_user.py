@@ -3,7 +3,7 @@
 
 def test_list_datasets_by_user(tmp_app_client):  # NOQA
 
-    from dtool_lookup_server.utils import (
+    from dservercore.utils import (
         register_users,
         register_base_uri,
         register_permissions,

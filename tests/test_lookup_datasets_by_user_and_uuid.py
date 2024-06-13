@@ -5,8 +5,8 @@ import pytest
 
 def test_lookup_datasets_by_user_and_uuid(tmp_app_with_data_client):  # NOQA
 
-    from dtool_lookup_server import AuthenticationError
-    from dtool_lookup_server.utils import lookup_datasets_by_user_and_uuid
+    from dservercore import AuthenticationError
+    from dservercore.utils import lookup_datasets_by_user_and_uuid
 
     uuid = "af6727bf-29c7-43dd-b42f-a5d7ede28337"
 

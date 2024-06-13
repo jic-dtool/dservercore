@@ -103,7 +103,7 @@ def base_uri_get(base_uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def base_uri_put(permissions : BaseURIWithPermissionsSchema, base_uri):
-    """Update a user in the dtool lookup server by replacing entry.
+    """Update a user in dserver by replacing entry.
 
     The user in the Authorization token needs to be admin.
     """
@@ -134,7 +134,7 @@ def base_uri_put(permissions : BaseURIWithPermissionsSchema, base_uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def base_uri_delete(base_uri):
-    """Delete a user from the dtool lookup server.
+    """Delete a user from dserver.
 
     The user in the Authorization token needs to be admin.
     """

@@ -5,8 +5,8 @@ import pytest
 
 def test_sql_dataset_helper_functions(tmp_app_client):  # NOQA
 
-    from dtool_lookup_server import UnknownBaseURIError
-    from dtool_lookup_server.utils import (
+    from dservercore import UnknownBaseURIError
+    from dservercore.utils import (
         register_base_uri,
         register_dataset_admin_metadata,
         get_admin_metadata_from_uri,

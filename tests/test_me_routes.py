@@ -12,7 +12,7 @@ def test_me_route(
         sleepy_token):
     """Test retrieving current user information by get method."""
 
-    from dtool_lookup_server.sql_models import UserWithPermissionsSchema
+    from dservercore.sql_models import UserWithPermissionsSchema
 
     # snow-white
     headers = dict(Authorization="Bearer " + snowwhite_token)

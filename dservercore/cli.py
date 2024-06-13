@@ -41,7 +41,7 @@ config_cli = AppGroup("config", help="Config inspection commands.")
 @click.argument("username")
 @click.option("-a", "--is_admin", is_flag=True)
 def register_user(username, is_admin):
-    """Register a user in the dtool lookup server."""
+    """Register a user in dserver."""
 
     if user_exists(username):
         click.secho("User '{}' already registered".format(username), fg="red", err=True)
@@ -55,7 +55,7 @@ def register_user(username, is_admin):
 @click.argument("username")
 @click.option("-a", "--is_admin", is_flag=True)
 def update_user(username, is_admin):
-    """Update a user in the dtool lookup server."""
+    """Update a user in dserver."""
 
     if not user_exists(username):
         click.secho(
@@ -70,7 +70,7 @@ def update_user(username, is_admin):
 @user_cli.command(name="delete")
 @click.argument("username")
 def delete_user(username):
-    """Delete a user in the dtool lookup server."""
+    """Delete a user in dserver."""
     users = [
         {
             "username": username,
@@ -81,14 +81,14 @@ def delete_user(username):
 
 @user_cli.command(name="list")
 def list_users():
-    """List the users in the dtool lookup server."""
+    """List the users in dserver."""
     click.secho(json.dumps(dtool_lookup_server.utils.list_users(), indent=2))
 
 
 @base_uri_cli.command(name="add")
 @click.argument("base_uri")
 def add_base_uri(base_uri):
-    """Register a base URI in the dtool lookup server."""
+    """Register a base URI in dserver."""
     base_uri = dtoolcore.utils.sanitise_uri(base_uri)
     if base_uri_exists(base_uri):
         click.secho(
@@ -101,7 +101,7 @@ def add_base_uri(base_uri):
 
 @base_uri_cli.command(name="list")
 def list_base_uris():
-    """List the base URIs in the dtool lookup server."""
+    """List the base URIs in dserver."""
     click.secho(json.dumps(dtool_lookup_server.utils.list_base_uris(), indent=2))
 
 
@@ -165,7 +165,7 @@ def give_register_permission(username, base_uri):
 @click.argument("username")
 @click.option("--last-forever", is_flag=True)
 def generate_token(username, last_forever):
-    """Generate a token for a user in the dtool lookup server."""
+    """Generate a token for a user in dserver."""
 
     if not user_exists(username):
         click.secho("User '{}' not registered".format(username), fg="red", err=True)

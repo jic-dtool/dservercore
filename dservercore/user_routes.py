@@ -30,7 +30,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def users_get(pagination_parameters: PaginationParameters, sort_parameters: SortParameters):
-    """List the users in the dtool lookup server.
+    """List the users in dserver.
 
     The user in the Authorization token needs to be admin.
     """
@@ -97,7 +97,7 @@ def user_get(username):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def user_put(data: UserSchema, username):
-    """Update a user in the dtool lookup server by replacing entry.
+    """Update a user in dserver by replacing entry.
 
     The user in the Authorization token needs to be admin.
     """
@@ -124,7 +124,7 @@ def user_put(data: UserSchema, username):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def user_delete(username):
-    """Delete a user from the dtool lookup server.
+    """Delete a user from dserver.
 
     The user in the Authorization token needs to be admin.
     """

@@ -1,9 +1,9 @@
-"""Test dtool lookup server permission management helper functions."""
+"""Test dservercore permission management helper functions."""
 
 
 def test_user_management_helper_functions(tmp_app_client):  # NOQA
 
-    from dtool_lookup_server.utils import (
+    from dservercore.utils import (
         register_users,
         register_base_uri,
         list_users,

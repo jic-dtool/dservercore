@@ -134,7 +134,7 @@ def uri_get(uri):
 @bp.alt_response(404, description="Not found")
 @jwt_required()
 def uri_put(dataset : RegisterDatasetSchema, uri):
-    """Update a dataset entry in the dtool lookup server by replacing entry.
+    """Update a dataset entry in dserver by replacing entry.
 
     The user needs to have register permissions on the base_uri.
     """
@@ -174,7 +174,7 @@ def uri_put(dataset : RegisterDatasetSchema, uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def uri_delete(uri):
-    """Delete a dataset entry from the dtool lookup server.
+    """Delete a dataset entry from dserver.
 
     The user needs to have register permissions on the base_uri.
     """

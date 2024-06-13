@@ -3,7 +3,7 @@ import pytest
 
 def test_get_readme_from_uri_by_user(tmp_app_with_data_client):  # NOQA
 
-    from dtool_lookup_server import (
+    from dservercore import (
         AuthenticationError,
         AuthorizationError,
         UnknownBaseURIError,

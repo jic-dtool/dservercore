@@ -47,13 +47,13 @@ Changelog = "https://github.com/jic-dtool/dtool-lookup-server/blob/main/CHANGELO
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
-write_to = "dtool_lookup_server/version.py"
+write_to = "dservercore/version.py"
 
 [tool.setuptools]
-packages = ["dtool_lookup_server"]
+packages = ["dservercore"]
 
 [project.entry-points."flask.commands"]
-"base_uri" = "dtool_lookup_server.cli:base_uri_cli"
-"user" = "dtool_lookup_server.cli:user_cli"
-"config" = "dtool_lookup_server.cli:config_cli"
-"dataset" = "dtool_lookup_server.cli:dataset_cli"
+"base_uri" = "dservercore.cli:base_uri_cli"
+"user" = "dservercore.cli:user_cli"
+"config" = "dservercore.cli:config_cli"
+"dataset" = "dservercore.cli:dataset_cli"
