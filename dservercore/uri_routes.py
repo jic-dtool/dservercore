@@ -10,16 +10,16 @@ from flask_jwt_extended import (
 
 from flask_smorest.pagination import PaginationParameters
 
-from dtool_lookup_server import ValidationError, UnknownURIError
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.sort import SortParameters, ASCENDING, DESCENDING
-from dtool_lookup_server.sql_models import DatasetSchema
-from dtool_lookup_server.schemas import (
+from dservercore import ValidationError, UnknownURIError
+from dservercore.blueprint import Blueprint
+from dservercore.sort import SortParameters, ASCENDING, DESCENDING
+from dservercore.sql_models import DatasetSchema
+from dservercore.schemas import (
     RegisterDatasetSchema,
     SearchDatasetSchema
 )
-import dtool_lookup_server.utils_auth
-from dtool_lookup_server.utils import (
+import dservercore.utils_auth
+from dservercore.utils import (
     dataset_info_is_valid,
     list_datasets_by_user,
     search_datasets_by_user,
@@ -46,7 +46,7 @@ def uris_get(query: SearchDatasetSchema,
                     sort_parameters: SortParameters):
     """Search the datasets a user has access to."""
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dservercore.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
@@ -78,7 +78,7 @@ def uris_post(query: SearchDatasetSchema,
                    sort_parameters: SortParameters):
     """Search the datasets a user has access to."""
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dservercore.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
@@ -106,13 +106,13 @@ def uri_get(uri):
     """Return dataset information by URI."""
     username = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dservercore.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
     uri = url_suffix_to_uri(uri)
 
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+    if not dservercore.utils_auth.may_access(username, uri):
         # registered users without search rights on base uri should see 403.
         abort(403)
 
@@ -134,17 +134,17 @@ def uri_get(uri):
 @bp.alt_response(404, description="Not found")
 @jwt_required()
 def uri_put(dataset : RegisterDatasetSchema, uri):
-    """Update a dataset entry in the dtool lookup server by replacing entry.
+    """Update a dataset entry in dserver by replacing entry.
 
     The user needs to have register permissions on the base_uri.
     """
     identity = get_jwt_identity()
 
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dservercore.utils_auth.user_exists(identity):
         # Unregistered users should see 401.
         abort(401)
 
-    if not dtool_lookup_server.utils_auth.may_register(identity, dataset["base_uri"]):
+    if not dservercore.utils_auth.may_register(identity, dataset["base_uri"]):
         abort(403)
 
     uri = url_suffix_to_uri(uri)
@@ -174,19 +174,19 @@ def uri_put(dataset : RegisterDatasetSchema, uri):
 @bp.alt_response(403, description="No permissions")
 @jwt_required()
 def uri_delete(uri):
-    """Delete a dataset entry from the dtool lookup server.
+    """Delete a dataset entry from dserver.
 
     The user needs to have register permissions on the base_uri.
     """
     identity = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(identity):
+    if not dservercore.utils_auth.user_exists(identity):
         abort(401)
 
     uri = url_suffix_to_uri(uri)
 
     base_uri_str = uri.rsplit("/", 1)[0]
 
-    if not dtool_lookup_server.utils_auth.may_register(identity, base_uri_str):
+    if not dservercore.utils_auth.may_register(identity, base_uri_str):
         abort(403)
 
     try:

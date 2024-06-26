@@ -1,9 +1,9 @@
-"""Test dtool lookup server preprocess_query_base_uris  helper function."""
+"""Test dservercore preprocess_query_base_uris  helper function."""
 
 
 def test_preprocess_query_base_uris(tmp_app_with_users_client):  # NOQA
 
-    from dtool_lookup_server.utils import preprocess_query_base_uris
+    from dservercore.utils import preprocess_query_base_uris
 
     grumpy_expected_query = {"base_uris": ["s3://snow-white"]}
 

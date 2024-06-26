@@ -1,18 +1,20 @@
-dtool-lookup-server
-===================
+dservercore
+===========
 
-.. |dtool| image:: icons/22x22/dtool_logo.png
+.. |dtool| image:: https://github.com/livMatS/dservercore/blob/main/icons/22x22/dtool_logo.png?raw=True
     :height: 20px
-    :target: https://github.com/jic-dtool/dtool-lookup-server
-.. |pypi| image:: https://badge.fury.io/py/dtool-lookup-server.svg
-    :target: http://badge.fury.io/py/dtool-lookup-server
-.. |test| image:: https://img.shields.io/github/actions/workflow/status/jic-dtool/dtool-lookup-server/test.yml?branch=master
-    :target: https://github.com/jic-dtool/dtool-lookup-gui/actions/workflows/test.yml
+    :target: https://github.com/livMatS/dservercore
+.. |pypi| image:: https://img.shields.io/pypi/v/dservercore
+    :target: https://pypi.org/project/dservercore/
+.. |tag| image:: https://img.shields.io/github/v/tag/livMatS/dservercore
+    :target: https://github.com/livMatS/dservercore/tags
+.. |test| image:: https://img.shields.io/github/actions/workflow/status/livMatS/dservercore/test.yml?branch=main
+    :target: https://github.com/livMatS/dservercore/actions/workflows/test.yml
 
-|dtool| |pypi| |test|
+|dtool| |pypi| |tag| |test|
 
-- GitHub: https://github.com/jic-dtool/dtool-lookup-server
-- PyPI: https://pypi.python.org/pypi/dtool-lookup-server
+- GitHub: https://github.com/livMatS/dservercore
+- PyPI: https://pypi.python.org/pypi/dservercore
 - Free software: MIT License
 
 
@@ -38,30 +40,32 @@ However, if one has to manage more than a hundred datasets it can be helpful
 to have the datasets' metadata stored in a central server to enable one to
 quickly find datasets of interest.
 
-dserver provides a web API for registering datasets' metadata
+``dserver`` provides a web API for registering datasets' metadata
 and provides functionality to lookup, list and search for datasets.
 
 When managing many groups data it can be useful to ensure that users can only
 access metadata associated with datasets stored in base URI's that they have
-been given access to. dserver therefore provides means to
+been given access to. ``dserver`` therefore provides means to
 manage users, base URIs and users' permissions on those base URIs.
 
-dserver is consumed by the `dtool-lookup-client
+``dserver`` is consumed by the `dtool-lookup-client
 <https://github.com/jic-dtool/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
 created, notably the `livMatS/dtool-lookup-gui
 <https://github.com/livMatS/dtool-lookup-gui>`_.
 
+``dservercore`` provides the core Flask app central to dserver's
+modular, pluggable framework.
 
 Installation
 ------------
 
-Install the dtool lookup server core::
+Install ``dservercore``::
 
-    $ pip install dtool_lookup_server
+    $ pip install dservercore
 
-For a minimal setup, the lookup server requires search and retrieve plugins.
+For a minimal setup, dserver requires search and retrieve plugins.
 Pick search and retrieve plugins of your choice and install those. Here, the
 ``dserver-search-plugin-mongo`` and ``dserver-retrieve-plugin-mongo``
 serve as default for demonstration::
@@ -75,15 +79,15 @@ Setup and configuration
 Configure the Flask app
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The dtool lookup server is a Flask app. Flask needs to know where to look for
+``dserver`` is a Flask app. Flask needs to know where to look for
 the app. One therefore needs to define the ``FLASK_APP`` environment variable::
 
-    $ export FLASK_APP=dtool_lookup_server
+    $ export FLASK_APP=dservercore
 
 Configure search and retrieve plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The dtool lookup server is agnostic of how descriptive data is stored and
+``dserver`` is agnostic of how descriptive data is stored and
 searched. The implementation is delegated to search and retrieve plugins.
 Refer to their documentation for details on their configuration.
 
@@ -116,7 +120,7 @@ This must happen before issuing any ``flask`` commands as below.
 Configure the SQL database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The dtool lookup server stores administrative metadata in a SQL database.
+``dserver`` stores administrative metadata in a SQL database.
 By default it uses a SQLite database. However, this can be configured by
 setting the ``SQLALCHEMY_DATABASE_URI``, i.e using something along the lines of::
 
@@ -140,7 +144,7 @@ Populate the SQL database with tables using the commands below::
 Configure a public and private key pair
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The dtool lookup server implements authentication using JSON Web Tokens.
+``dserver`` implements authentication using JSON Web Tokens.
 Private and public key can for example be generated with::
 
     openssl genrsa -out /path/to/private/jwt_key 2048
@@ -182,28 +186,22 @@ Inspect the Flask app configuration with::
 
     $ flask config show
     {
-      "env": "production",
-      "debug": false,
-      "testing": false,
-      "propagate_exceptions": null,
-      ...
-      "search_mongo_collection": "datasets",
-      "search_mongo_db": "dtool_info",
-      "search_mongo_uri": "mongodb://localhost:27017/",
-      "retrieve_mongo_collection": "datasets",
-      "retrieve_mongo_db": "dtool_info",
-      "retrieve_mongo_uri": "mongodb://localhost:27017/",
+      "DEBUG": false,
+      "TESTING": false,
+      "PROPAGATE_EXCEPTIONS": null,
+      "SECRET_KEY": "***",
       ...
     }
+
 
 The output is JSON-formatted with lower-case keys and will include plugin
 configuration parameters as well.
 
-Inspect the installed dserver components with::
+Inspect the installed ``dserver`` components with::
 
     $ flask config versions
     {
-      "dtool_lookup_server": "0.17.2",
+      "dservercore": "0.17.2",
       "dserver_retrieve_plugin_mongo": "0.1.0",
       "dserver_search_plugin_mongo": "0.1.0"
     }
@@ -216,8 +214,8 @@ The Flask web app can be started using the command below::
     $ flask run
 
 
-Populating the dtool lookup server using the CLI
-------------------------------------------------
+Populating dserver using the CLI
+--------------------------------
 
 Indexing a base URI
 ^^^^^^^^^^^^^^^^^^^
@@ -225,7 +223,7 @@ Indexing a base URI
 Datasets can be stored on filesystem and in object storage such as AWS S3.  In
 an AWS S3 bucket datasets are stored in a flat structure and the bucket itself
 is the base URI. To index all the datasets in the S3 bucket, the base URI, one
-first needs to register it in the dtool lookup server::
+first needs to register it in ``dserver``::
 
     flask base_uri add s3://dtool-demo
 
@@ -239,7 +237,7 @@ One can then index it using the command::
     Registered: s3://dtool-demo/c58038a4-3a54-425e-9087-144d0733387f
     Registered: s3://dtool-demo/faa44606-cb86-4877-b9ea-643a3777e021
 
-It is possible to list all the base URIs registered in the dtool lookup server::
+It is possible to list all the base URIs registered in ``dserver``::
 
     $ flask base_uri list
     [
@@ -253,13 +251,13 @@ It is possible to list all the base URIs registered in the dtool lookup server::
 In the output above it is worth noting that there are two types of permissions
 associated with a base URI. "Search" permissions allow a user to search for
 datasets in a base URI. "Register" permissions allow a user to register a
-dataset in the dtool lookup server if it is stored in the specific base URI.
+dataset in ``dserver`` if it is stored in the specific base URI.
 
 
 Adding a user and managing permissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The command below adds the user ``olssont`` to the dtool lookup server::
+The command below adds the user ``olssont`` to ``dserver``::
 
     $ flask user add olssont
 
@@ -296,7 +294,7 @@ with when using the web API::
 Listing the registered users
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The command below lists the users registered in the dtool lookup server::
+The command below lists the users registered in ``dserver``::
 
     $ flask user list
     [
@@ -339,10 +337,10 @@ The command below can be used to remove admin privileges from an existing user::
     $ flask user update olssont
 
 
-The dtool lookup server API
----------------------------
+dserver API
+-----------
 
-The dtool lookup server makes use of the authorized header to pass through the
+``dserver`` makes use of the authorized header to pass through the
 JSON web token for authorization. Below we create environment variables for the
 token and the header used in the ``curl`` commands::
 
@@ -415,6 +413,9 @@ Some of the output of the command above is displayed below::
     [
       {
         "base_uri": "s3://dtool-demo",
+        "created_at": 1604860720.736269,
+        "creator_username": "olssont",
+        "frozen_at": 1604864525.691079,
         "name": "Escherichia-coli-ref-genome",
         "uri": "s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e",
         "uuid": "8ecd8e05-558a-48e2-b563-0c9ea273e71e"
@@ -422,6 +423,9 @@ Some of the output of the command above is displayed below::
       ... (truncated)
       {
         "base_uri": "s3://dtool-demo",
+        "created_at": 1604860720.736269,
+        "creator_username": "olssont",
+        "frozen_at": 1604864525.691079,
         "name": "Escherichia-coli-reads-ERR022075",
         "uri": "s3://dtool-demo/faa44606-cb86-4877-b9ea-643a3777e021",
         "uuid": "faa44606-cb86-4877-b9ea-643a3777e021"
@@ -446,10 +450,8 @@ Below is the result of this search::
         "base_uri": "s3://dtool-demo",
         "created_at": "1530803916.74",
         "creator_username": "olssont",
-        "dtoolcore_version": "3.3.0",
         "frozen_at": "1536749825.85",
         "name": "hypocotyl3",
-        "type": "dataset",
         "uri": "s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db",
         "uuid": "ba92a5fa-d3b4-4f10-bcb9-947f62e652db"
       }
@@ -487,6 +489,12 @@ URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
+The command below retrieves the tags for the dataset with the
+URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
+
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        http://localhost:5000/tags/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+
 The command below retrieves the manifest for the dataset with the
 URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
 
@@ -499,7 +507,7 @@ Getting information about one's own permissions
 
 A user can find out about his/her own permissions using the command below::
 
-    $ curl -H "$HEADER" http://localhost:5000/user/olssont
+    $ curl -H "$HEADER" http://localhost:5000/users/olssont
 
 Response content::
 
@@ -519,40 +527,53 @@ Data champion user usage
 
 A data champion is different from a regular user in that he/she has
 "register" permissions on a base URI. This means that a data champion
-can register metadata about a data to the dtool lookup server.
+can register metadata about a data to ``dserver``.
 
 Registering a dataset
 ~~~~~~~~~~~~~~~~~~~~~
 
 Below is an example of how to register a dataset::
 
-    $ DATASET_INFO='{
-      "annotations": {},
+    $ DATASET_INFO='
+    {
+      "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       "base_uri": "s3://dtool-demo",
-      "created_at": 1537802877.62,
-      "creator_username": "olssont",
-      "dtoolcore_version": "3.7.0",
-      "frozen_at": 1537916653.7,
-      "name": "Escherichia-coli-ref-genome",
-      "readme": {
-        "accession_id": "U00096.3",
-        "description": "U00096.3 genome with Bowtie2 indices",
-        "index_build_cmd": "bowtie2-build U00096.3.fasta reference",
-        "index_builder": "bowtie2-build version 2.3.3",
-        "link": "https://www.ebi.ac.uk/ena/data/view/U00096.3",
-        "organism": "Escherichia coli str. K-12 substr. MG1655"
-      },
-      "type": "dataset",
       "uri": "s3://dtool-demo/8ecd8e05-558a-48e2-b563-0c9ea273e71e",
-      "uuid": "8ecd8e05-558a-48e2-b563-0c9ea273e71e"
+      "name": "Escherichia-coli-ref-genome",
+      "type": "dataset",
+      "readme": "{\"accession_id\":\"U00096.3\",\"description\":\"U00096.3genomewithBowtie2indices\",\"index_build_cmd\":\"bowtie2-buildU00096.3.fastareference\",\"index_builder\":\"bowtie2-buildversion2.3.3\",\"link\":\"https://www.ebi.ac.uk/ena/data/view/U00096.3\",\"organism\":\"Escherichiacolistr.K-12substr.MG1655\"},",
+      "manifest": {
+        "dtoolcore_version": "3.18.2",
+        "hash_function": "md5sum_hexdigest",
+        "items": {
+          "26f0d76fb3c3e34f0c7c8b7c3461b7495761835c": {
+            "hash": "06d80eb0c50b49a509b49f2424e8c805",
+            "relpath": "dog.txt",
+            "size_in_bytes": 3,
+            "utc_timestamp": 1716979579.898408
+          },
+          "d25102a700e072b528db79a0f22b3a5ffe5e8f5d": {
+            "hash": "68238cd792d215bdfdddc7bbb6d10db4",
+            "relpath": "parrot.txt",
+            "size_in_bytes": 6,
+            "utc_timestamp": 1716979579.902415
+          }
+        }
+      },
+      "creator_username": "olssont",
+      "frozen_at": "1537916653.7",
+      "created_at": "1537802877.62",
+      "annotations": {},
+      "tags": [],
+      "number_of_items": 2,
+      "size_in_bytes": 9
     }'
-    $ curl -H $HEADER -H "Content-Type: application/json"  \
-        -X POST -d $DATASET_INFO  \
-        http://localhost:5000/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        -X PUT -d "$DATASET_INFO"  \
+        http://localhost:5000/uris/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 The required keys are defined in the variable
-``dtool_lookup_server.utils.DATASET_INFO_REQUIRED_KEYS``.
-
+``dservercore.utils.DATASET_INFO_REQUIRED_KEYS``.
 
 Admin user usage
 ^^^^^^^^^^^^^^^^
@@ -577,18 +598,10 @@ Response content::
     [
       {
         "is_admin": false,
-        "register_permissions_on_base_uris": [
-          "s3://dtool-demo"
-        ],
-        "search_permissions_on_base_uris": [
-          "s3://dtool-demo"
-        ],
         "username": "olssont"
       },
       {
         "is_admin": true,
-        "register_permissions_on_base_uris": [],
-        "search_permissions_on_base_uris": [],
         "username": "overlord"
       }
     ]
@@ -597,10 +610,10 @@ Response content::
 Registering users
 ~~~~~~~~~~~~~~~~~
 
-An admin user can register other users in batch::
+An admin user can register other users::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST -d '[{"username": "admin", "is_admin": true}, {"username": "joe"}]'  \
+        -X PUT -d '{"username": "joe", "is_admin": true}'  \
         http://localhost:5000/users/joe
 
 
@@ -612,7 +625,11 @@ Registering a base URI
 An admin user can register a new base URI ``s3://another-bucket``::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
-        -X POST http://localhost:5000/base-uris/s3/another-bucket
+        -X PUT -d '{
+          "base_uri": "s3://another-bucket",
+          "users_with_search_permissions": ["joe"],
+          "users_with_register_permissions": ["olssont"]
+        }' http://localhost:5000/base-uris/s3/another-bucket
 
 
 Listing registered base URIs
@@ -627,17 +644,9 @@ Response content::
     [
       {
         "base_uri": "s3://dtool-demo",
-        "users_with_register_permissions": [
-          "olssont"
-        ],
-        "users_with_search_permissions": [
-          "olssont"
-        ]
       },
       {
         "base_uri": "s3://another-bucket",
-        "users_with_register_permissions": [],
-        "users_with_search_permissions": []
       }
     ]
 
@@ -645,18 +654,15 @@ Response content::
 Updating the permissions on a base URI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An admin user can update the permissions on a base URI::
+An admin user can update the permissions on a base URI
+simply by another `PUT` request::
 
     $ curl -H "$HEADER" -H "Content-Type: application/json"  \
         -X PUT -d '{
-          "users_with_register_permissions": [
-            "olssont"
-          ],
-          "users_with_search_permissions": [
-            "olssont"
-          ]
-        }'  \
-        http://localhost:5000/base-uris/s3/another-bucket
+          "base_uri": "s3://another-bucket",
+          "users_with_search_permissions": ["joe", "olssont"],
+          "users_with_register_permissions": ["olssont"]
+        }' http://localhost:5000/base-uris/s3/another-bucket
 
 Note that the request below can be used to clear all existing permissions::
 
@@ -694,18 +700,12 @@ The request::
 will return the current server configuration with all keys in lowercase, i.e.::
 
     {
-      "env": "production",
-      "debug": false,
-      "testing": false,
-      "propagate_exceptions": null,
-      ...
-      "search_mongo_collection": "datasets",
-      "search_mongo_db": "dtool_info",
-      "search_mongo_uri": "mongodb://localhost:27017/",
-      "retrieve_mongo_collection": "datasets",
-      "retrieve_mongo_db": "dtool_info",
-      "retrieve_mongo_uri": "mongodb://localhost:27017/",
-      ...
+      "config": {
+        "allow_access_from": "0.0.0.0/0",
+        "allow_direct_aggregation": true,
+        "allow_direct_query": true,
+        ...
+      }
     }
 
 The request::
@@ -716,9 +716,11 @@ will return all components, i.e. server core, search, retrieve
 and extension plugins with their versions, i.e.::
 
     {
-      "dtool_lookup_server": "0.17.2",
-      "dserver_retrieve_plugin_mongo": "0.1.0",
-      "dserver_search_plugin_mongo": "0.1.0"
+      "versions": {
+        "dservercore": "0.17.2",
+        "dserver_retrieve_plugin_mongo": "0.1.0",
+        "dserver_search_plugin_mongo": "0.1.0"
+      }
     }
 
 This request does not require any authorization.
@@ -730,8 +732,8 @@ It is possible to create add plugins to this system. This is achieved by
 creating a separate Python package containing a `Flask blueprint
 <https://flask.palletsprojects.com/en/1.1.x/blueprints/>`_.
 
-A basic plugin could consist of a single ``__init__`` and a ``setup.py`` file
-in the directory structure below::
+A basic plugin could consist of a single ``__init__`` and a ``setup.py``
+or ``pyproject.toml`` file in the directory structure below::
 
     .
     |-- my_plugin
@@ -739,22 +741,34 @@ in the directory structure below::
     `-- setup.py
 
 
-The ``__init__.py`` file could contain the code below.
+The ``__init__.py`` file could contain the code below. Importantly, the
+plugin has to implement a derivative of ``dtoolcore.ExtensionABC``.
 
 .. code-block:: python
 
-    from flask import Blueprint
+    from flask_smorest import Blueprint
+    from dtoolcore import ExtensionABC
 
     my_plugin_bp = Blueprint('my_plugin', __name__, url_prefix="/my_plugin")
 
     @my_plugin_bp.route('/', methods=["GET"])
+    @my_plugin_bp.response(200)
     def show(page):
         return "My plugin content"
 
+    class NotificationExtension(ExtensionABC):
 
-The Flask blueprint object(s) need to be associated with the
-``dtool_lookup_server.blueprints`` entrypoint in the Python package
-``setup.py`` file. The ``setup.py`` file would need to look something along the
+        def register_dataset(self, dataset_info):
+            """Register or update a dataset entry by replacing a possibly existing entry."""
+            pass
+
+        def get_blueprint(self):
+            """Return the Flask blueprint to be used for the extension."""
+            return my_plugin_bp
+
+Classes adhering to the interface of the ``dservercore.ExtensionABC`` abstract base class
+need to be associated with the ``dservercore.extension`` entrypoint in the Python package
+``setup.py`` file or ``pyproject.toml``. The ``setup.py`` file would need to look something along the
 lines of the below.
 
 .. code-block:: python
@@ -765,20 +779,24 @@ lines of the below.
         name="my-plugin",
         packages=["my_plugin"],
         install_requires=[
-            "flask",
+            "dservercore",
         ],
         entry_points={
-            "dtool_lookup_server.blueprints": [
+            "dservercore.extension": [
                 "my_plugin=my_plugin:my_plugin_bp",
             ],
         }
     )
 
-Scaffold code for implementing a plugin, created by `Johannes L. Hoermann
-<https://github.com/jotelha>`_ can be found in
-`dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_.
+A respective entry in a ``pyproject.toml`` would look as follows.
+
+.. code-block:: toml
+
+    [project.entry-points."dservercore.extension"]
+    "MyExtension" = "dserver_extension_module:MyExtension"
 
 Examples of actual plugins include:
 
+- `dserver-direct-mongo-plugin <https://github.com/livMatS/dserver-direct-mongo-plugin>`_
 - `dserver-dependency-graph-plugin <https://github.com/livMatS/dserver-dependency-graph-plugin>`_
-- `dserver-plugin-scaffolding <https://github.com/livMatS/dserver-plugin-scaffolding>`_
+- `dserver-notification-plugin <https://github.com/livMatS/dserver-notification-plugin>`_

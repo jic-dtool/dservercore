@@ -2,7 +2,7 @@
 
 import json
 
-from dtool_lookup_server.utils import uri_to_url_suffix
+from dservercore.utils import uri_to_url_suffix
 
 
 def test_dataset_manifest_route(

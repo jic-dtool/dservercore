@@ -1,4 +1,4 @@
-"""Route for retrieving the manifest of a dataset"""
+"""Route for retrieving tags of a dataset"""
 from flask import (
     abort,
     jsonify,
@@ -9,19 +9,19 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-from dtool_lookup_server import UnknownURIError
-from dtool_lookup_server.blueprint import Blueprint
-from dtool_lookup_server.schemas import ManifestSchema
-import dtool_lookup_server.utils_auth
-from dtool_lookup_server.utils import (
+from dservercore import UnknownURIError
+from dservercore.blueprint import Blueprint
+from dservercore.schemas import TagSchema
+import dservercore.utils_auth
+from dservercore.utils import (
     url_suffix_to_uri,
-    get_manifest_from_uri_by_user
+    get_tags_from_uri_by_user
 )
 
-bp = Blueprint("manifests", __name__, url_prefix="/manifests")
+bp = Blueprint("tags", __name__, url_prefix="/tags")
 
 @bp.route("/<path:uri>", methods=["GET"])
-@bp.response(200, ManifestSchema)
+@bp.response(200, TagSchema)
 @bp.alt_response(1, description=2)
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
@@ -29,21 +29,21 @@ bp = Blueprint("manifests", __name__, url_prefix="/manifests")
 def manifest(uri):
     """Request the dataset manifest."""
     username = get_jwt_identity()
-    if not dtool_lookup_server.utils_auth.user_exists(username):
+    if not dservercore.utils_auth.user_exists(username):
         # Unregistered users should see 401.
         abort(401)
 
     uri = url_suffix_to_uri(uri)
-    if not dtool_lookup_server.utils_auth.may_access(username, uri):
+    if not dservercore.utils_auth.may_access(username, uri):
         # Authorization errors should return 400.
         abort(403)
 
     try:
-        manifest_ = get_manifest_from_uri_by_user(username, uri)
+        tags = get_tags_from_uri_by_user(username, uri)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(404)
 
-    return jsonify(manifest_)
+    return {"tags": tags}
 
 

@@ -2,8 +2,8 @@
 import datetime
 from marshmallow import fields
 import dtoolcore.utils
-from dtool_lookup_server import ma
-from dtool_lookup_server import sql_db as db
+from dservercore import ma
+from dservercore import sql_db as db
 
 search_permissions = db.Table(
     "search_permissions",

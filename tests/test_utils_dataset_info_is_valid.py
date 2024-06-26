@@ -1,4 +1,4 @@
-"""Test dtool_lookup_server.utils.dataset_info_is_valid helper function."""
+"""Test dservercore.utils.dataset_info_is_valid helper function."""
 
 # Minimum data required to register a dataset.
 INFO = {
@@ -21,14 +21,14 @@ INFO = {
 
 
 def test_dataset_info_is_valid_returns_true_on_valid_info():
-    from dtool_lookup_server.utils import dataset_info_is_valid
+    from dservercore.utils import dataset_info_is_valid
 
     info = INFO.copy()
     assert dataset_info_is_valid(info)
 
 
 def test_dataset_info_returns_false_when_key_data_is_missing():
-    from dtool_lookup_server.utils import dataset_info_is_valid
+    from dservercore.utils import dataset_info_is_valid
 
     for key in INFO.keys():
 
@@ -38,7 +38,7 @@ def test_dataset_info_returns_false_when_key_data_is_missing():
 
 
 def test_dataset_info_returns_false_when_type_is_not_dataset():
-    from dtool_lookup_server.utils import dataset_info_is_valid
+    from dservercore.utils import dataset_info_is_valid
 
     info = INFO.copy()
     info["type"] = "protodataset"
@@ -47,7 +47,7 @@ def test_dataset_info_returns_false_when_type_is_not_dataset():
 
 # TODO: This test should be deprecated by using marshmallow.UUID
 def test_dataset_info_returns_false_if_uuid_looks_invalid():
-    from dtool_lookup_server.utils import dataset_info_is_valid
+    from dservercore.utils import dataset_info_is_valid
 
     info = INFO.copy()
     info["uuid"] = "af6727bf-29c7-43dd-b42f"
@@ -55,7 +55,7 @@ def test_dataset_info_returns_false_if_uuid_looks_invalid():
 
 
 def test_dataset_info_is_valid_returns_false_if_base_uri_ends_with_slash():
-    from dtool_lookup_server.utils import dataset_info_is_valid
+    from dservercore.utils import dataset_info_is_valid
 
     info = INFO.copy()
     info["base_uri"] = "file:///tmp/"
