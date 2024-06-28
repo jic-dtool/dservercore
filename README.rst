@@ -1,19 +1,19 @@
 dservercore
 ===========
 
-.. |dtool| image:: https://github.com/livMatS/dservercore/blob/main/icons/22x22/dtool_logo.png?raw=True
+.. |dtool| image:: https://github.com/jic-dtool/dservercore/blob/main/icons/22x22/dtool_logo.png?raw=True
     :height: 20px
-    :target: https://github.com/livMatS/dservercore
+    :target: https://github.com/jic-dtool/dservercore
 .. |pypi| image:: https://img.shields.io/pypi/v/dservercore
     :target: https://pypi.org/project/dservercore/
-.. |tag| image:: https://img.shields.io/github/v/tag/livMatS/dservercore
-    :target: https://github.com/livMatS/dservercore/tags
-.. |test| image:: https://img.shields.io/github/actions/workflow/status/livMatS/dservercore/test.yml?branch=main
-    :target: https://github.com/livMatS/dservercore/actions/workflows/test.yml
+.. |tag| image:: https://img.shields.io/github/v/tag/jic-dtool/dservercore
+    :target: https://github.com/jic-dtool/dservercore/tags
+.. |test| image:: https://img.shields.io/github/actions/workflow/status/jic-dtool/dservercore/test.yml?branch=main
+    :target: https://github.com/jic-dtool/dservercore/actions/workflows/test.yml
 
 |dtool| |pypi| |tag| |test|
 
-- GitHub: https://github.com/livMatS/dservercore
+- GitHub: https://github.com/jic-dtool/dservercore
 - PyPI: https://pypi.python.org/pypi/dservercore
 - Free software: MIT License
 

@@ -46,8 +46,8 @@ jobs:
     - name: install search and retrieve plugins
       run: | 
         # This should move into the strategy matrix once released 
-        pip install git+https://github.com/livMatS/dserver-search-plugin-mongo.git@main
-        pip install git+https://github.com/livMatS/dserver-retrieve-plugin-mongo.git@main
+        pip install git+https://github.com/jic-dtool/dserver-search-plugin-mongo.git@main
+        pip install git+https://github.com/jic-dtool/dserver-retrieve-plugin-mongo.git@main
 
     - name: test with pytest
       run: |
