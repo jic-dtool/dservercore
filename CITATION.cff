@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+authors:
+- family-names: Olsson
+  given-names: Tjelvar S. G.
+  orcid:  0000-0001-8791-4531
+- family-names: Hörmann
+  given-names: Johannes L.
+  orcid: 0000-0001-5867-695X
+- family-names: Pastewka
+  given-names: Lars
+  orcid:  0000-0001-8351-7336
+- family-names: Yanes
+  given-names: Luis
+  orcid:  0000-0003-1382-0166
+- family-names: Hartley
+  given-names: Matthew
+  orcid:  0000-0001-6178-2884
+title: dservercore

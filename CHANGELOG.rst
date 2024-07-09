@@ -4,13 +4,23 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[0.20.2]
+--------
+
+Added
+^^^^^
+
+- Automated github release
+- Zenodo integration
+- Trusted publishing on PyPI
+
 [0.20.1]
 --------
 
 Changed
 ^^^^^^^
 
-- - Changed URLs from ``livMatS`` prefix to ``jic-dtool`` prefix.
+- Changed URLs from ``livMatS`` prefix to ``jic-dtool`` prefix.
 
 [0.20.0]
 --------
