@@ -10,8 +10,10 @@ dservercore
     :target: https://github.com/jic-dtool/dservercore/tags
 .. |test| image:: https://img.shields.io/github/actions/workflow/status/jic-dtool/dservercore/test.yml?branch=main
     :target: https://github.com/jic-dtool/dservercore/actions/workflows/test.yml
+.. |zenodo| image:: https://zenodo.org/badge/123419905.svg
+  :target: https://zenodo.org/doi/10.5281/zenodo.12702193
 
-|dtool| |pypi| |tag| |test|
+|dtool| |pypi| |tag| |test| |zenodo|
 
 - GitHub: https://github.com/jic-dtool/dservercore
 - PyPI: https://pypi.python.org/pypi/dservercore
