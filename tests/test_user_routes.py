@@ -376,12 +376,16 @@ def test_dataset_summary_route(
 
     expected_content = {
         "number_of_datasets": 0,
+        "total_size_in_bytes": 0,
         "creator_usernames": [],
         "base_uris": [],
         "datasets_per_creator": {},
+        "size_in_bytes_per_creator": {},
         "datasets_per_base_uri": {},
+        "size_in_bytes_per_base_uri": {},
         "tags": [],
-        "datasets_per_tag": {}
+        "datasets_per_tag": {},
+        "size_in_bytes_per_tag": {}
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -395,12 +399,17 @@ def test_dataset_summary_route(
 
     expected_content = {
         "number_of_datasets": 3,
+        "total_size_in_bytes": 11483620,
         "creator_usernames": ["queen"],
         "base_uris": ["s3://mr-men", "s3://snow-white"],
         "datasets_per_creator": {"queen": 3},
+        "size_in_bytes_per_creator": {"queen": 11483620},
         "datasets_per_base_uri": {"s3://mr-men": 1, "s3://snow-white": 2},
+        "size_in_bytes_per_base_uri": {"s3://mr-men": 5741810,
+                                       "s3://snow-white": 5741810},
         "tags": ["evil", "fruit", "good"],
-        "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3}
+        "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3},
+        "size_in_bytes_per_tag": {"evil": 11483620, "fruit": 11483620, "good": 0},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -421,12 +430,16 @@ def test_dataset_summary_route(
     assert r.status_code == 200
     expected_content = {
         "number_of_datasets": 0,
+        "total_size_in_bytes": 0,
         "creator_usernames": [],
         "base_uris": [],
         "datasets_per_creator": {},
+        "size_in_bytes_per_creator": {},
         "datasets_per_base_uri": {},
+        "size_in_bytes_per_base_uri": {},
         "tags": [],
-        "datasets_per_tag": {}
+        "datasets_per_tag": {},
+        "size_in_bytes_per_tag": {}
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
