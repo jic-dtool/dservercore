@@ -159,7 +159,9 @@ class DatasetSchema(ma.SQLAlchemyAutoSchema):
             'frozen_at',
             'name',
             'uri',
-            'uuid')
+            'uuid',
+            'number_of_items',
+            'size_in_bytes')
 
     base_uri = fields.Method("get_base_uri_string")
     frozen_at = FloatDateTimeField()
