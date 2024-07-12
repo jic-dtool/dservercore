@@ -75,9 +75,13 @@ class SearchDatasetSchema(Schema):
 
 class SummarySchema(Schema):
     number_of_datasets = Integer()
+    total_size_in_bytes = Integer()
     creator_usernames = List(String)
     base_uris = List(String)
     datasets_per_creator = Dict(keys=String, values=Integer)
+    size_in_bytes_per_creator = Dict(keys=String, values=Integer)
     datasets_per_base_uri = Dict(keys=String, values=Integer)
+    size_in_bytes_per_base_uri = Dict(keys=String, values=Integer)
     tags = List(String)
     datasets_per_tag = Dict(keys=String, values=Integer)
+    size_in_bytes_per_tag = Dict(keys=String, values=Integer)

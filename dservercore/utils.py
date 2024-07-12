@@ -434,11 +434,20 @@ def summary_of_datasets_by_user(username):
     datasets_per_base_uri = {}
     datasets_per_tag = {}
 
+    size_in_bytes_per_creator = {}
+    size_in_bytes_per_base_uri = {}
+    size_in_bytes_per_tag = {}
+
+    total_size_in_bytes = 0
+
     for ds in datasets:
         user = ds["creator_username"]
         uri = ds["base_uri"]
         datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
         datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
+
+        size_in_bytes_per_creator[user] = size_in_bytes_per_creator.get(user, 0) + ds["size_in_bytes"]
+        size_in_bytes_per_base_uri[uri] = size_in_bytes_per_base_uri.get(uri, 0) + ds["size_in_bytes"]
 
         # All datasets should have the "tags" key. However, it could be the
         # case that a dataset in the database prior to version 0.14.0 fails
@@ -448,15 +457,22 @@ def summary_of_datasets_by_user(username):
         if "tags" in ds:
             for tag in ds["tags"]:
                 datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
+                size_in_bytes_per_tag[tag] = size_in_bytes_per_tag.get(tag, 0) + ds["size_in_bytes"]
+
+        total_size_in_bytes += ds["size_in_bytes"]
 
     summary = {
         "number_of_datasets": len(datasets),
+        "total_size_in_bytes": total_size_in_bytes,
         "creator_usernames": sorted(datasets_per_creator.keys()),
         "base_uris": sorted(datasets_per_base_uri.keys()),
         "datasets_per_creator": datasets_per_creator,
+        "size_in_bytes_per_creator": size_in_bytes_per_creator,
         "datasets_per_base_uri": datasets_per_base_uri,
+        "size_in_bytes_per_base_uri": size_in_bytes_per_base_uri,
         "tags": sorted(datasets_per_tag.keys()),
         "datasets_per_tag": datasets_per_tag,
+        "size_in_bytes_per_tag": size_in_bytes_per_tag
     }
 
     return summary
