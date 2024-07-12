@@ -18,6 +18,8 @@ def test_list_uri_route(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -27,6 +29,8 @@ def test_list_uri_route(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'oranges',
+        'number_of_items': 0,
+        'size_in_bytes': 0,
         'uri': 's3://snow-white/a2218059-5bd0-4690-b090-062faf08e046',
         'uuid': 'a2218059-5bd0-4690-b090-062faf08e046'
     }
@@ -36,6 +40,8 @@ def test_list_uri_route(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -146,6 +152,8 @@ def test_get_dataset_by_uri_route(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -528,6 +536,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'bad-apples',
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
         'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -537,6 +547,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'oranges',
+        "number_of_items": 0,
+        "size_in_bytes": 0,
         'uri': 's3://snow-white/a2218059-5bd0-4690-b090-062faf08e046',
         'uuid': 'a2218059-5bd0-4690-b090-062faf08e046'
     }
@@ -546,6 +558,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881941,
         'name': 'bad-apples',
+        "number_of_items": 1,
+        "size_in_bytes": 5741810,
         'uri': 's3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -600,6 +614,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -609,6 +625,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'oranges',
+        'number_of_items': 0,
+        'size_in_bytes': 0,
         'uri': 's3://snow-white/a2218059-5bd0-4690-b090-062faf08e046',
         'uuid': 'a2218059-5bd0-4690-b090-062faf08e046'
     }
@@ -618,6 +636,8 @@ def test_uris_get_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -803,6 +823,8 @@ def test_uris_post_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://mr-men/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
@@ -812,6 +834,8 @@ def test_uris_post_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'oranges',
+        'number_of_items': 0,
+        'size_in_bytes': 0,
         'uri': 's3://snow-white/a2218059-5bd0-4690-b090-062faf08e046',
         'uuid': 'a2218059-5bd0-4690-b090-062faf08e046'
     }
@@ -821,6 +845,8 @@ def test_uris_post_route_with_query(
         'creator_username': 'queen',
         'frozen_at': 1536238185.881,
         'name': 'bad-apples',
+        'number_of_items': 1,
+        'size_in_bytes': 5741810,
         'uri': 's3://snow-white/af6727bf-29c7-43dd-b42f-a5d7ede28337',
         'uuid': 'af6727bf-29c7-43dd-b42f-a5d7ede28337'
     }
