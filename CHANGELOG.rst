@@ -4,6 +4,15 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[0.21.0]
+--------
+
+Added
+^^^^^
+
+- return dataset size and item number in dataset schemas
+- yield size in bytes information with user-wise summary
+
 [0.20.2]
 --------
 
