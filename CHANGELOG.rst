@@ -4,6 +4,14 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[unreleased]
+------------
+
+Changed
+^^^^^^^
+
+- ``pkg_resources`` has been deprecated with Python 3.12. Replaced use of ``pkg_resources.iter_entry_points`` with ``importlib.metadata.entry_points`` for >= Python 3.8
+
 [0.21.0]
 --------
 
