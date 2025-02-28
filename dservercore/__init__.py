@@ -18,10 +18,6 @@ from dservercore.schemas import SearchDatasetSchema, RegisterDatasetSchema
 from dservercore.sort import SortParameters
 from dservercore.sql_models import DatasetSchema
 
-
-from pkg_resources import iter_entry_points
-
-
 logger = logging.getLogger(__name__)
 
 # workaround for diverging python versions:
@@ -44,6 +40,26 @@ except PackageNotFoundError:
     except:
         logger.debug("All efforts to determine version failed.")
         __version__ = None
+
+
+# Python version-dependent treatment of entry points
+if sys.version_info >= (3, 8):
+    from importlib.metadata import entry_points
+    eps = entry_points()
+    if sys.version_info >= (3, 10):
+        search_entrypoints_iterator = eps.select(group="dservercore.search")
+        retrieve_entrypoints_iterator = eps.select(group="dservercore.retrieve")
+        extension_entrypoints_iterator = eps.select(group="dservercore.extension")
+    else:
+        search_entrypoints_iterator = eps.get("dservercore.search", [])
+        retrieve_entrypoints_iterator = eps.get("dservercore.retrieve", [])
+        extension_entrypoints_iterator = eps.get("dservercore.extension", [])
+else:  # Python version < 3.8
+    from pkg_resources import iter_entry_points
+
+    search_entrypoints_iterator = iter_entry_points("dservercore.search")
+    retrieve_entrypoints_iterator = iter_entry_points("dservercore.retrieve")
+    extension_entrypoints_iterator = iter_entry_points("dservercore.extension")
 
 
 class ValidationError(ValueError):
@@ -228,9 +244,10 @@ class ExtensionABC(ABC):
 def create_app(test_config=None):
     app = Flask(__name__)
 
+
     # Load the search plugin.
     search_entrypoints = []
-    for entrypoint in iter_entry_points("dservercore.search"):
+    for entrypoint in search_entrypoints_iterator:
         logger.info("Discovered search plugin entrypoint %s", entrypoint)
         search_entrypoints.append(entrypoint.load())
     if len(search_entrypoints) < 1:
@@ -241,7 +258,7 @@ def create_app(test_config=None):
 
     # Load the retrieve plugin.
     retrieve_entrypoints = []
-    for entrypoint in iter_entry_points("dservercore.retrieve"):
+    for entrypoint in retrieve_entrypoints_iterator:
         logger.info("Discovered retrieve plugin entrypoint %s", entrypoint)
         retrieve_entrypoints.append(entrypoint.load())
     if len(retrieve_entrypoints) < 1:
@@ -252,7 +269,7 @@ def create_app(test_config=None):
 
     # Load any extension plugins.
     app.custom_extensions = []
-    for entrypoint in iter_entry_points("dservercore.extension"):
+    for entrypoint in extension_entrypoints_iterator:
         logger.info("Discovered extension plugin entrypoint %s", entrypoint)
         ep = entrypoint.load()
         app.custom_extensions.append(ep())

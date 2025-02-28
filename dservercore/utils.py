@@ -4,7 +4,9 @@ from datetime import datetime, date
 import importlib
 import json
 import logging
-from pkg_resources import iter_entry_points
+import sys
+
+from itertools import chain
 
 from flask import current_app
 from flask_smorest.pagination import PaginationParameters
@@ -19,6 +21,9 @@ from dservercore import (
     ValidationError,
     UnknownBaseURIError,
     UnknownURIError,
+    search_entrypoints_iterator,
+    retrieve_entrypoints_iterator,
+    extension_entrypoints_iterator,
     __version__
 )
 from dservercore.sql_models import (
@@ -59,11 +64,6 @@ DATASET_SORT_FIELDS = [
     "uri",
     "uuid"
 ]
-
-
-# These entrypoints might point to plugin modules with
-# config objects to be serialized as part of the global server config:
-DSERVER_PLUGIN_ENTRYPOINTS = ['extension', 'retrieve', 'search']
 
 
 logger = logging.getLogger(__name__)
@@ -136,18 +136,22 @@ def versions_to_dict():
    """
 
     versions_dict = {'dservercore': __version__}
-    for ep_group in DSERVER_PLUGIN_ENTRYPOINTS:
-        for ep in iter_entry_points("dservercore.{}".format(ep_group)):
+    entrypoints_iterator = chain(
+        search_entrypoints_iterator, retrieve_entrypoints_iterator, extension_entrypoints_iterator)
+    for ep in entrypoints_iterator:
+        if sys.version_info < (3, 8):
             module_name = ep.module_name.split(".")[0]
+        else:
+            module_name = ep.value.split(":")[0].split(".")[0]
 
-            # import module
-            try:
-                plugin_module = importlib.import_module(module_name)
-            except ImportError as exc:
-                # plugin import failed, this should not happen
-                continue
+        # import module
+        try:
+            plugin_module = importlib.import_module(module_name)
+        except ImportError as exc:
+            # plugin import failed, this should not happen
+            continue
 
-            versions_dict[module_name] = getattr(plugin_module, '__version__', None)
+        versions_dict[module_name] = getattr(plugin_module, '__version__', None)
 
     return versions_dict
 
