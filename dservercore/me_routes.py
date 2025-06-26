@@ -3,7 +3,7 @@ from flask import (
     abort,
     jsonify,
 )
-from flask_jwt_extended import (
+from dservercore.utils_auth import (
     jwt_required,
     get_jwt_identity,
 )

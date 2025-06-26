@@ -1,9 +1,37 @@
 """Auth utility functions."""
 
+from functools import wraps
+
 from dservercore.sql_models import (
     User,
     BaseURI,
 )
+
+from flask import current_app
+
+from flask_jwt_extended import jwt_required as flask_jwt_required
+from flask_jwt_extended import get_jwt_identity as flask_get_jwt_identity
+
+
+def jwt_required(*jwt_required_args, **jwt_required_kwargs):
+    """Mark route for requiring JWT authorisation, unless JWT authorisation disabled."""
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            if current_app.config.get("DISABLE_JWT_AUTHORISATION"):
+                return fn(*args, **kwargs)
+            else:
+                return flask_jwt_required(*jwt_required_args, **jwt_required_kwargs)(fn)(*args, **kwargs)
+        return decorator
+    return wrapper
+
+
+def get_jwt_identity():
+    """Return JWT identity or 'testuser' if JWT authorisation disabled."""
+    if current_app.config.get("DISABLE_JWT_AUTHORISATION"):
+        return current_app.config.get("DEFAULT_USER")
+    else:
+        return flask_get_jwt_identity()
 
 
 def _get_user_obj(username):

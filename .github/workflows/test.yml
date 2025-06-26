@@ -17,8 +17,10 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
-        mongodb-version: ['4.2', '4.4', '5.0', '6.0']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        mongodb-version: ['5.0', '6.0', '7.0', '8.0']
+        dserver-search-plugin-mongo-version: ['0.4.2']
+        dserver-retrieve-plugin-mongo-version: ['0.4.2']
 
     steps:
     - name: checkout
@@ -45,9 +47,8 @@ jobs:
 
     - name: install search and retrieve plugins
       run: | 
-        # This should move into the strategy matrix once released 
-        pip install git+https://github.com/jic-dtool/dserver-search-plugin-mongo.git@main
-        pip install git+https://github.com/jic-dtool/dserver-retrieve-plugin-mongo.git@main
+        pip install dserver-search-plugin-mongo==${{ matrix.dserver-search-plugin-mongo-version }}
+        pip install dserver-retrieve-plugin-mongo==${{ matrix.dserver-retrieve-plugin-mongo-version }}
 
     - name: test with pytest
       run: |

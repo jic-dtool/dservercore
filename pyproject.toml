@@ -24,7 +24,7 @@ dependencies = [
         "marshmallow-sqlalchemy",
         "flask-cors",
         "dtoolcore>=3.18.0",
-        "flask-jwt-extended[asymmetric_crypto]>=4.0",
+        "flask-jwt-extended[asymmetric_crypto]>=4.6.0",
         "pyyaml"
     ]
 

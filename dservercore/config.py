@@ -47,6 +47,11 @@ class Config(object):
         JWT_PRIVATE_KEY = _get_file_content("JWT_PRIVATE_KEY_FILE")
         JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
 
+    # Allow to disable jwt authentication
+    DISABLE_JWT_AUTHORISATION = os.environ.get("DISABLE_JWT_AUTHORISATION", False)
+    # If JWT authorisation disabled, always identify as this user:
+    DEFAULT_USER = os.environ.get("DEFAULT_USER", "testuser")
+
     JSONIFY_PRETTYPRINT_REGULAR = True
 
     API_TITLE = "dserver API"

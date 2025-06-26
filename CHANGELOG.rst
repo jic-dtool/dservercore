@@ -4,6 +4,16 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[unreleased]
+------------
+
+Changed
+^^^^^^^
+
+- ``pkg_resources`` has been deprecated with Python 3.12. Replaced use of ``pkg_resources.iter_entry_points`` with ``importlib.metadata.entry_points`` for >= Python 3.8
+- Added configuration option ``DISABLE_JWT_AUTHORISATION`` to disable JWT authorisation for testing purposes or for running locally
+- Added configuration option ``DEFAULT_USER`` to specify the default user identity used when JWT authorisation is disabled
+
 [0.21.0]
 --------
 
