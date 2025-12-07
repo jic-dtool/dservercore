@@ -36,6 +36,10 @@ class ReadmeSchema(Schema):
     readme = String()
 
 
+class ReadmeRequestSchema(Schema):
+    readme = String(required=True)
+
+
 class ManifestSchema(Schema):
     items = Dict(keys=String, values=Nested(ItemSchema))
     hash_function = String()

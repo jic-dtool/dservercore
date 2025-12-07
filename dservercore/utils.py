@@ -1266,3 +1266,65 @@ def delete_annotation_for_uri_by_user(username, uri, annotation_name):
 
     # Set all annotations
     return set_annotations_for_uri_by_user(username, uri, existing_annotations)
+
+
+def _update_readme_in_storage(uri, content):
+    """Update README in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param content: README content string
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+
+        # Update the README using put_readme
+        logger.debug(f"Updating README in storage for {uri}")
+        dataset.put_readme(content)
+
+        logger.info(f"Updated README in storage for {uri}")
+
+    except Exception as e:
+        # Log but don't fail - database update succeeded
+        logger.warning(f"Failed to update README in storage for {uri}: {e}")
+
+
+def set_readme_for_uri_by_user(username, uri, content):
+    """Set README content for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param content: README content string
+    :returns: updated README content
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update README in both search and retrieve plugins (database)
+    if hasattr(current_app.search, "set_readme"):
+        current_app.search.set_readme(uri, content)
+    else:
+        logger.warning("Search plugin has no method 'set_readme'")
+
+    if hasattr(current_app.retrieve, "set_readme"):
+        current_app.retrieve.set_readme(uri, content)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_readme'")
+
+    # Update README in actual storage backend
+    _update_readme_in_storage(uri, content)
+
+    return content
