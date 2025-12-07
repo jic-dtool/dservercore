@@ -1080,39 +1080,23 @@ def _update_tags_in_storage(uri, tags):
     try:
         # Load the dataset
         dataset = dtoolcore.DataSet.from_uri(uri)
-        storage_broker = dataset._storage_broker
-
-        # Check if storage broker supports tag operations
-        if not hasattr(storage_broker, 'put_text') or not hasattr(storage_broker, 'delete_key'):
-            logger.debug(f"Storage broker for {uri} does not support tag operations")
-            return
-
-        # Get the dataset UUID from the URI
-        uuid = uri.rsplit("/", 1)[1]
-        prefix = uuid + "/"
 
         # Get existing tags from storage
-        existing_tags = set()
-        try:
-            if hasattr(storage_broker, 'list_tags'):
-                existing_tags = set(storage_broker.list_tags())
-        except Exception:
-            pass  # No existing tags or method not available
-
+        existing_tags = set(dataset.list_tags())
         new_tags = set(tags)
 
         # Delete tags that are no longer present
         for tag in existing_tags - new_tags:
             logger.debug(f"Deleting tag '{tag}' from storage for {uri}")
             try:
-                storage_broker.delete_key(prefix + "tags/" + tag)
+                dataset.delete_tag(tag)
             except Exception as e:
                 logger.warning(f"Failed to delete tag '{tag}': {e}")
 
-        # Add new tags
+        # Add new tags (put_tag includes name validation)
         for tag in new_tags - existing_tags:
             logger.debug(f"Adding tag '{tag}' to storage for {uri}")
-            storage_broker.put_text(prefix + "tags/" + tag, "")
+            dataset.put_tag(tag)
 
         logger.info(f"Updated tags in storage for {uri}")
 
@@ -1130,42 +1114,23 @@ def _update_annotations_in_storage(uri, annotations):
     try:
         # Load the dataset
         dataset = dtoolcore.DataSet.from_uri(uri)
-        storage_broker = dataset._storage_broker
-
-        # Check if storage broker supports annotation operations
-        if not hasattr(storage_broker, 'put_text') or not hasattr(storage_broker, 'delete_key'):
-            logger.debug(f"Storage broker for {uri} does not support annotation operations")
-            return
-
-        # Get the dataset UUID from the URI
-        uuid = uri.rsplit("/", 1)[1]
-        prefix = uuid + "/"
 
         # Get existing annotation names from storage
-        existing_annotations = set()
-        try:
-            if hasattr(storage_broker, 'list_annotation_names'):
-                existing_annotations = set(storage_broker.list_annotation_names())
-        except Exception:
-            pass  # No existing annotations or method not available
-
+        existing_annotations = set(dataset.list_annotation_names())
         new_annotations = set(annotations.keys())
 
         # Delete annotations that are no longer present
         for annotation_name in existing_annotations - new_annotations:
             logger.debug(f"Deleting annotation '{annotation_name}' from storage for {uri}")
             try:
-                storage_broker.delete_key(prefix + "annotations/" + annotation_name + ".json")
+                dataset.delete_annotation(annotation_name)
             except Exception as e:
                 logger.warning(f"Failed to delete annotation '{annotation_name}': {e}")
 
-        # Add/update annotations
+        # Add/update annotations (put_annotation includes name validation)
         for annotation_name, value in annotations.items():
             logger.debug(f"Setting annotation '{annotation_name}' in storage for {uri}")
-            storage_broker.put_text(
-                prefix + "annotations/" + annotation_name + ".json",
-                json.dumps(value, indent=2)
-            )
+            dataset.put_annotation(annotation_name, value)
 
         logger.info(f"Updated annotations in storage for {uri}")
 
