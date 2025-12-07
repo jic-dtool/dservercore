@@ -1106,3 +1106,89 @@ def set_tags_for_uri_by_user(username, uri, tags):
         logger.warning("Retrieve plugin has no method 'set_tags'")
 
     return tags
+
+
+def set_annotations_for_uri_by_user(username, uri, annotations):
+    """Set all annotations for a dataset (replaces existing annotations).
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotations: dictionary of annotations to set
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update annotations in both search and retrieve plugins
+    if hasattr(current_app.search, "set_annotations"):
+        current_app.search.set_annotations(uri, annotations)
+    else:
+        logger.warning("Search plugin has no method 'set_annotations'")
+
+    if hasattr(current_app.retrieve, "set_annotations"):
+        current_app.retrieve.set_annotations(uri, annotations)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_annotations'")
+
+    return annotations
+
+
+def set_annotation_for_uri_by_user(username, uri, annotation_name, value):
+    """Set a single annotation for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotation_name: name of the annotation
+    :param value: value to set for the annotation
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    # Get existing annotations
+    existing_annotations = get_annotations_from_uri_by_user(username, uri)
+
+    # Update the specific annotation
+    existing_annotations[annotation_name] = value
+
+    # Set all annotations
+    return set_annotations_for_uri_by_user(username, uri, existing_annotations)
+
+
+def delete_annotation_for_uri_by_user(username, uri, annotation_name):
+    """Delete a single annotation from a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotation_name: name of the annotation to delete
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    # Get existing annotations
+    existing_annotations = get_annotations_from_uri_by_user(username, uri)
+
+    # Remove the annotation if it exists
+    if annotation_name in existing_annotations:
+        del existing_annotations[annotation_name]
+
+    # Set all annotations
+    return set_annotations_for_uri_by_user(username, uri, existing_annotations)

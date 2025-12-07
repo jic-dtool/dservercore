@@ -44,7 +44,11 @@ class ManifestSchema(Schema):
 
 # Define a schema for the response
 class AnnotationSchema(Schema):
-    annotations = Dict(keys=String(), values=String())
+    annotations = Dict(keys=String(), values=Raw())
+
+
+class SingleAnnotationSchema(Schema):
+    value = Raw()
 
 
 class TagSchema(Schema):
