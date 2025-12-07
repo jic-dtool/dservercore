@@ -12,6 +12,7 @@ from flask import current_app
 from flask_smorest.pagination import PaginationParameters
 from sqlalchemy.sql import exists
 
+import dtoolcore
 import dtoolcore.utils
 
 from dservercore import (
@@ -1070,6 +1071,108 @@ def get_annotations_from_uri_by_user(username, uri):
     return current_app.retrieve.get_annotations(uri)
 
 
+def _update_tags_in_storage(uri, tags):
+    """Update tags in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param tags: list of tags to set
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+        storage_broker = dataset._storage_broker
+
+        # Check if storage broker supports tag operations
+        if not hasattr(storage_broker, 'put_text') or not hasattr(storage_broker, 'delete_key'):
+            logger.debug(f"Storage broker for {uri} does not support tag operations")
+            return
+
+        # Get the dataset UUID from the URI
+        uuid = uri.rsplit("/", 1)[1]
+        prefix = uuid + "/"
+
+        # Get existing tags from storage
+        existing_tags = set()
+        try:
+            if hasattr(storage_broker, 'list_tags'):
+                existing_tags = set(storage_broker.list_tags())
+        except Exception:
+            pass  # No existing tags or method not available
+
+        new_tags = set(tags)
+
+        # Delete tags that are no longer present
+        for tag in existing_tags - new_tags:
+            logger.debug(f"Deleting tag '{tag}' from storage for {uri}")
+            try:
+                storage_broker.delete_key(prefix + "tags/" + tag)
+            except Exception as e:
+                logger.warning(f"Failed to delete tag '{tag}': {e}")
+
+        # Add new tags
+        for tag in new_tags - existing_tags:
+            logger.debug(f"Adding tag '{tag}' to storage for {uri}")
+            storage_broker.put_text(prefix + "tags/" + tag, "")
+
+        logger.info(f"Updated tags in storage for {uri}")
+
+    except Exception as e:
+        # Log but don't fail - database update succeeded
+        logger.warning(f"Failed to update tags in storage for {uri}: {e}")
+
+
+def _update_annotations_in_storage(uri, annotations):
+    """Update annotations in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param annotations: dictionary of annotations to set
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+        storage_broker = dataset._storage_broker
+
+        # Check if storage broker supports annotation operations
+        if not hasattr(storage_broker, 'put_text') or not hasattr(storage_broker, 'delete_key'):
+            logger.debug(f"Storage broker for {uri} does not support annotation operations")
+            return
+
+        # Get the dataset UUID from the URI
+        uuid = uri.rsplit("/", 1)[1]
+        prefix = uuid + "/"
+
+        # Get existing annotation names from storage
+        existing_annotations = set()
+        try:
+            if hasattr(storage_broker, 'list_annotation_names'):
+                existing_annotations = set(storage_broker.list_annotation_names())
+        except Exception:
+            pass  # No existing annotations or method not available
+
+        new_annotations = set(annotations.keys())
+
+        # Delete annotations that are no longer present
+        for annotation_name in existing_annotations - new_annotations:
+            logger.debug(f"Deleting annotation '{annotation_name}' from storage for {uri}")
+            try:
+                storage_broker.delete_key(prefix + "annotations/" + annotation_name + ".json")
+            except Exception as e:
+                logger.warning(f"Failed to delete annotation '{annotation_name}': {e}")
+
+        # Add/update annotations
+        for annotation_name, value in annotations.items():
+            logger.debug(f"Setting annotation '{annotation_name}' in storage for {uri}")
+            storage_broker.put_text(
+                prefix + "annotations/" + annotation_name + ".json",
+                json.dumps(value, indent=2)
+            )
+
+        logger.info(f"Updated annotations in storage for {uri}")
+
+    except Exception as e:
+        logger.warning(f"Failed to update annotations in storage for {uri}: {e}")
+
+
 def set_tags_for_uri_by_user(username, uri, tags):
     """Set tags for a dataset.
 
@@ -1094,7 +1197,7 @@ def set_tags_for_uri_by_user(username, uri, tags):
     if base_uri not in user.register_base_uris:
         raise (AuthorizationError())
 
-    # Update tags in both search and retrieve plugins
+    # Update tags in both search and retrieve plugins (database)
     if hasattr(current_app.search, "set_tags"):
         current_app.search.set_tags(uri, tags)
     else:
@@ -1104,6 +1207,9 @@ def set_tags_for_uri_by_user(username, uri, tags):
         current_app.retrieve.set_tags(uri, tags)
     else:
         logger.warning("Retrieve plugin has no method 'set_tags'")
+
+    # Update tags in actual storage backend
+    _update_tags_in_storage(uri, tags)
 
     return tags
 
@@ -1132,7 +1238,7 @@ def set_annotations_for_uri_by_user(username, uri, annotations):
     if base_uri not in user.register_base_uris:
         raise (AuthorizationError())
 
-    # Update annotations in both search and retrieve plugins
+    # Update annotations in both search and retrieve plugins (database)
     if hasattr(current_app.search, "set_annotations"):
         current_app.search.set_annotations(uri, annotations)
     else:
@@ -1142,6 +1248,9 @@ def set_annotations_for_uri_by_user(username, uri, annotations):
         current_app.retrieve.set_annotations(uri, annotations)
     else:
         logger.warning("Retrieve plugin has no method 'set_annotations'")
+
+    # Update annotations in actual storage backend
+    _update_annotations_in_storage(uri, annotations)
 
     return annotations
 
