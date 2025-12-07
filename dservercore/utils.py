@@ -1068,3 +1068,41 @@ def get_annotations_from_uri_by_user(username, uri):
         raise (AuthorizationError())
 
     return current_app.retrieve.get_annotations(uri)
+
+
+def set_tags_for_uri_by_user(username, uri, tags):
+    """Set tags for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param tags: list of tags to set
+    :returns: updated list of tags
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update tags in both search and retrieve plugins
+    if hasattr(current_app.search, "set_tags"):
+        current_app.search.set_tags(uri, tags)
+    else:
+        logger.warning("Search plugin has no method 'set_tags'")
+
+    if hasattr(current_app.retrieve, "set_tags"):
+        current_app.retrieve.set_tags(uri, tags)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_tags'")
+
+    return tags
