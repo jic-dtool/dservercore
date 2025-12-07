@@ -13,6 +13,10 @@ from marshmallow.fields import (
 )
 
 
+class HealthSchema(Schema):
+    status = String()
+
+
 class ConfigSchema(Schema):
     config = Dict(keys=String(), values=Raw())
 
