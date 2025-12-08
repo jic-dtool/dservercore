@@ -504,6 +504,57 @@ URI ``s3://dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db``::
         http://localhost:5000/manifests/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
 
 
+Modifying dataset tags
+~~~~~~~~~~~~~~~~~~~~~~
+
+Add a single tag to a dataset::
+
+    $ curl -H "$HEADER" -X POST \
+        http://localhost:5000/tags/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db/new-tag
+
+Replace all tags on a dataset::
+
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        -X PUT -d '{"tags": ["tag1", "tag2"]}'  \
+        http://localhost:5000/tags/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+
+Remove a tag from a dataset::
+
+    $ curl -H "$HEADER" -X DELETE \
+        http://localhost:5000/tags/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db/old-tag
+
+
+Modifying dataset annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Set a single annotation on a dataset::
+
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        -X PUT -d '{"value": "some value"}'  \
+        http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db/my-annotation
+
+Replace all annotations on a dataset::
+
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        -X PUT -d '{"annotations": {"key1": "value1", "key2": 42}}'  \
+        http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+
+Delete an annotation from a dataset::
+
+    $ curl -H "$HEADER" -X DELETE \
+        http://localhost:5000/annotations/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db/my-annotation
+
+
+Modifying dataset README
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update the README of a dataset::
+
+    $ curl -H "$HEADER" -H "Content-Type: application/json"  \
+        -X PUT -d '{"readme": "---\ndescription: Updated README content\n"}'  \
+        http://localhost:5000/readmes/s3/dtool-demo/ba92a5fa-d3b4-4f10-bcb9-947f62e652db
+
+
 Getting information about one's own permissions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -726,6 +777,19 @@ and extension plugins with their versions, i.e.::
     }
 
 This request does not require any authorization.
+
+The request::
+
+    $ curl http://localhost:5000/config/health
+
+will return a simple health check status for container orchestration::
+
+    {
+      "status": "healthy"
+    }
+
+This request does not require any authorization and can be used for
+Kubernetes liveness/readiness probes or Docker health checks.
 
 Creating a plugin
 -----------------
