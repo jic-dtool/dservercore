@@ -145,8 +145,38 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 
 class UserWithPermissionsSchema(UserSchema):
-    register_permissions_on_base_uris = fields.List(fields.String)
-    search_permissions_on_base_uris = fields.List(fields.String)
+    """User schema including permission fields.
+
+    This schema handles two cases:
+    - User model objects: returned directly from paginated queries (e.g., GET /users)
+    - Dict objects: returned from user.as_dict() via get_user_info() (e.g., GET /users/<username>)
+
+    The User model stores permissions as relationships (search_base_uris, register_base_uris)
+    to BaseURI objects, while the API returns them as lists of base URI strings. The as_dict()
+    method performs this conversion, but raw model objects need explicit field serialization.
+    """
+    search_permissions_on_base_uris = fields.Method("get_search_permissions")
+    register_permissions_on_base_uris = fields.Method("get_register_permissions")
+
+    def get_search_permissions(self, obj):
+        """Serialize search permissions as list of base URI strings."""
+        if isinstance(obj, User):
+            # Raw User model from paginated query - extract from relationship
+            return [u.base_uri for u in obj.search_base_uris]
+        elif isinstance(obj, dict):
+            # Dict from user.as_dict() - field already converted
+            return obj.get("search_permissions_on_base_uris", [])
+        return []
+
+    def get_register_permissions(self, obj):
+        """Serialize register permissions as list of base URI strings."""
+        if isinstance(obj, User):
+            # Raw User model from paginated query - extract from relationship
+            return [u.base_uri for u in obj.register_base_uris]
+        elif isinstance(obj, dict):
+            # Dict from user.as_dict() - field already converted
+            return obj.get("register_permissions_on_base_uris", [])
+        return []
 
 
 class DatasetSchema(ma.SQLAlchemyAutoSchema):
