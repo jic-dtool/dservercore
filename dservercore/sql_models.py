@@ -1,6 +1,6 @@
 """Database models and derived schemas"""
 import datetime
-from marshmallow import fields
+from marshmallow import fields, pre_dump
 import dtoolcore.utils
 from dservercore import ma
 from dservercore import sql_db as db
@@ -39,6 +39,7 @@ class FloatDateTimeField(fields.Field):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    display_name = db.Column(db.String(255), nullable=True)  # Optional human-readable name
     is_admin = db.Column(db.Boolean(), nullable=False, default=False)
     search_base_uris = db.relationship(
         "BaseURI", secondary=search_permissions, back_populates="search_users"
@@ -54,6 +55,7 @@ class User(db.Model):
         """Return user using dictionary representation."""
         return {
             "username": self.username,
+            "display_name": self.display_name,
             "is_admin": self.is_admin,
             "search_permissions_on_base_uris": [
                 u.base_uri for u in self.search_base_uris
@@ -144,6 +146,12 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("id",)
 
 
+class UserUpdateSchema(ma.Schema):
+    """Schema for partial user updates (PATCH)."""
+    is_admin = fields.Boolean(load_default=None)
+    display_name = fields.String(load_default=None, allow_none=True)
+
+
 class UserWithPermissionsSchema(UserSchema):
     """User schema including permission fields.
 
@@ -154,29 +162,26 @@ class UserWithPermissionsSchema(UserSchema):
     The User model stores permissions as relationships (search_base_uris, register_base_uris)
     to BaseURI objects, while the API returns them as lists of base URI strings. The as_dict()
     method performs this conversion, but raw model objects need explicit field serialization.
+
+    The @pre_dump hook converts User model objects to dicts before serialization, ensuring
+    the permission relationships are properly transformed to string lists.
     """
-    search_permissions_on_base_uris = fields.Method("get_search_permissions")
-    register_permissions_on_base_uris = fields.Method("get_register_permissions")
+    search_permissions_on_base_uris = fields.List(fields.String())
+    register_permissions_on_base_uris = fields.List(fields.String())
 
-    def get_search_permissions(self, obj):
-        """Serialize search permissions as list of base URI strings."""
-        if isinstance(obj, User):
-            # Raw User model from paginated query - extract from relationship
-            return [u.base_uri for u in obj.search_base_uris]
-        elif isinstance(obj, dict):
-            # Dict from user.as_dict() - field already converted
-            return obj.get("search_permissions_on_base_uris", [])
-        return []
+    @pre_dump
+    def convert_user_to_dict(self, obj, **kwargs):
+        """Convert User model objects to dicts before serialization.
 
-    def get_register_permissions(self, obj):
-        """Serialize register permissions as list of base URI strings."""
+        This is needed because User model objects have permission relationships
+        (search_base_uris, register_base_uris) that point to BaseURI objects,
+        not the string lists expected by the API response.
+
+        Dict objects (from user.as_dict()) pass through unchanged.
+        """
         if isinstance(obj, User):
-            # Raw User model from paginated query - extract from relationship
-            return [u.base_uri for u in obj.register_base_uris]
-        elif isinstance(obj, dict):
-            # Dict from user.as_dict() - field already converted
-            return obj.get("register_permissions_on_base_uris", [])
-        return []
+            return obj.as_dict()
+        return obj
 
 
 class DatasetSchema(ma.SQLAlchemyAutoSchema):

@@ -9,13 +9,14 @@ from dservercore.utils_auth import (
 )
 from flask_smorest.pagination import PaginationParameters
 
+import dservercore
 import dservercore.utils
 import dservercore.utils_auth
 
 from dservercore.blueprint import Blueprint
 from dservercore.sort import SortParameters, ASCENDING, DESCENDING
 from dservercore.schemas import SummarySchema
-from dservercore.sql_models import User, UserSchema, UserWithPermissionsSchema
+from dservercore.sql_models import User, UserSchema, UserUpdateSchema, UserWithPermissionsSchema
 from dservercore.utils import (
     register_user,
     delete_user,
@@ -122,6 +123,50 @@ def user_put(data: UserSchema, username):
     register_user(username, data)
 
     return "", success_code
+
+
+@bp.route("/<username>", methods=["PATCH"])
+@bp.arguments(UserUpdateSchema)
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
+@jwt_required()
+def user_patch(data: UserUpdateSchema, username):
+    """Partially update a user in dserver.
+
+    Only provided fields will be updated. Supports updating:
+    - is_admin: boolean
+    - display_name: string (can be null to clear)
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    # Get the user object and update only provided fields
+    user = User.query.filter_by(username=username).first()
+
+    if data.get("is_admin") is not None:
+        user.is_admin = data["is_admin"]
+
+    if "display_name" in data and data.get("display_name") is not None:
+        user.display_name = data["display_name"]
+    elif data.get("display_name") is None and "display_name" in data:
+        # Explicitly setting to None/null clears the display_name
+        user.display_name = None
+
+    dservercore.sql_db.session.commit()
+
+    return dservercore.utils.get_user_info(username)
 
 
 @bp.route("/<username>", methods=["DELETE"])

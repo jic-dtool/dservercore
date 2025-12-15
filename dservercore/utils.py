@@ -223,12 +223,13 @@ def register_user(username, data):
 
     Example input structure::
 
-        {"is_admin": True},
+        {"is_admin": True, "display_name": "John Doe"},
 
     If a user is missing in the system it is skipped. The ``is_admin`` status
-    defaults to False.
+    defaults to False. The ``display_name`` is optional.
     """
     is_admin = data.get("is_admin", False)
+    display_name = data.get("display_name")
 
     # User already exists, update
     if sql_db.session.query(exists().where(User.username == username)).scalar():
@@ -236,8 +237,10 @@ def register_user(username, data):
             sql_db.session.query(User).filter_by(username=username).all()
         ):
             sqlalch_user_obj.is_admin = is_admin
+            if "display_name" in data:
+                sqlalch_user_obj.display_name = display_name
     else:  # user does not exist yet, create
-        user = User(username=username, is_admin=is_admin)
+        user = User(username=username, is_admin=is_admin, display_name=display_name)
         sql_db.session.add(user)
 
     sql_db.session.commit()
@@ -326,14 +329,14 @@ def update_users(users):
     Example input structure::
 
         [
-            {"username": "magic.mirror", "is_admin": True},
+            {"username": "magic.mirror", "is_admin": True, "display_name": "Magic Mirror"},
             {"username": "snow.white", "is_admin": False},
             {"username": "dopey"},
             {"username": "sleepy"},
         ]
 
     If a user is missing in the system it is skipped. The ``is_admin`` status
-    defaults to False.
+    defaults to False. The ``display_name`` is only updated if provided.
     """
     for user in users:
         username = user["username"]
@@ -343,6 +346,8 @@ def update_users(users):
             sql_db.session.query(User).filter_by(username=username).all()
         ):  # NOQA
             sqlalch_user_obj.is_admin = is_admin
+            if "display_name" in user:
+                sqlalch_user_obj.display_name = user.get("display_name")
 
     sql_db.session.commit()
 
