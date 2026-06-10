@@ -120,7 +120,9 @@ def tmp_app(request):
     @request.addfinalizer
     def teardown():
         current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.close()
         current_app.search.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.close()
         sql_db.session.remove()
 
     return app
@@ -194,7 +196,9 @@ def tmp_app_with_users(request):
     @request.addfinalizer
     def teardown():
         current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.close()
         current_app.search.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.close()
         sql_db.session.remove()
 
     return app
@@ -324,7 +328,9 @@ def tmp_app_with_data(request):
     @request.addfinalizer
     def teardown():
         current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.close()
         current_app.search.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.close()
         sql_db.session.remove()
 
     return app
@@ -371,7 +377,9 @@ def tmp_cli_runner(request):
     @request.addfinalizer
     def teardown():
         current_app.retrieve.client.drop_database(tmp_mongo_db_name)
+        current_app.retrieve.client.close()
         current_app.search.client.drop_database(tmp_mongo_db_name)
+        current_app.search.client.close()
         sql_db.session.remove()
 
     return app.test_cli_runner()
