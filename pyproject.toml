@@ -11,6 +11,7 @@ authors = [
     {name = "Tjelvar Olsson", email = "tjelvar.olsson@gmail.com"}
 ]
 dynamic = ["version"]
+requires-python = ">=3.8"
 dependencies = [
         "setuptools",
         "flask<3",
@@ -32,6 +33,8 @@ dependencies = [
 test = [
     "pytest",
     "pytest-cov",
+    "dserver-search-plugin-mongo",
+    "dserver-retrieve-plugin-mongo",
 ]
 docs = [
     "sphinx",
