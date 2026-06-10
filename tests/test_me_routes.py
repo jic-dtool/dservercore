@@ -104,7 +104,10 @@ def test_me_summary_route(
         "size_in_bytes_per_base_uri": {},
         "tags": [],
         "datasets_per_tag": {},
-        "size_in_bytes_per_tag": {}
+        "size_in_bytes_per_tag": {},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -129,6 +132,9 @@ def test_me_summary_route(
         "tags": ["evil", "fruit", "good"],
         "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3},
         "size_in_bytes_per_tag": {"evil": 11483620, "fruit": 11483620, "good": 0},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -149,7 +155,10 @@ def test_me_summary_route(
         "size_in_bytes_per_base_uri": {},
         "tags": [],
         "datasets_per_tag": {},
-        "size_in_bytes_per_tag": {}
+        "size_in_bytes_per_tag": {},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 

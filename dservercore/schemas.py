@@ -96,6 +96,7 @@ class SearchDatasetSchema(Schema):
     base_uris = List(String)
     uuids = List(UUIDString)
     tags = List(String)
+    uploaded_by = List(String)
 
 
 class SummarySchema(Schema):
@@ -110,6 +111,9 @@ class SummarySchema(Schema):
     tags = List(String)
     datasets_per_tag = Dict(keys=String, values=Integer)
     size_in_bytes_per_tag = Dict(keys=String, values=Integer)
+    uploaders = List(String)
+    datasets_per_uploader = Dict(keys=String, values=Integer)
+    size_in_bytes_per_uploader = Dict(keys=String, values=Integer)
 
 
 class MeUpdateSchema(Schema):

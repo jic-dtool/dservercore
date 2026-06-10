@@ -1,6 +1,6 @@
 """Utility functions."""
 
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import importlib
 import json
 import logging
@@ -443,21 +443,25 @@ def summary_of_datasets_by_user(username):
     datasets_per_creator = {}
     datasets_per_base_uri = {}
     datasets_per_tag = {}
+    datasets_per_uploader = {}
 
     size_in_bytes_per_creator = {}
     size_in_bytes_per_base_uri = {}
     size_in_bytes_per_tag = {}
+    size_in_bytes_per_uploader = {}
 
     total_size_in_bytes = 0
 
     for ds in datasets:
         user = ds["creator_username"]
         uri = ds["base_uri"]
+        # size_in_bytes is optional on registration; treat missing as 0.
+        size_in_bytes = ds.get("size_in_bytes") or 0
         datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
         datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
 
-        size_in_bytes_per_creator[user] = size_in_bytes_per_creator.get(user, 0) + ds["size_in_bytes"]
-        size_in_bytes_per_base_uri[uri] = size_in_bytes_per_base_uri.get(uri, 0) + ds["size_in_bytes"]
+        size_in_bytes_per_creator[user] = size_in_bytes_per_creator.get(user, 0) + size_in_bytes
+        size_in_bytes_per_base_uri[uri] = size_in_bytes_per_base_uri.get(uri, 0) + size_in_bytes
 
         # All datasets should have the "tags" key. However, it could be the
         # case that a dataset in the database prior to version 0.14.0 fails
@@ -467,9 +471,18 @@ def summary_of_datasets_by_user(username):
         if "tags" in ds:
             for tag in ds["tags"]:
                 datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
-                size_in_bytes_per_tag[tag] = size_in_bytes_per_tag.get(tag, 0) + ds["size_in_bytes"]
+                size_in_bytes_per_tag[tag] = size_in_bytes_per_tag.get(tag, 0) + size_in_bytes
 
-        total_size_in_bytes += ds["size_in_bytes"]
+        # Server-asserted registration provenance; datasets registered
+        # outside an authenticated request have no uploader.
+        uploader = ds.get("uploaded_by")
+        if uploader is not None:
+            datasets_per_uploader[uploader] = \
+                datasets_per_uploader.get(uploader, 0) + 1
+            size_in_bytes_per_uploader[uploader] = \
+                size_in_bytes_per_uploader.get(uploader, 0) + size_in_bytes
+
+        total_size_in_bytes += size_in_bytes
 
     summary = {
         "number_of_datasets": len(datasets),
@@ -482,7 +495,10 @@ def summary_of_datasets_by_user(username):
         "size_in_bytes_per_base_uri": size_in_bytes_per_base_uri,
         "tags": sorted(datasets_per_tag.keys()),
         "datasets_per_tag": datasets_per_tag,
-        "size_in_bytes_per_tag": size_in_bytes_per_tag
+        "size_in_bytes_per_tag": size_in_bytes_per_tag,
+        "uploaders": sorted(datasets_per_uploader.keys()),
+        "datasets_per_uploader": datasets_per_uploader,
+        "size_in_bytes_per_uploader": size_in_bytes_per_uploader
     }
 
     return summary
@@ -806,6 +822,8 @@ def create_dataset_obj_from_admin_metadata(admin_metadata):
         created_at=created_at,
         number_of_items=number_of_items,
         size_in_bytes=size_in_bytes,
+        uploaded_by=admin_metadata.get("uploaded_by"),
+        uploaded_at=admin_metadata.get("uploaded_at"),
     )
     return dataset
 
@@ -844,6 +862,19 @@ def delete_dataset_admin_metadata(uri):
     return uri
 
 
+def _get_authenticated_identity():
+    """Return the JWT identity of the current request, or None.
+
+    Registrations can also happen outside an authenticated request
+    context (Flask CLI, indexer, webhooks); those yield None.
+    """
+    try:
+        from flask_jwt_extended import get_jwt_identity
+        return get_jwt_identity()
+    except Exception:
+        return None
+
+
 def register_dataset(dataset_info):
     """Put-update a dataset in the lookup server. Put is idempotent."""
 
@@ -853,6 +884,14 @@ def register_dataset(dataset_info):
     base_uri = dataset_info["base_uri"]
     if not base_uri_exists(base_uri):
         raise (ValidationError("Base URI is not registered: {}".format(base_uri)))  # NOQA
+
+    # Server-asserted registration provenance. Unlike the client-claimed
+    # creator_username, uploaded_by reflects the identity that actually
+    # authenticated this registration; it is never accepted from clients.
+    dataset_info = dict(dataset_info)
+    dataset_info["uploaded_by"] = _get_authenticated_identity()
+    dataset_info["uploaded_at"] = datetime.now(
+        timezone.utc).replace(tzinfo=None)
 
     # Take a copy as register_dataset_descriptive_metadata makes
     # changes to the dictionary, in particular it changes the

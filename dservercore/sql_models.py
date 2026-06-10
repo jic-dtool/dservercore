@@ -113,6 +113,12 @@ class Dataset(db.Model):
     created_at = db.Column(db.DateTime(), nullable=False)
     number_of_items = db.Column(db.Integer)
     size_in_bytes = db.Column(db.BigInteger)
+    # Server-asserted registration provenance: the authenticated identity
+    # that registered the dataset (e.g. ORCID), as opposed to the
+    # client-claimed creator_username. NULL for registrations performed
+    # outside an authenticated request (CLI, indexer, webhooks).
+    uploaded_by = db.Column(db.String(255), index=True, nullable=True)
+    uploaded_at = db.Column(db.DateTime(), nullable=True)
 
     def __repr__(self):
         return "<Dataset {}>".format(self.uri)
@@ -129,6 +135,10 @@ class Dataset(db.Model):
             "created_at": dtoolcore.utils.timestamp(self.created_at),
             "number_of_items": self.number_of_items,
             "size_in_bytes": self.size_in_bytes,
+            "uploaded_by": self.uploaded_by,
+            "uploaded_at": (
+                dtoolcore.utils.timestamp(self.uploaded_at)
+                if self.uploaded_at is not None else None),
         }
 
 
@@ -199,11 +209,14 @@ class DatasetSchema(ma.SQLAlchemyAutoSchema):
             'uri',
             'uuid',
             'number_of_items',
-            'size_in_bytes')
+            'size_in_bytes',
+            'uploaded_by',
+            'uploaded_at')
 
     base_uri = fields.Method("get_base_uri_string")
     frozen_at = FloatDateTimeField()
     created_at = FloatDateTimeField()
+    uploaded_at = FloatDateTimeField(allow_none=True)
 
     def get_base_uri_string(self, obj):
         """Always serialize base_uri as string, no matter whether object is Dataset or simple dict"""

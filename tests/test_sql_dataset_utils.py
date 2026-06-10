@@ -26,6 +26,8 @@ def test_sql_dataset_helper_functions(tmp_app_client):  # NOQA
         "created_at": 1536236399.19497,
         "number_of_items": 47,
         "size_in_bytes": 5741810,
+        "uploaded_by": None,
+        "uploaded_at": None,
     }
 
     # BaseURI not registered yet.
