@@ -19,7 +19,8 @@ def test_put_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -52,7 +53,8 @@ def test_put_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -71,7 +73,8 @@ def test_put_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.put(
@@ -117,7 +120,8 @@ def test_put_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'dopey'
+            'username': 'dopey',
+            'display_name': None
         })
 
     assert user_response == expected_response
@@ -162,7 +166,8 @@ def test_get_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'snow-white'
+            'username': 'snow-white',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -185,7 +190,8 @@ def test_get_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -321,9 +327,15 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'is_admin': False, 'username': 'grumpy'},
-        {'is_admin': False, 'username': 'sleepy'},
-        {'is_admin': True, 'username': 'snow-white'}
+        {'display_name': None, 'is_admin': False, 'username': 'grumpy',
+         'register_permissions_on_base_uris': ['s3://snow-white'],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': False, 'username': 'sleepy',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': True, 'username': 'snow-white',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': []}
     ]
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -336,9 +348,15 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'is_admin': True, 'username': 'snow-white'},
-        {'is_admin': False, 'username': 'sleepy'},
-        {'is_admin': False, 'username': 'grumpy'}
+        {'display_name': None, 'is_admin': True, 'username': 'snow-white',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': []},
+        {'display_name': None, 'is_admin': False, 'username': 'sleepy',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': False, 'username': 'grumpy',
+         'register_permissions_on_base_uris': ['s3://snow-white'],
+         'search_permissions_on_base_uris': ['s3://snow-white']}
     ]
 
     # Only admins allowed.

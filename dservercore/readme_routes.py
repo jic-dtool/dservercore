@@ -10,7 +10,7 @@ from dservercore.utils_auth import (
     get_jwt_identity,
 )
 
-from dservercore import UnknownURIError
+from dservercore import AuthorizationError, UnknownURIError
 from dservercore.blueprint import Blueprint
 from dservercore.schemas import ReadmeSchema, ReadmeRequestSchema
 import dservercore.utils_auth
@@ -71,6 +71,8 @@ def set_readme(request_data, uri):
 
     try:
         set_readme_for_uri_by_user(username, uri, readme_content)
+    except AuthorizationError:
+        abort(403)
     except UnknownURIError:
         current_app.logger.info("UnknownURIError")
         abort(404)

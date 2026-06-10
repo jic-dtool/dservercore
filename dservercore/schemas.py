@@ -13,6 +13,19 @@ from marshmallow.fields import (
 )
 
 
+class UUIDString(UUID):
+    """UUID-validated field that deserializes to a lowercase string.
+
+    Dataset UUIDs are stored as strings (in SQL and in the Mongo search
+    and retrieve indexes). The plain marshmallow UUID field deserializes
+    to uuid.UUID objects, which pymongo encodes as BSON Binary - those
+    never match the stored strings, silently breaking UUID queries.
+    """
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        return str(super()._deserialize(value, attr, data, **kwargs))
+
+
 class HealthSchema(Schema):
     status = String()
 
@@ -60,7 +73,7 @@ class TagSchema(Schema):
 
 
 class RegisterDatasetSchema(Schema):
-    uuid = UUID()
+    uuid = UUIDString()
     base_uri = String()
     uri = String()
     # dtoolcore_version should be included when storing (based on current version) but not required on the request
@@ -81,7 +94,7 @@ class SearchDatasetSchema(Schema):
     free_text = String()
     creator_usernames = List(String)
     base_uris = List(String)
-    uuids = List(UUID)
+    uuids = List(UUIDString)
     tags = List(String)
 
 

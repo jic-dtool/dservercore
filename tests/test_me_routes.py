@@ -22,7 +22,8 @@ def test_me_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'snow-white'
+            'username': 'snow-white',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -45,7 +46,8 @@ def test_me_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     headers = dict(Authorization="Bearer " + grumpy_token)

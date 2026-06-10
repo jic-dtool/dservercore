@@ -33,7 +33,10 @@ class FloatDateTimeField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if value is None:
             return None
-        return datetime.utcfromtimestamp(float(value))
+        # Naive UTC datetime: dtoolcore.utils.timestamp() in _serialize
+        # only accepts naive datetimes.
+        return datetime.datetime.fromtimestamp(
+            float(value), datetime.timezone.utc).replace(tzinfo=None)
 
 
 class User(db.Model):
@@ -72,7 +75,7 @@ class User(db.Model):
 class BaseURI(db.Model):
     __tablename__ = "base_uri"
     id = db.Column(db.Integer, primary_key=True)
-    base_uri = db.Column(db.String(255), index=True, unique=True)
+    base_uri = db.Column(db.String(1024), index=True, unique=True)
     search_users = db.relationship(
         "User", secondary=search_permissions, back_populates="search_base_uris"
     )
@@ -101,7 +104,7 @@ class BaseURI(db.Model):
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     base_uri_id = db.Column(db.Integer, db.ForeignKey("base_uri.id"), nullable=False)
-    uri = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    uri = db.Column(db.String(1024), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(36), index=True, nullable=False)
     name = db.Column(db.String(80), index=True, nullable=False)
     base_uri = db.relationship("BaseURI", back_populates="datasets")
