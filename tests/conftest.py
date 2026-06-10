@@ -16,6 +16,8 @@ sys.path.insert(0, _ROOT)
 
 JWT_PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8LrEp0Q6l1WPsY32uOPqEjaisQScnzO/XvlhQTzj5w+hFObjiNgIaHRceYh3hZZwsRsHIkCxOY0JgUPeFP9IVXso0VptIjCPRF5yrV/+dF1rtl4eyYj/XOBvSDzbQQwqdjhHffw0TXW0f/yjGGJCYM+tw/9dmj9VilAMNTx1H76uPKUo4M3vLBQLo2tj7z1jlh4Jlw5hKBRcWQWbpWP95p71Db6gSpqReDYbx57BW19APMVketUYsXfXTztM/HWz35J9HDya3ID0Dl+pE22Wo8SZo2+ULKu/4OYVcD8DjF15WwXrcuFDypX132j+LUWOVWxCs5hdMybSDwF3ZhVBH ec2-user@ip-172-31-41-191.eu-west-1.compute.internal"  # NOQA
 
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+
 
 def random_string(
     size=9,
@@ -93,10 +95,10 @@ def tmp_app(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": MONGO_URI,
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": MONGO_URI,
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -151,10 +153,10 @@ def tmp_app_with_users(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": MONGO_URI,
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": MONGO_URI,
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -224,10 +226,10 @@ def tmp_app_with_data(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": MONGO_URI,
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": MONGO_URI,
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -348,10 +350,10 @@ def tmp_cli_runner(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": MONGO_URI,
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": MONGO_URI,
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
