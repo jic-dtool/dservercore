@@ -18,6 +18,11 @@ pip install -e ".[test]"
 pytest -sv
 ```
 
+If MongoDB requires authentication, pass credentials via `MONGO_URI`:
+```bash
+MONGO_URI="mongodb://user:password@localhost:27017/" pytest -sv
+```
+
 **Run a single test file:**
 ```bash
 pytest -sv tests/test_uri_routes.py
