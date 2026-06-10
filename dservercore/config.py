@@ -52,8 +52,6 @@ class Config(object):
     # If JWT authorisation disabled, always identify as this user:
     DEFAULT_USER = os.environ.get("DEFAULT_USER", "testuser")
 
-    JSONIFY_PRETTYPRINT_REGULAR = True
-
     API_TITLE = "dserver API"
     API_VERSION = "v1"
 

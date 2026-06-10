@@ -103,7 +103,6 @@ def _sort_parameters_schema_factory(def_sort, def_allowed_sort_fields):
         """Deserializes sort params into SortParameters"""
 
         class Meta:
-            ordered = True
             unknown = ma.EXCLUDE
 
         sort = ma.fields.List(
@@ -129,9 +128,6 @@ class SortMetadataSchema(ma.Schema):
     """
 
     sort = ma.fields.Dict(keys=ma.fields.String(), values=ma.fields.Integer())
-
-    class Meta:
-        ordered = True
 
 
 SORT_HEADER = {

@@ -11,15 +11,14 @@ authors = [
     {name = "Tjelvar Olsson", email = "tjelvar.olsson@gmail.com"}
 ]
 dynamic = ["version"]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
         "setuptools",
-        "flask<3",
+        "flask",
         "pymongo",
         "alembic",
         "flask-sqlalchemy",
         "flask-migrate",
-        "flask-pymongo",
         "flask-marshmallow",
         "flask-smorest",
         "marshmallow-sqlalchemy",
@@ -40,7 +39,7 @@ docs = [
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib-spelling",
-    "myst-parser==4.0.0"
+    "myst-parser>=5.0"
 ]
 
 [project.urls]
