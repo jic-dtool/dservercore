@@ -96,6 +96,19 @@ def test_client_cannot_forge_uploaded_by(
 
 def test_search_filter_by_uploaded_by(
         tmp_app_with_users_client, grumpy_token):  # NOQA
+    # Check if the search plugin supports filtering by uploaded_by.
+    search_plugin_supports_uploaded_by = True
+    try:
+        from dserver_search_plugin_mongo.utils_search import VALID_MONGO_QUERY_KEYS
+        if "uploaded_by" not in VALID_MONGO_QUERY_KEYS:
+            search_plugin_supports_uploaded_by = False
+    except ImportError:
+        pass
+
+    if not search_plugin_supports_uploaded_by:
+        import pytest
+        pytest.skip("Search plugin does not support uploaded_by filter")
+
     r = register(tmp_app_with_users_client, grumpy_token, dataset_payload())
     assert r.status_code == 201
 
