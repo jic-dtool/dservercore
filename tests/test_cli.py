@@ -19,6 +19,7 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
     new_user = get_user_obj("admin")
     expected_content = {
         "username": "admin",
+        "display_name": None,
         "is_admin": True,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -29,6 +30,7 @@ def test_cli_register_user(tmp_cli_runner):  # NOQA
     new_user = get_user_obj("dopey")
     expected_content = {
         "username": "dopey",
+        "display_name": None,
         "is_admin": False,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -55,12 +57,14 @@ def test_cli_list_users(tmp_cli_runner):  # NOQA
     expected_content = [
         {
             "username": "admin",
+            "display_name": None,
             "is_admin": True,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": "grumpy",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []

@@ -1,6 +1,6 @@
 """Utility functions."""
 
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import importlib
 import json
 import logging
@@ -12,6 +12,7 @@ from flask import current_app
 from flask_smorest.pagination import PaginationParameters
 from sqlalchemy.sql import exists
 
+import dtoolcore
 import dtoolcore.utils
 
 from dservercore import (
@@ -222,12 +223,13 @@ def register_user(username, data):
 
     Example input structure::
 
-        {"is_admin": True},
+        {"is_admin": True, "display_name": "John Doe"},
 
     If a user is missing in the system it is skipped. The ``is_admin`` status
-    defaults to False.
+    defaults to False. The ``display_name`` is optional.
     """
     is_admin = data.get("is_admin", False)
+    display_name = data.get("display_name")
 
     # User already exists, update
     if sql_db.session.query(exists().where(User.username == username)).scalar():
@@ -235,8 +237,10 @@ def register_user(username, data):
             sql_db.session.query(User).filter_by(username=username).all()
         ):
             sqlalch_user_obj.is_admin = is_admin
+            if "display_name" in data:
+                sqlalch_user_obj.display_name = display_name
     else:  # user does not exist yet, create
-        user = User(username=username, is_admin=is_admin)
+        user = User(username=username, is_admin=is_admin, display_name=display_name)
         sql_db.session.add(user)
 
     sql_db.session.commit()
@@ -325,14 +329,14 @@ def update_users(users):
     Example input structure::
 
         [
-            {"username": "magic.mirror", "is_admin": True},
+            {"username": "magic.mirror", "is_admin": True, "display_name": "Magic Mirror"},
             {"username": "snow.white", "is_admin": False},
             {"username": "dopey"},
             {"username": "sleepy"},
         ]
 
     If a user is missing in the system it is skipped. The ``is_admin`` status
-    defaults to False.
+    defaults to False. The ``display_name`` is only updated if provided.
     """
     for user in users:
         username = user["username"]
@@ -342,6 +346,8 @@ def update_users(users):
             sql_db.session.query(User).filter_by(username=username).all()
         ):  # NOQA
             sqlalch_user_obj.is_admin = is_admin
+            if "display_name" in user:
+                sqlalch_user_obj.display_name = user.get("display_name")
 
     sql_db.session.commit()
 
@@ -437,21 +443,25 @@ def summary_of_datasets_by_user(username):
     datasets_per_creator = {}
     datasets_per_base_uri = {}
     datasets_per_tag = {}
+    datasets_per_uploader = {}
 
     size_in_bytes_per_creator = {}
     size_in_bytes_per_base_uri = {}
     size_in_bytes_per_tag = {}
+    size_in_bytes_per_uploader = {}
 
     total_size_in_bytes = 0
 
     for ds in datasets:
         user = ds["creator_username"]
         uri = ds["base_uri"]
+        # size_in_bytes is optional on registration; treat missing as 0.
+        size_in_bytes = ds.get("size_in_bytes") or 0
         datasets_per_creator[user] = datasets_per_creator.get(user, 0) + 1
         datasets_per_base_uri[uri] = datasets_per_base_uri.get(uri, 0) + 1
 
-        size_in_bytes_per_creator[user] = size_in_bytes_per_creator.get(user, 0) + ds["size_in_bytes"]
-        size_in_bytes_per_base_uri[uri] = size_in_bytes_per_base_uri.get(uri, 0) + ds["size_in_bytes"]
+        size_in_bytes_per_creator[user] = size_in_bytes_per_creator.get(user, 0) + size_in_bytes
+        size_in_bytes_per_base_uri[uri] = size_in_bytes_per_base_uri.get(uri, 0) + size_in_bytes
 
         # All datasets should have the "tags" key. However, it could be the
         # case that a dataset in the database prior to version 0.14.0 fails
@@ -461,9 +471,18 @@ def summary_of_datasets_by_user(username):
         if "tags" in ds:
             for tag in ds["tags"]:
                 datasets_per_tag[tag] = datasets_per_tag.get(tag, 0) + 1
-                size_in_bytes_per_tag[tag] = size_in_bytes_per_tag.get(tag, 0) + ds["size_in_bytes"]
+                size_in_bytes_per_tag[tag] = size_in_bytes_per_tag.get(tag, 0) + size_in_bytes
 
-        total_size_in_bytes += ds["size_in_bytes"]
+        # Server-asserted registration provenance; datasets registered
+        # outside an authenticated request have no uploader.
+        uploader = ds.get("uploaded_by")
+        if uploader is not None:
+            datasets_per_uploader[uploader] = \
+                datasets_per_uploader.get(uploader, 0) + 1
+            size_in_bytes_per_uploader[uploader] = \
+                size_in_bytes_per_uploader.get(uploader, 0) + size_in_bytes
+
+        total_size_in_bytes += size_in_bytes
 
     summary = {
         "number_of_datasets": len(datasets),
@@ -476,7 +495,10 @@ def summary_of_datasets_by_user(username):
         "size_in_bytes_per_base_uri": size_in_bytes_per_base_uri,
         "tags": sorted(datasets_per_tag.keys()),
         "datasets_per_tag": datasets_per_tag,
-        "size_in_bytes_per_tag": size_in_bytes_per_tag
+        "size_in_bytes_per_tag": size_in_bytes_per_tag,
+        "uploaders": sorted(datasets_per_uploader.keys()),
+        "datasets_per_uploader": datasets_per_uploader,
+        "size_in_bytes_per_uploader": size_in_bytes_per_uploader
     }
 
     return summary
@@ -800,6 +822,8 @@ def create_dataset_obj_from_admin_metadata(admin_metadata):
         created_at=created_at,
         number_of_items=number_of_items,
         size_in_bytes=size_in_bytes,
+        uploaded_by=admin_metadata.get("uploaded_by"),
+        uploaded_at=admin_metadata.get("uploaded_at"),
     )
     return dataset
 
@@ -838,6 +862,19 @@ def delete_dataset_admin_metadata(uri):
     return uri
 
 
+def _get_authenticated_identity():
+    """Return the JWT identity of the current request, or None.
+
+    Registrations can also happen outside an authenticated request
+    context (Flask CLI, indexer, webhooks); those yield None.
+    """
+    try:
+        from flask_jwt_extended import get_jwt_identity
+        return get_jwt_identity()
+    except Exception:
+        return None
+
+
 def register_dataset(dataset_info):
     """Put-update a dataset in the lookup server. Put is idempotent."""
 
@@ -847,6 +884,14 @@ def register_dataset(dataset_info):
     base_uri = dataset_info["base_uri"]
     if not base_uri_exists(base_uri):
         raise (ValidationError("Base URI is not registered: {}".format(base_uri)))  # NOQA
+
+    # Server-asserted registration provenance. Unlike the client-claimed
+    # creator_username, uploaded_by reflects the identity that actually
+    # authenticated this registration; it is never accepted from clients.
+    dataset_info = dict(dataset_info)
+    dataset_info["uploaded_by"] = _get_authenticated_identity()
+    dataset_info["uploaded_at"] = datetime.now(
+        timezone.utc).replace(tzinfo=None)
 
     # Take a copy as register_dataset_descriptive_metadata makes
     # changes to the dictionary, in particular it changes the
@@ -1068,3 +1113,262 @@ def get_annotations_from_uri_by_user(username, uri):
         raise (AuthorizationError())
 
     return current_app.retrieve.get_annotations(uri)
+
+
+def _update_tags_in_storage(uri, tags):
+    """Update tags in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param tags: list of tags to set
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+
+        # Get existing tags from storage
+        existing_tags = set(dataset.list_tags())
+        new_tags = set(tags)
+
+        # Delete tags that are no longer present
+        for tag in existing_tags - new_tags:
+            logger.debug(f"Deleting tag '{tag}' from storage for {uri}")
+            try:
+                dataset.delete_tag(tag)
+            except Exception as e:
+                logger.warning(f"Failed to delete tag '{tag}': {e}")
+
+        # Add new tags (put_tag includes name validation)
+        for tag in new_tags - existing_tags:
+            logger.debug(f"Adding tag '{tag}' to storage for {uri}")
+            dataset.put_tag(tag)
+
+        logger.info(f"Updated tags in storage for {uri}")
+
+    except Exception as e:
+        # Log but don't fail - database update succeeded
+        logger.warning(f"Failed to update tags in storage for {uri}: {e}")
+
+
+def _update_annotations_in_storage(uri, annotations):
+    """Update annotations in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param annotations: dictionary of annotations to set
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+
+        # Get existing annotation names from storage
+        existing_annotations = set(dataset.list_annotation_names())
+        new_annotations = set(annotations.keys())
+
+        # Delete annotations that are no longer present
+        for annotation_name in existing_annotations - new_annotations:
+            logger.debug(f"Deleting annotation '{annotation_name}' from storage for {uri}")
+            try:
+                dataset.delete_annotation(annotation_name)
+            except Exception as e:
+                logger.warning(f"Failed to delete annotation '{annotation_name}': {e}")
+
+        # Add/update annotations (put_annotation includes name validation)
+        for annotation_name, value in annotations.items():
+            logger.debug(f"Setting annotation '{annotation_name}' in storage for {uri}")
+            dataset.put_annotation(annotation_name, value)
+
+        logger.info(f"Updated annotations in storage for {uri}")
+
+    except Exception as e:
+        logger.warning(f"Failed to update annotations in storage for {uri}: {e}")
+
+
+def set_tags_for_uri_by_user(username, uri, tags):
+    """Set tags for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param tags: list of tags to set
+    :returns: updated list of tags
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update tags in both search and retrieve plugins (database)
+    if hasattr(current_app.search, "set_tags"):
+        current_app.search.set_tags(uri, tags)
+    else:
+        logger.warning("Search plugin has no method 'set_tags'")
+
+    if hasattr(current_app.retrieve, "set_tags"):
+        current_app.retrieve.set_tags(uri, tags)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_tags'")
+
+    # Update tags in actual storage backend
+    _update_tags_in_storage(uri, tags)
+
+    return tags
+
+
+def set_annotations_for_uri_by_user(username, uri, annotations):
+    """Set all annotations for a dataset (replaces existing annotations).
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotations: dictionary of annotations to set
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update annotations in both search and retrieve plugins (database)
+    if hasattr(current_app.search, "set_annotations"):
+        current_app.search.set_annotations(uri, annotations)
+    else:
+        logger.warning("Search plugin has no method 'set_annotations'")
+
+    if hasattr(current_app.retrieve, "set_annotations"):
+        current_app.retrieve.set_annotations(uri, annotations)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_annotations'")
+
+    # Update annotations in actual storage backend
+    _update_annotations_in_storage(uri, annotations)
+
+    return annotations
+
+
+def set_annotation_for_uri_by_user(username, uri, annotation_name, value):
+    """Set a single annotation for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotation_name: name of the annotation
+    :param value: value to set for the annotation
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    # Get existing annotations
+    existing_annotations = get_annotations_from_uri_by_user(username, uri)
+
+    # Update the specific annotation
+    existing_annotations[annotation_name] = value
+
+    # Set all annotations
+    return set_annotations_for_uri_by_user(username, uri, existing_annotations)
+
+
+def delete_annotation_for_uri_by_user(username, uri, annotation_name):
+    """Delete a single annotation from a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param annotation_name: name of the annotation to delete
+    :returns: updated annotations dictionary
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    # Get existing annotations
+    existing_annotations = get_annotations_from_uri_by_user(username, uri)
+
+    # Remove the annotation if it exists
+    if annotation_name in existing_annotations:
+        del existing_annotations[annotation_name]
+
+    # Set all annotations
+    return set_annotations_for_uri_by_user(username, uri, existing_annotations)
+
+
+def _update_readme_in_storage(uri, content):
+    """Update README in the actual storage backend using dtoolcore.
+
+    :param uri: dataset URI
+    :param content: README content string
+    """
+    try:
+        # Load the dataset
+        dataset = dtoolcore.DataSet.from_uri(uri)
+
+        # Update the README using put_readme
+        logger.debug(f"Updating README in storage for {uri}")
+        dataset.put_readme(content)
+
+        logger.info(f"Updated README in storage for {uri}")
+
+    except Exception as e:
+        # Log but don't fail - database update succeeded
+        logger.warning(f"Failed to update README in storage for {uri}: {e}")
+
+
+def set_readme_for_uri_by_user(username, uri, content):
+    """Set README content for a dataset.
+
+    :param username: username
+    :param uri: dataset URI
+    :param content: README content string
+    :returns: updated README content
+    :raises: AuthenticationError if user is invalid.
+             AuthorizationError if the user has not got permissions to modify
+             content in the base URI
+             UnknownBaseURIError if the base URI has not been registered.
+             UnknownURIError if the URI is not available to the user.
+    """
+    user = get_user_obj(username)
+
+    base_uri_str = uri.rsplit("/", 1)[0]
+    base_uri = _get_base_uri_obj(base_uri_str)
+    if base_uri is None:
+        raise (UnknownBaseURIError())
+
+    # Check if user has register permissions (write access) for this base URI
+    if base_uri not in user.register_base_uris:
+        raise (AuthorizationError())
+
+    # Update README in both search and retrieve plugins (database)
+    if hasattr(current_app.search, "set_readme"):
+        current_app.search.set_readme(uri, content)
+    else:
+        logger.warning("Search plugin has no method 'set_readme'")
+
+    if hasattr(current_app.retrieve, "set_readme"):
+        current_app.retrieve.set_readme(uri, content)
+    else:
+        logger.warning("Retrieve plugin has no method 'set_readme'")
+
+    # Update README in actual storage backend
+    _update_readme_in_storage(uri, content)
+
+    return content

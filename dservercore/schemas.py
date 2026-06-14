@@ -13,6 +13,23 @@ from marshmallow.fields import (
 )
 
 
+class UUIDString(UUID):
+    """UUID-validated field that deserializes to a lowercase string.
+
+    Dataset UUIDs are stored as strings (in SQL and in the Mongo search
+    and retrieve indexes). The plain marshmallow UUID field deserializes
+    to uuid.UUID objects, which pymongo encodes as BSON Binary - those
+    never match the stored strings, silently breaking UUID queries.
+    """
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        return str(super()._deserialize(value, attr, data, **kwargs))
+
+
+class HealthSchema(Schema):
+    status = String()
+
+
 class ConfigSchema(Schema):
     config = Dict(keys=String(), values=Raw())
 
@@ -32,6 +49,10 @@ class ReadmeSchema(Schema):
     readme = String()
 
 
+class ReadmeRequestSchema(Schema):
+    readme = String(required=True)
+
+
 class ManifestSchema(Schema):
     items = Dict(keys=String, values=Nested(ItemSchema))
     hash_function = String()
@@ -40,7 +61,11 @@ class ManifestSchema(Schema):
 
 # Define a schema for the response
 class AnnotationSchema(Schema):
-    annotations = Dict(keys=String(), values=String())
+    annotations = Dict(keys=String(), values=Raw())
+
+
+class SingleAnnotationSchema(Schema):
+    value = Raw()
 
 
 class TagSchema(Schema):
@@ -48,7 +73,7 @@ class TagSchema(Schema):
 
 
 class RegisterDatasetSchema(Schema):
-    uuid = UUID()
+    uuid = UUIDString()
     base_uri = String()
     uri = String()
     # dtoolcore_version should be included when storing (based on current version) but not required on the request
@@ -69,8 +94,9 @@ class SearchDatasetSchema(Schema):
     free_text = String()
     creator_usernames = List(String)
     base_uris = List(String)
-    uuids = List(UUID)
+    uuids = List(UUIDString)
     tags = List(String)
+    uploaded_by = List(String)
 
 
 class SummarySchema(Schema):
@@ -85,3 +111,11 @@ class SummarySchema(Schema):
     tags = List(String)
     datasets_per_tag = Dict(keys=String, values=Integer)
     size_in_bytes_per_tag = Dict(keys=String, values=Integer)
+    uploaders = List(String)
+    datasets_per_uploader = Dict(keys=String, values=Integer)
+    size_in_bytes_per_uploader = Dict(keys=String, values=Integer)
+
+
+class MeUpdateSchema(Schema):
+    """Schema for updating the current user's profile (PATCH /me)."""
+    display_name = String(load_default=None, allow_none=True)

@@ -19,7 +19,8 @@ def test_put_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -52,7 +53,8 @@ def test_put_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -71,7 +73,8 @@ def test_put_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.put(
@@ -117,7 +120,8 @@ def test_put_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'dopey'
+            'username': 'dopey',
+            'display_name': None
         })
 
     assert user_response == expected_response
@@ -162,7 +166,8 @@ def test_get_user_route(
             'is_admin': True,
             'register_permissions_on_base_uris': [],
             'search_permissions_on_base_uris': [],
-            'username': 'snow-white'
+            'username': 'snow-white',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -185,7 +190,8 @@ def test_get_user_route(
             'is_admin': False,
             'register_permissions_on_base_uris': ['s3://snow-white'],
             'search_permissions_on_base_uris': ['s3://snow-white'],
-            'username': 'grumpy'
+            'username': 'grumpy',
+            'display_name': None
         })
 
     r = tmp_app_with_users_client.get(
@@ -321,9 +327,15 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'is_admin': False, 'username': 'grumpy'},
-        {'is_admin': False, 'username': 'sleepy'},
-        {'is_admin': True, 'username': 'snow-white'}
+        {'display_name': None, 'is_admin': False, 'username': 'grumpy',
+         'register_permissions_on_base_uris': ['s3://snow-white'],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': False, 'username': 'sleepy',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': True, 'username': 'snow-white',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': []}
     ]
 
     headers = dict(Authorization="Bearer " + snowwhite_token)
@@ -336,9 +348,15 @@ def test_list_user_route(
 
     data = r.json
     assert data == [
-        {'is_admin': True, 'username': 'snow-white'},
-        {'is_admin': False, 'username': 'sleepy'},
-        {'is_admin': False, 'username': 'grumpy'}
+        {'display_name': None, 'is_admin': True, 'username': 'snow-white',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': []},
+        {'display_name': None, 'is_admin': False, 'username': 'sleepy',
+         'register_permissions_on_base_uris': [],
+         'search_permissions_on_base_uris': ['s3://snow-white']},
+        {'display_name': None, 'is_admin': False, 'username': 'grumpy',
+         'register_permissions_on_base_uris': ['s3://snow-white'],
+         'search_permissions_on_base_uris': ['s3://snow-white']}
     ]
 
     # Only admins allowed.
@@ -385,7 +403,10 @@ def test_dataset_summary_route(
         "size_in_bytes_per_base_uri": {},
         "tags": [],
         "datasets_per_tag": {},
-        "size_in_bytes_per_tag": {}
+        "size_in_bytes_per_tag": {},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -410,6 +431,9 @@ def test_dataset_summary_route(
         "tags": ["evil", "fruit", "good"],
         "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3},
         "size_in_bytes_per_tag": {"evil": 11483620, "fruit": 11483620, "good": 0},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -439,7 +463,10 @@ def test_dataset_summary_route(
         "size_in_bytes_per_base_uri": {},
         "tags": [],
         "datasets_per_tag": {},
-        "size_in_bytes_per_tag": {}
+        "size_in_bytes_per_tag": {},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert expected_content == json.loads(r.data.decode("utf-8"))
 
@@ -486,6 +513,276 @@ def test_dataset_summary_route(
     headers = dict(Authorization="Bearer " + snowwhite_token)
     r = tmp_app_with_data_client.get(
         "/users/noone/summary",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+
+def test_grant_search_permission_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test granting search permission via POST."""
+
+    from dservercore.sql_models import UserWithPermissionsSchema
+
+    # 1 - Admin grants search permission to sleepy on s3://snow-white
+    # sleepy already has search permission, so we need to first check
+    # the initial state then test with a new base_uri
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    # First, register a new base URI for testing
+    from dservercore.utils import register_base_uri
+    register_base_uri("s3://test-bucket")
+
+    # Grant search permission - should succeed with 200
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/search/s3://test-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+    assert "s3://test-bucket" in user_response["search_permissions_on_base_uris"]
+
+    # 2 - Try to grant the same permission again - should return 409 Conflict
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/search/s3://test-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 409
+
+    # 3 - Non-admin (grumpy) tries to grant permission - should return 403
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/search/s3://test-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 403
+
+    # 4 - Unregistered user (noone) tries to grant permission - should return 401
+    headers = dict(Authorization="Bearer " + noone_token)
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/search/s3://test-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 401
+
+    # 5 - Admin tries to grant permission to non-existent user - should return 404
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users_client.post(
+        "/users/nonexistent/search/s3://test-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 404
+
+    # 6 - Admin tries to grant permission on non-existent base URI - should return 404
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/search/s3://nonexistent-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 404
+
+
+def test_revoke_search_permission_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test revoking search permission via DELETE."""
+
+    from dservercore.sql_models import UserWithPermissionsSchema
+
+    # Initial state: grumpy and sleepy have search permissions on s3://snow-white
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    # 1 - Admin revokes search permission from sleepy
+    r = tmp_app_with_users_client.delete(
+        "/users/sleepy/search/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+    assert "s3://snow-white" not in user_response["search_permissions_on_base_uris"]
+
+    # 2 - Revoking permission that doesn't exist should still succeed (idempotent)
+    r = tmp_app_with_users_client.delete(
+        "/users/sleepy/search/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    # 3 - Non-admin (grumpy) tries to revoke permission - should return 403
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/sleepy/search/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 403
+
+    # 4 - Unregistered user (noone) tries to revoke permission - should return 401
+    headers = dict(Authorization="Bearer " + noone_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/sleepy/search/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 401
+
+    # 5 - Admin tries to revoke permission from non-existent user - should return 404
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/nonexistent/search/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+    # 6 - Admin tries to revoke permission on non-existent base URI - should return 404
+    r = tmp_app_with_users_client.delete(
+        "/users/sleepy/search/s3://nonexistent-bucket",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+
+def test_grant_register_permission_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test granting register permission via POST."""
+
+    from dservercore.sql_models import UserWithPermissionsSchema
+
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    # 1 - Admin grants register permission to sleepy on s3://snow-white
+    # sleepy does not have register permission initially
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/register/s3://snow-white",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+    assert "s3://snow-white" in user_response["register_permissions_on_base_uris"]
+
+    # 2 - Try to grant the same permission again - should return 409 Conflict
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/register/s3://snow-white",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 409
+
+    # 3 - Non-admin (grumpy) tries to grant permission - should return 403
+    headers = dict(Authorization="Bearer " + grumpy_token)
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/register/s3://snow-white",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 403
+
+    # 4 - Unregistered user (noone) tries to grant permission - should return 401
+    headers = dict(Authorization="Bearer " + noone_token)
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/register/s3://snow-white",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 401
+
+    # 5 - Admin tries to grant permission to non-existent user - should return 404
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users_client.post(
+        "/users/nonexistent/register/s3://snow-white",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 404
+
+    # 6 - Admin tries to grant permission on non-existent base URI - should return 404
+    r = tmp_app_with_users_client.post(
+        "/users/sleepy/register/s3://nonexistent-bucket",
+        headers=headers,
+        json={}
+    )
+    assert r.status_code == 404
+
+
+def test_revoke_register_permission_route(
+        tmp_app_with_users_client,
+        snowwhite_token,
+        grumpy_token,
+        noone_token,
+        sleepy_token):
+    """Test revoking register permission via DELETE."""
+
+    from dservercore.sql_models import UserWithPermissionsSchema
+
+    # Initial state: grumpy has register permission on s3://snow-white
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+
+    # 1 - Admin revokes register permission from grumpy
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy/register/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    user_response = r.json
+    assert len(UserWithPermissionsSchema().validate(user_response)) == 0
+    assert "s3://snow-white" not in user_response["register_permissions_on_base_uris"]
+
+    # 2 - Revoking permission that doesn't exist should still succeed (idempotent)
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy/register/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 200
+
+    # 3 - Non-admin (sleepy) tries to revoke permission - should return 403
+    headers = dict(Authorization="Bearer " + sleepy_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy/register/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 403
+
+    # 4 - Unregistered user (noone) tries to revoke permission - should return 401
+    headers = dict(Authorization="Bearer " + noone_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy/register/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 401
+
+    # 5 - Admin tries to revoke permission from non-existent user - should return 404
+    headers = dict(Authorization="Bearer " + snowwhite_token)
+    r = tmp_app_with_users_client.delete(
+        "/users/nonexistent/register/s3://snow-white",
+        headers=headers
+    )
+    assert r.status_code == 404
+
+    # 6 - Admin tries to revoke permission on non-existent base URI - should return 404
+    r = tmp_app_with_users_client.delete(
+        "/users/grumpy/register/s3://nonexistent-bucket",
         headers=headers
     )
     assert r.status_code == 404

@@ -93,10 +93,10 @@ def tmp_app(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -105,6 +105,9 @@ def tmp_app(request):
         "JWT_TOKEN_LOCATION": "headers",
         "JWT_HEADER_NAME": "Authorization",
         "JWT_HEADER_TYPE": "Bearer",
+        "MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
+        "MONGO_DB": tmp_mongo_db_name,
+        "MONGO_COLLECTION": "dependencies",
     }
 
     app = create_app(config)
@@ -151,10 +154,10 @@ def tmp_app_with_users(request):
         "SECRET_KEY": "secret",
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -163,6 +166,9 @@ def tmp_app_with_users(request):
         "JWT_TOKEN_LOCATION": "headers",
         "JWT_HEADER_NAME": "Authorization",
         "JWT_HEADER_TYPE": "Bearer",
+        "MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
+        "MONGO_DB": tmp_mongo_db_name,
+        "MONGO_COLLECTION": "dependencies",
     }
 
     app = create_app(config)
@@ -224,10 +230,10 @@ def tmp_app_with_data(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
@@ -236,6 +242,9 @@ def tmp_app_with_data(request):
         "JWT_TOKEN_LOCATION": "headers",
         "JWT_HEADER_NAME": "Authorization",
         "JWT_HEADER_TYPE": "Bearer",
+        "MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
+        "MONGO_DB": tmp_mongo_db_name,
+        "MONGO_COLLECTION": "dependencies",
     }
 
     app = create_app(config)
@@ -348,14 +357,17 @@ def tmp_cli_runner(request):
         "OPENAPI_VERSION": '3.0.2',
         "FLASK_ENV": "development",
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "RETRIEVE_MONGO_URI": "mongodb://localhost:27017/",
+        "RETRIEVE_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "RETRIEVE_MONGO_DB": tmp_mongo_db_name,
         "RETRIEVE_MONGO_COLLECTION": "datasets",
-        "SEARCH_MONGO_URI": "mongodb://localhost:27017/",
+        "SEARCH_MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
         "SEARCH_MONGO_DB": tmp_mongo_db_name,
         "SEARCH_MONGO_COLLECTION": "datasets",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-        "SECRET_KEY": "dev"
+        "SECRET_KEY": "dev",
+        "MONGO_URI": os.environ.get("TEST_MONGO_URI", "mongodb://localhost:27017/"),
+        "MONGO_DB": tmp_mongo_db_name,
+        "MONGO_COLLECTION": "dependencies",
     }
 
     app = create_app(config)

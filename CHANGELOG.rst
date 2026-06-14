@@ -4,6 +4,46 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
+[0.23.0] - 2025-12-08
+---------------------
+
+Added
+^^^^^
+
+- Health check endpoint ``GET /config/health`` for container orchestration
+  (does not require authorization)
+- Tag manipulation routes:
+
+  - ``GET /tags/<uri>`` - Get dataset tags
+  - ``PUT /tags/<uri>`` - Set all dataset tags (replaces existing)
+  - ``POST /tags/<uri>/<tag>`` - Add a single tag
+  - ``DELETE /tags/<uri>/<tag>`` - Remove a single tag
+
+- Annotation manipulation routes:
+
+  - ``GET /annotations/<uri>`` - Get dataset annotations
+  - ``PUT /annotations/<uri>`` - Set all annotations (replaces existing)
+  - ``PUT /annotations/<uri>/<name>`` - Set a single annotation
+  - ``DELETE /annotations/<uri>/<name>`` - Delete a single annotation
+
+- README manipulation routes:
+
+  - ``GET /readmes/<uri>`` - Get dataset README
+  - ``PUT /readmes/<uri>`` - Update dataset README
+
+Changed
+^^^^^^^
+
+- Switched build system to flit
+- Tags and annotations are now updated both in the database and in storage
+  (previously only updated in database)
+
+Removed
+^^^^^^^
+
+- Removed unused legacy code
+
+
 [0.22.0]
 ------------
 

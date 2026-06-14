@@ -32,18 +32,21 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     expected_content = [
         {
             "username": "snow-white",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": ["s3://snow-white"],
             "register_permissions_on_base_uris": ["s3://snow-white"]
         },
         {
             "username": "dopey",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": ["s3://snow-white"],
             "register_permissions_on_base_uris": []
         },
         {
             "username": "sleepy",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": ["s3://snow-white"],
             "register_permissions_on_base_uris": []
@@ -70,18 +73,21 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     expected_content = [
         {
             "username": "snow-white",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": "dopey",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": "sleepy",
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []

@@ -22,7 +22,7 @@ bp = Blueprint("manifests", __name__, url_prefix="/manifests")
 
 @bp.route("/<path:uri>", methods=["GET"])
 @bp.response(200, ManifestSchema)
-@bp.alt_response(1, description=2)
+@bp.alt_response(401, description="Not registered")
 @bp.alt_response(403, description="No permissions")
 @bp.alt_response(404, description="Not found")
 @jwt_required()
