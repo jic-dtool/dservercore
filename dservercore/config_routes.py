@@ -13,7 +13,7 @@ from dservercore.utils_auth import (
 import dservercore
 import dservercore.utils_auth
 from dservercore.blueprint import Blueprint
-from dservercore.schemas import ConfigSchema, VersionSchema
+from dservercore.schemas import ConfigSchema, HealthSchema, VersionSchema
 from dservercore.utils import versions_to_dict, obj_to_lowercase_key_dict
 
 
@@ -45,3 +45,14 @@ def server_versions():
     This does not require authorization."""
 
     return jsonify({"versions": versions_to_dict()})
+
+
+@bp.route("/health", methods=["GET"])
+@bp.response(200, HealthSchema)
+def health():
+    """Health check endpoint for container orchestration.
+
+    Returns a simple status indicating the service is running.
+    This does not require authorization."""
+
+    return jsonify({"status": "healthy"}), 200

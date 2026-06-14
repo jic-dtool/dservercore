@@ -35,6 +35,8 @@ def test_list_datasets_by_user(tmp_app_client):  # NOQA
         "created_at": 1536236399.19497,
         "number_of_items": 7283,
         "size_in_bytes": 5741810,
+        "uploaded_by": None,
+        "uploaded_at": None,
     }
     admin_metadata_2 = {
         "base_uri": base_uri_2,
@@ -46,6 +48,8 @@ def test_list_datasets_by_user(tmp_app_client):  # NOQA
         "created_at": 1536236399.19497,
         "number_of_items": 392,
         "size_in_bytes": 574181,
+        "uploaded_by": None,
+        "uploaded_at": None,
     }
     register_dataset_admin_metadata(admin_metadata_1)
     register_dataset_admin_metadata(admin_metadata_2)

@@ -9,14 +9,21 @@ from dservercore.utils_auth import (
 )
 from flask_smorest.pagination import PaginationParameters
 
+import dservercore
 import dservercore.utils
 import dservercore.utils_auth
 
 from dservercore.blueprint import Blueprint
 from dservercore.sort import SortParameters, ASCENDING, DESCENDING
 from dservercore.schemas import SummarySchema
-from dservercore.sql_models import User, UserSchema, UserWithPermissionsSchema
-from dservercore.utils import register_user, delete_user, summary_of_datasets_by_user
+from dservercore.sql_models import User, UserSchema, UserUpdateSchema, UserWithPermissionsSchema
+from dservercore.utils import (
+    register_user,
+    delete_user,
+    summary_of_datasets_by_user,
+    get_permission_info,
+    register_permissions,
+)
 
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -118,6 +125,50 @@ def user_put(data: UserSchema, username):
     return "", success_code
 
 
+@bp.route("/<username>", methods=["PATCH"])
+@bp.arguments(UserUpdateSchema)
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
+@jwt_required()
+def user_patch(data: UserUpdateSchema, username):
+    """Partially update a user in dserver.
+
+    Only provided fields will be updated. Supports updating:
+    - is_admin: boolean
+    - display_name: string (can be null to clear)
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    # Get the user object and update only provided fields
+    user = User.query.filter_by(username=username).first()
+
+    if data.get("is_admin") is not None:
+        user.is_admin = data["is_admin"]
+
+    if "display_name" in data and data.get("display_name") is not None:
+        user.display_name = data["display_name"]
+    elif data.get("display_name") is None and "display_name" in data:
+        # Explicitly setting to None/null clears the display_name
+        user.display_name = None
+
+    dservercore.sql_db.session.commit()
+
+    return dservercore.utils.get_user_info(username)
+
+
 @bp.route("/<username>", methods=["DELETE"])
 @bp.response(200)
 @bp.alt_response(401, description="Not registered")
@@ -167,3 +218,145 @@ def user_summary_get(username):
 
     summary = summary_of_datasets_by_user(username)
     return summary
+
+
+@bp.route("/<username>/search/<path:base_uri>", methods=["POST"])
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="User or base URI not found")
+@bp.alt_response(409, description="Permission already exists")
+@jwt_required()
+def user_search_permission_post(username, base_uri):
+    """Grant search permission to a user on a base URI.
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils.base_uri_exists(base_uri):
+        abort(404)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    permissions = get_permission_info(base_uri)
+
+    if username in permissions["users_with_search_permissions"]:
+        abort(409)
+
+    permissions["users_with_search_permissions"].append(username)
+    register_permissions(base_uri, permissions)
+
+    return dservercore.utils.get_user_info(username)
+
+
+@bp.route("/<username>/search/<path:base_uri>", methods=["DELETE"])
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="User or base URI not found")
+@jwt_required()
+def user_search_permission_delete(username, base_uri):
+    """Revoke search permission from a user on a base URI.
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils.base_uri_exists(base_uri):
+        abort(404)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    permissions = get_permission_info(base_uri)
+
+    if username in permissions["users_with_search_permissions"]:
+        permissions["users_with_search_permissions"].remove(username)
+        register_permissions(base_uri, permissions)
+
+    return dservercore.utils.get_user_info(username)
+
+
+@bp.route("/<username>/register/<path:base_uri>", methods=["POST"])
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="User or base URI not found")
+@bp.alt_response(409, description="Permission already exists")
+@jwt_required()
+def user_register_permission_post(username, base_uri):
+    """Grant register permission to a user on a base URI.
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils.base_uri_exists(base_uri):
+        abort(404)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    permissions = get_permission_info(base_uri)
+
+    if username in permissions["users_with_register_permissions"]:
+        abort(409)
+
+    permissions["users_with_register_permissions"].append(username)
+    register_permissions(base_uri, permissions)
+
+    return dservercore.utils.get_user_info(username)
+
+
+@bp.route("/<username>/register/<path:base_uri>", methods=["DELETE"])
+@bp.response(200, UserWithPermissionsSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="User or base URI not found")
+@jwt_required()
+def user_register_permission_delete(username, base_uri):
+    """Revoke register permission from a user on a base URI.
+
+    The user in the Authorization token needs to be admin.
+    """
+    identity = get_jwt_identity()
+
+    if not dservercore.utils_auth.user_exists(identity):
+        abort(401)
+
+    if not dservercore.utils_auth.has_admin_rights(identity):
+        abort(403)
+
+    if not dservercore.utils.base_uri_exists(base_uri):
+        abort(404)
+
+    if not dservercore.utils_auth.user_exists(username):
+        abort(404)
+
+    permissions = get_permission_info(base_uri)
+
+    if username in permissions["users_with_register_permissions"]:
+        permissions["users_with_register_permissions"].remove(username)
+        register_permissions(base_uri, permissions)
+
+    return dservercore.utils.get_user_info(username)

@@ -5,6 +5,18 @@ import json
 from dservercore.utils import uri_to_url_suffix
 
 
+
+def _strip_registration_provenance(obj):
+    """Remove the server-stamped uploaded_by/uploaded_at fields (dynamic
+    timestamp) from API responses before comparing against static
+    expectations."""
+    entries = obj if isinstance(obj, list) else [obj]
+    for entry in entries:
+        entry.pop("uploaded_by", None)
+        entry.pop("uploaded_at", None)
+    return obj
+
+
 def test_list_uri_route(
         tmp_app_with_data_client,
         grumpy_token,
@@ -64,7 +76,7 @@ def test_list_uri_route(
     expected_order = [
         bad_apples_on_mr_men, oranges_on_snow_white, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by name and base uri
     r = tmp_app_with_data_client.get(
@@ -78,7 +90,7 @@ def test_list_uri_route(
     expected_order = [
         bad_apples_on_snow_white, bad_apples_on_mr_men, oranges_on_snow_white,
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri
     r = tmp_app_with_data_client.get(
@@ -92,7 +104,7 @@ def test_list_uri_route(
     expected_order = [
         oranges_on_snow_white, bad_apples_on_snow_white, bad_apples_on_mr_men
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri with pagination
     r = tmp_app_with_data_client.get(
@@ -106,7 +118,7 @@ def test_list_uri_route(
     expected_order = [
         bad_apples_on_mr_men, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     r = tmp_app_with_data_client.get(
         "/uris",
@@ -119,7 +131,7 @@ def test_list_uri_route(
     expected_order = [
         oranges_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # check response for others
     r = tmp_app_with_data_client.get(
@@ -164,7 +176,8 @@ def test_get_dataset_by_uri_route(
         headers=headers
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode("utf-8")) == bad_apples_on_mr_men
+    assert _strip_registration_provenance(
+        json.loads(r.data.decode("utf-8"))) == bad_apples_on_mr_men
 
     # user has no search permission on base uri
     r = tmp_app_with_data_client.get(
@@ -283,7 +296,11 @@ def test_put_dataset_by_uri_route(
         "number_of_items": 1,
         "size_in_bytes": 5741810,
     }
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped provenance: registered via the API as grumpy.
+    assert admin_metadata.pop("uploaded_by") == "grumpy"
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
 
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
 
@@ -338,7 +355,11 @@ def test_put_dataset_by_uri_route(
     # in retrieve plugin, and the implementation of a register_dataset method
     # is not enforced on a plugin
     # assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped provenance: registered via the API as grumpy.
+    assert admin_metadata.pop("uploaded_by") == "grumpy"
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
 
     # URI suffix and dataset uri attribute disagree
@@ -450,7 +471,11 @@ def test_put_dataset_route_when_created_at_is_string(
         "number_of_items": 1,
         "size_in_bytes": 5741810,
     }
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped provenance: registered via the API as grumpy.
+    assert admin_metadata.pop("uploaded_by") == "grumpy"
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
 
     assert len(lookup_datasets_by_user_and_uuid("grumpy", uuid)) == 1
 
@@ -578,7 +603,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, oranges_on_snow_white, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # Make sure that timestamps are returned as float.
     first_entry = hits[0]
@@ -657,7 +682,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, oranges_on_snow_white, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by name and base uri
     r = tmp_app_with_data_client.get(
@@ -671,7 +696,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_snow_white, bad_apples_on_mr_men, oranges_on_snow_white,
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri
     r = tmp_app_with_data_client.get(
@@ -685,7 +710,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         oranges_on_snow_white, bad_apples_on_snow_white, bad_apples_on_mr_men
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri with pagination
     r = tmp_app_with_data_client.get(
@@ -699,7 +724,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     r = tmp_app_with_data_client.get(
         "/uris",
@@ -712,7 +737,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         oranges_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # Search for apples (in README).
     headers = dict(Authorization="Bearer " + grumpy_token)
@@ -729,7 +754,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # Search for U00096 (in manifest).
     headers = dict(Authorization="Bearer " + grumpy_token)
@@ -746,7 +771,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # Search for crazystuff (in annotaitons).
     headers = dict(Authorization="Bearer " + grumpy_token)
@@ -762,7 +787,7 @@ def test_uris_get_route_with_query(
     expected_order = [
         oranges_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
 
 def test_uris_post_route_with_query(
@@ -867,7 +892,7 @@ def test_uris_post_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, oranges_on_snow_white, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by name and base uri
     r = tmp_app_with_data_client.post(
@@ -883,7 +908,7 @@ def test_uris_post_route_with_query(
     expected_order = [
         bad_apples_on_snow_white, bad_apples_on_mr_men, oranges_on_snow_white,
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri
     r = tmp_app_with_data_client.post(
@@ -899,7 +924,7 @@ def test_uris_post_route_with_query(
     expected_order = [
         oranges_on_snow_white, bad_apples_on_snow_white, bad_apples_on_mr_men
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # sorting by uuid and uri with pagination
     r = tmp_app_with_data_client.post(
@@ -915,7 +940,7 @@ def test_uris_post_route_with_query(
     expected_order = [
         bad_apples_on_mr_men, bad_apples_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     r = tmp_app_with_data_client.post(
         "/uris",
@@ -930,7 +955,7 @@ def test_uris_post_route_with_query(
     expected_order = [
         oranges_on_snow_white
     ]
-    assert hits == expected_order
+    assert _strip_registration_provenance(hits) == expected_order
 
     # Search for apples (in README).
     headers = dict(Authorization="Bearer " + grumpy_token)

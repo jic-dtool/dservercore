@@ -25,6 +25,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     user_info = get_user_info(admin_username)
     expected_content = {
         "username": admin_username,
+        "display_name": None,
         "is_admin": True,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -34,6 +35,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     user_info = get_user_info(data_champion_username)
     expected_content = {
         "username": data_champion_username,
+        "display_name": None,
         "is_admin": False,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -43,6 +45,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     user_info = get_user_info(standard_user_username)
     expected_content = {
         "username": standard_user_username,
+        "display_name": None,
         "is_admin": False,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -59,6 +62,7 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     user_info = get_user_info(new_username)
     expected_content = {
         "username": new_username,
+        "display_name": None,
         "is_admin": False,
         "search_permissions_on_base_uris": [],
         "register_permissions_on_base_uris": []
@@ -69,24 +73,28 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     expected_content = [
         {
             "username": admin_username,
+            "display_name": None,
             "is_admin": True,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": data_champion_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": standard_user_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": new_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
@@ -100,12 +108,14 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     users_to_delete = [
         {
             "username": standard_user_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": new_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
@@ -116,12 +126,14 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     expected_content = [
         {
             "username": admin_username,
+            "display_name": None,
             "is_admin": True,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": data_champion_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
@@ -142,12 +154,14 @@ def test_user_management_helper_functions(tmp_app_client):  # NOQA
     expected_content = [
         {
             "username": admin_username,
+            "display_name": None,
             "is_admin": False,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []
         },
         {
             "username": data_champion_username,
+            "display_name": None,
             "is_admin": True,
             "search_permissions_on_base_uris": [],
             "register_permissions_on_base_uris": []

@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=42", "setuptools_scm[toml]>=6.3"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_scm"]
+build-backend = "flit_scm:buildapi"
 
 [project]
 name = "dservercore"
 description = "Web API to register/lookup/search for dtool dataset metadata"
 readme = "README.rst"
-license = {file = "LICENSE"}
+license = {text = "MIT"}
 authors = [
     {name = "Tjelvar Olsson", email = "tjelvar.olsson@gmail.com"}
 ]
@@ -47,16 +47,23 @@ Documentation = "https://dservercore.readthedocs.io"
 Repository = "https://github.com/jic-dtool/dservercore"
 Changelog = "https://github.com/jic-dtool/dservercore/blob/main/CHANGELOG.rst"
 
+[project.entry-points."flask.commands"]
+base_uri = "dservercore.cli:base_uri_cli"
+user = "dservercore.cli:user_cli"
+config = "dservercore.cli:config_cli"
+dataset = "dservercore.cli:dataset_cli"
+
+[tool.flit.module]
+name = "dservercore"
+
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
 write_to = "dservercore/version.py"
 
-[tool.setuptools]
-packages = ["dservercore"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=dservercore --cov-report=term-missing"
 
-[project.entry-points."flask.commands"]
-"base_uri" = "dservercore.cli:base_uri_cli"
-"user" = "dservercore.cli:user_cli"
-"config" = "dservercore.cli:config_cli"
-"dataset" = "dservercore.cli:dataset_cli"
+[tool.flake8]
+exclude = ["venv*", "env*", ".tox", ".git", "*.egg", "build", "docs", "migrations", "jwt-spike"]

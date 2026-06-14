@@ -7,9 +7,32 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+Added
+^^^^^
+
+- Health check endpoint ``GET /config/health`` for container orchestration
+  (does not require authorization)
+- Tag manipulation routes:
+
+  - ``GET /tags/<uri>`` - Get dataset tags
+  - ``PUT /tags/<uri>`` - Set all dataset tags (replaces existing)
+  - ``POST /tags/<uri>/<tag>`` - Add a single tag
+  - ``DELETE /tags/<uri>/<tag>`` - Remove a single tag
+
+- Annotation manipulation routes:
+
+  - ``GET /annotations/<uri>`` - Get dataset annotations
+  - ``PUT /annotations/<uri>`` - Set all annotations (replaces existing)
+  - ``PUT /annotations/<uri>/<name>`` - Set a single annotation
+  - ``DELETE /annotations/<uri>/<name>`` - Delete a single annotation
+
+- README manipulation routes:
+
+  - ``GET /readmes/<uri>`` - Get dataset README
+  - ``PUT /readmes/<uri>`` - Update dataset README
+
 Changed
 ^^^^^^^
-
 - Dropped support for Python 3.8 and 3.9; minimum is now Python 3.10
 - Upgraded to Flask 3.x (removed ``flask<3`` upper bound)
 - Removed unused ``flask-pymongo`` dependency
@@ -24,6 +47,14 @@ Fixed
 
 - Test fixtures: hardcoded MongoDB URI replaced by ``MONGO_URI`` environment variable (default: ``mongodb://localhost:27017/``)
 - Test fixtures: added ``client.close()`` after ``drop_database()`` in teardown to prevent connection pool exhaustion
+- Switched build system to flit
+- Tags and annotations are now updated both in the database and in storage
+  (previously only updated in database)
+
+Removed
+^^^^^^^
+
+- Removed unused legacy code
 
 [0.22.0]
 ------------

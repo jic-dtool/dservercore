@@ -1,21 +1,23 @@
-"""Route for retrieving the readme of a dataset"""
+"""Routes for retrieving and updating the readme of a dataset"""
 from flask import (
     abort,
     jsonify,
-    current_app
+    current_app,
+    request,
 )
 from dservercore.utils_auth import (
     jwt_required,
     get_jwt_identity,
 )
 
-from dservercore import UnknownURIError
+from dservercore import AuthorizationError, UnknownURIError
 from dservercore.blueprint import Blueprint
-from dservercore.schemas import ReadmeSchema
+from dservercore.schemas import ReadmeSchema, ReadmeRequestSchema
 import dservercore.utils_auth
 from dservercore.utils import (
     url_suffix_to_uri,
-    get_readme_from_uri_by_user
+    get_readme_from_uri_by_user,
+    set_readme_for_uri_by_user,
 )
 
 bp = Blueprint("readmes", __name__, url_prefix="/readmes")
@@ -46,3 +48,33 @@ def readme(uri):
         abort(404)
 
     return {"readme": readme}
+
+
+@bp.route("/<path:uri>", methods=["PUT"])
+@bp.arguments(ReadmeRequestSchema)
+@bp.response(200, ReadmeSchema)
+@bp.alt_response(401, description="Not registered")
+@bp.alt_response(403, description="No permissions")
+@bp.alt_response(404, description="Not found")
+@jwt_required()
+def set_readme(request_data, uri):
+    """Update the dataset readme."""
+    username = get_jwt_identity()
+    if not dservercore.utils_auth.user_exists(username):
+        abort(401)
+
+    uri = url_suffix_to_uri(uri)
+    if not dservercore.utils_auth.may_access(username, uri):
+        abort(403)
+
+    readme_content = request_data.get("readme", "")
+
+    try:
+        set_readme_for_uri_by_user(username, uri, readme_content)
+    except AuthorizationError:
+        abort(403)
+    except UnknownURIError:
+        current_app.logger.info("UnknownURIError")
+        abort(404)
+
+    return {"readme": readme_content}

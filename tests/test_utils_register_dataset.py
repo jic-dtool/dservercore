@@ -72,7 +72,12 @@ def test_register_dataset(tmp_app_client):   # NOQA
         "number_of_items": 9876,
         "size_in_bytes": 5741810,
     }
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped registration provenance: dynamic timestamp, no
+    # authenticated identity outside a request context.
+    assert admin_metadata.pop("uploaded_by") is None
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
     assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
 
     with pytest.raises(ValidationError):
@@ -148,7 +153,12 @@ def test_register_dataset_without_created_at(tmp_app_client):   # NOQA
         "number_of_items": 1232,
         "size_in_bytes": 5741810,
     }
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped registration provenance: dynamic timestamp, no
+    # authenticated identity outside a request context.
+    assert admin_metadata.pop("uploaded_by") is None
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
     assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
 
     with pytest.raises(ValidationError):
@@ -222,7 +232,12 @@ def test_register_dataset_without_created_at_and_size_in_bytes(tmp_app_client): 
         "number_of_items": None,
         "size_in_bytes": None,
     }
-    assert get_admin_metadata_from_uri(uri) == expected_content
+    admin_metadata = get_admin_metadata_from_uri(uri)
+    # Server-stamped registration provenance: dynamic timestamp, no
+    # authenticated identity outside a request context.
+    assert admin_metadata.pop("uploaded_by") is None
+    assert isinstance(admin_metadata.pop("uploaded_at"), float)
+    assert admin_metadata == expected_content
     assert get_readme_from_uri_by_user("sleepy", uri) == dataset_info["readme"]
 
     with pytest.raises(ValidationError):

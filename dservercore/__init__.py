@@ -42,24 +42,16 @@ except PackageNotFoundError:
         __version__ = None
 
 
-# Python version-dependent treatment of entry points
-if sys.version_info >= (3, 8):
-    from importlib.metadata import entry_points
-    eps = entry_points()
-    if sys.version_info >= (3, 10):
-        search_entrypoints_iterator = eps.select(group="dservercore.search")
-        retrieve_entrypoints_iterator = eps.select(group="dservercore.retrieve")
-        extension_entrypoints_iterator = eps.select(group="dservercore.extension")
-    else:
-        search_entrypoints_iterator = eps.get("dservercore.search", [])
-        retrieve_entrypoints_iterator = eps.get("dservercore.retrieve", [])
-        extension_entrypoints_iterator = eps.get("dservercore.extension", [])
-else:  # Python version < 3.8
-    from pkg_resources import iter_entry_points
-
-    search_entrypoints_iterator = iter_entry_points("dservercore.search")
-    retrieve_entrypoints_iterator = iter_entry_points("dservercore.retrieve")
-    extension_entrypoints_iterator = iter_entry_points("dservercore.extension")
+from importlib.metadata import entry_points
+eps = entry_points()
+if sys.version_info >= (3, 10):
+    search_entrypoints_iterator = eps.select(group="dservercore.search")
+    retrieve_entrypoints_iterator = eps.select(group="dservercore.retrieve")
+    extension_entrypoints_iterator = eps.select(group="dservercore.extension")
+else:
+    search_entrypoints_iterator = eps.get("dservercore.search", [])
+    retrieve_entrypoints_iterator = eps.get("dservercore.retrieve", [])
+    extension_entrypoints_iterator = eps.get("dservercore.extension", [])
 
 
 class ValidationError(ValueError):

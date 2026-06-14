@@ -1,6 +1,6 @@
 """Database models and derived schemas"""
 import datetime
-from marshmallow import fields
+from marshmallow import fields, pre_dump
 import dtoolcore.utils
 from dservercore import ma
 from dservercore import sql_db as db
@@ -33,12 +33,16 @@ class FloatDateTimeField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if value is None:
             return None
-        return datetime.utcfromtimestamp(float(value))
+        # Naive UTC datetime: dtoolcore.utils.timestamp() in _serialize
+        # only accepts naive datetimes.
+        return datetime.datetime.fromtimestamp(
+            float(value), datetime.timezone.utc).replace(tzinfo=None)
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    display_name = db.Column(db.String(255), nullable=True)  # Optional human-readable name
     is_admin = db.Column(db.Boolean(), nullable=False, default=False)
     search_base_uris = db.relationship(
         "BaseURI", secondary=search_permissions, back_populates="search_users"
@@ -54,6 +58,7 @@ class User(db.Model):
         """Return user using dictionary representation."""
         return {
             "username": self.username,
+            "display_name": self.display_name,
             "is_admin": self.is_admin,
             "search_permissions_on_base_uris": [
                 u.base_uri for u in self.search_base_uris
@@ -70,7 +75,7 @@ class User(db.Model):
 class BaseURI(db.Model):
     __tablename__ = "base_uri"
     id = db.Column(db.Integer, primary_key=True)
-    base_uri = db.Column(db.String(255), index=True, unique=True)
+    base_uri = db.Column(db.String(1024), index=True, unique=True)
     search_users = db.relationship(
         "User", secondary=search_permissions, back_populates="search_base_uris"
     )
@@ -99,7 +104,7 @@ class BaseURI(db.Model):
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     base_uri_id = db.Column(db.Integer, db.ForeignKey("base_uri.id"), nullable=False)
-    uri = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    uri = db.Column(db.String(1024), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(36), index=True, nullable=False)
     name = db.Column(db.String(80), index=True, nullable=False)
     base_uri = db.relationship("BaseURI", back_populates="datasets")
@@ -108,6 +113,12 @@ class Dataset(db.Model):
     created_at = db.Column(db.DateTime(), nullable=False)
     number_of_items = db.Column(db.Integer)
     size_in_bytes = db.Column(db.BigInteger)
+    # Server-asserted registration provenance: the authenticated identity
+    # that registered the dataset (e.g. ORCID), as opposed to the
+    # client-claimed creator_username. NULL for registrations performed
+    # outside an authenticated request (CLI, indexer, webhooks).
+    uploaded_by = db.Column(db.String(255), index=True, nullable=True)
+    uploaded_at = db.Column(db.DateTime(), nullable=True)
 
     def __repr__(self):
         return "<Dataset {}>".format(self.uri)
@@ -124,6 +135,10 @@ class Dataset(db.Model):
             "created_at": dtoolcore.utils.timestamp(self.created_at),
             "number_of_items": self.number_of_items,
             "size_in_bytes": self.size_in_bytes,
+            "uploaded_by": self.uploaded_by,
+            "uploaded_at": (
+                dtoolcore.utils.timestamp(self.uploaded_at)
+                if self.uploaded_at is not None else None),
         }
 
 
@@ -144,9 +159,42 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("id",)
 
 
+class UserUpdateSchema(ma.Schema):
+    """Schema for partial user updates (PATCH)."""
+    is_admin = fields.Boolean(load_default=None)
+    display_name = fields.String(load_default=None, allow_none=True)
+
+
 class UserWithPermissionsSchema(UserSchema):
-    register_permissions_on_base_uris = fields.List(fields.String)
-    search_permissions_on_base_uris = fields.List(fields.String)
+    """User schema including permission fields.
+
+    This schema handles two cases:
+    - User model objects: returned directly from paginated queries (e.g., GET /users)
+    - Dict objects: returned from user.as_dict() via get_user_info() (e.g., GET /users/<username>)
+
+    The User model stores permissions as relationships (search_base_uris, register_base_uris)
+    to BaseURI objects, while the API returns them as lists of base URI strings. The as_dict()
+    method performs this conversion, but raw model objects need explicit field serialization.
+
+    The @pre_dump hook converts User model objects to dicts before serialization, ensuring
+    the permission relationships are properly transformed to string lists.
+    """
+    search_permissions_on_base_uris = fields.List(fields.String())
+    register_permissions_on_base_uris = fields.List(fields.String())
+
+    @pre_dump
+    def convert_user_to_dict(self, obj, **kwargs):
+        """Convert User model objects to dicts before serialization.
+
+        This is needed because User model objects have permission relationships
+        (search_base_uris, register_base_uris) that point to BaseURI objects,
+        not the string lists expected by the API response.
+
+        Dict objects (from user.as_dict()) pass through unchanged.
+        """
+        if isinstance(obj, User):
+            return obj.as_dict()
+        return obj
 
 
 class DatasetSchema(ma.SQLAlchemyAutoSchema):
@@ -161,11 +209,14 @@ class DatasetSchema(ma.SQLAlchemyAutoSchema):
             'uri',
             'uuid',
             'number_of_items',
-            'size_in_bytes')
+            'size_in_bytes',
+            'uploaded_by',
+            'uploaded_at')
 
     base_uri = fields.Method("get_base_uri_string")
     frozen_at = FloatDateTimeField()
     created_at = FloatDateTimeField()
+    uploaded_at = FloatDateTimeField(allow_none=True)
 
     def get_base_uri_string(self, obj):
         """Always serialize base_uri as string, no matter whether object is Dataset or simple dict"""

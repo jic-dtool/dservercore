@@ -19,5 +19,8 @@ def test_summary_of_datasets_by_user(tmp_app_with_data_client):  # NOQA
         "tags": ["evil", "fruit", "good"],
         "datasets_per_tag": {"good": 1, "evil": 2, "fruit": 3},
         "size_in_bytes_per_tag": {"evil": 11483620, "fruit": 11483620, "good": 0},
+        "uploaders": [],
+        "datasets_per_uploader": {},
+        "size_in_bytes_per_uploader": {},
     }
     assert summary == exected_output
