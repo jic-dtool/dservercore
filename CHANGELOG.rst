@@ -4,8 +4,8 @@ CHANGELOG
 This project uses `semantic versioning <http://semver.org/>`_.
 This change log uses principles from `keep a changelog <http://keepachangelog.com/>`_.
 
-[0.23.0] - 2025-12-08
----------------------
+[Unreleased]
+------------
 
 Added
 ^^^^^
@@ -33,7 +33,20 @@ Added
 
 Changed
 ^^^^^^^
+- Dropped support for Python 3.8 and 3.9; minimum is now Python 3.10
+- Upgraded to Flask 3.x (removed ``flask<3`` upper bound)
+- Removed unused ``flask-pymongo`` dependency
+- Upgraded to marshmallow 4.x, flask-marshmallow 1.5.0, marshmallow-sqlalchemy 1.5.0
+- Removed deprecated ``JSONIFY_PRETTYPRINT_REGULAR`` config key (removed in Flask 3.0)
+- Removed deprecated ``Meta.ordered = True`` from marshmallow schemas in ``sort.py`` (removed in marshmallow 4.x)
+- Updated CI Python matrix to 3.10–3.13; updated MongoDB matrix to 5.0–8.0
+- Fixed ``myst-parser==4.0.0`` hard pin in docs extra to ``myst-parser>=5.0``
 
+Fixed
+^^^^^
+
+- Test fixtures: hardcoded MongoDB URI replaced by ``MONGO_URI`` environment variable (default: ``mongodb://localhost:27017/``)
+- Test fixtures: added ``client.close()`` after ``drop_database()`` in teardown to prevent connection pool exhaustion
 - Switched build system to flit
 - Tags and annotations are now updated both in the database and in storage
   (previously only updated in database)
@@ -42,7 +55,6 @@ Removed
 ^^^^^^^
 
 - Removed unused legacy code
-
 
 [0.22.0]
 ------------
