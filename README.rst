@@ -181,6 +181,18 @@ file::
 
     export JWT_PUBLIC_KEY="ssh-rsa XXXXXX user@localhost"
 
+Audience and issuer of JSON Web Tokens
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+dserver only accepts tokens whose audience (``aud`` claim) and issuer (``iss``
+claim) are ``dserver``. The dserver token generator plugins (OAuth2, LDAP)
+issue such tokens by default, and so does ``flask user token``. If tokens come
+from another issuer, configure the expected values, or disable a check by
+setting it to an empty value::
+
+    export JWT_DECODE_AUDIENCE=dserver
+    export JWT_DECODE_ISSUER=my-identity-provider
+
 Inspecting the flask app configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

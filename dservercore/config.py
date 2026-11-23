@@ -14,6 +14,11 @@ CONFIG_EXCLUSIONS = [
                     ]
 
 
+def _get_optional_env(key, default):
+    """Return environment variable, its default if unset, None if empty."""
+    return os.environ.get(key, default) or None
+
+
 def _get_file_content(key, default=""):
     file_path = os.environ.get(key, "")
     if os.path.isfile(file_path):
@@ -46,6 +51,17 @@ class Config(object):
     else:
         JWT_PRIVATE_KEY = _get_file_content("JWT_PRIVATE_KEY_FILE")
         JWT_PUBLIC_KEY = _get_file_content("JWT_PUBLIC_KEY_FILE")
+
+    # Tokens must name dserver as their audience ("aud") and issuer ("iss"),
+    # as the dserver token generator plugins do by default. This rejects
+    # tokens signed with the same key for another purpose. Set to an empty
+    # value to disable the respective check.
+    JWT_DECODE_AUDIENCE = _get_optional_env("JWT_DECODE_AUDIENCE", "dserver")
+    JWT_DECODE_ISSUER = _get_optional_env("JWT_DECODE_ISSUER", "dserver")
+    # Tokens issued by dserver itself ("flask user token") carry the same
+    # claims, so that dserver accepts them.
+    JWT_ENCODE_AUDIENCE = JWT_DECODE_AUDIENCE
+    JWT_ENCODE_ISSUER = JWT_DECODE_ISSUER
 
     # Allow to disable jwt authentication
     DISABLE_JWT_AUTHORISATION = os.environ.get("DISABLE_JWT_AUTHORISATION", False)
