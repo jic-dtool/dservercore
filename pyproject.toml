@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_scm"]
-build-backend = "flit_scm:buildapi"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "dservercore"
@@ -53,13 +53,18 @@ user = "dservercore.cli:user_cli"
 config = "dservercore.cli:config_cli"
 dataset = "dservercore.cli:dataset_cli"
 
-[tool.flit.module]
-name = "dservercore"
+[tool.hatch.version]
+source = "vcs"
+raw-options = { version_scheme = "guess-next-dev", local_scheme = "no-local-version" }
 
-[tool.setuptools_scm]
-version_scheme = "guess-next-dev"
-local_scheme = "no-local-version"
-write_to = "dservercore/version.py"
+[tool.hatch.build.hooks.vcs]
+version-file = "dservercore/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dservercore"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [".github", ".pre-commit-config.yaml", "CLAUDE.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

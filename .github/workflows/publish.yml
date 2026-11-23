@@ -26,7 +26,6 @@ jobs:
     - name: Install requirements
       run: |
         pip install --upgrade build
-        pip install --upgrade setuptools wheel setuptools-scm[toml]
         pip list
 
     - name: Package distribution
