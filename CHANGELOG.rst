@@ -47,7 +47,8 @@ Fixed
 
 - Test fixtures: hardcoded MongoDB URI replaced by ``MONGO_URI`` environment variable (default: ``mongodb://localhost:27017/``)
 - Test fixtures: added ``client.close()`` after ``drop_database()`` in teardown to prevent connection pool exhaustion
-- Switched build system to flit
+- Build system changed from ``setuptools`` to ``hatchling`` with
+  ``hatch-vcs``; the version is still derived from git tags
 - Tags and annotations are now updated both in the database and in storage
   (previously only updated in database)
 
