@@ -145,8 +145,9 @@ def test_config_audience_and_issuer_from_environment(reload_config):
     assert config.JWT_DECODE_ISSUER == "my-idp"
 
 
-def test_config_empty_value_disables_check(reload_config):
-    config = reload_config(JWT_DECODE_AUDIENCE="", JWT_DECODE_ISSUER="")
+@pytest.mark.parametrize("value", ["", "  "])
+def test_config_blank_value_disables_check(reload_config, value):
+    config = reload_config(JWT_DECODE_AUDIENCE=value, JWT_DECODE_ISSUER=value)
     assert config.JWT_DECODE_AUDIENCE is None
     assert config.JWT_DECODE_ISSUER is None
     assert config.JWT_ENCODE_AUDIENCE is None
@@ -201,8 +202,9 @@ def test_token_without_matching_audience_or_issuer_is_rejected(
     private_pem, public_pem = key_pair
     client = _make_client(request, public_pem, "dserver", "dserver")
     response = _get_me(client, _token(private_pem, **claims))
-    assert response.status_code in (401, 422), \
-        response.get_data(as_text=True)
+    # flask-jwt-extended answers invalid tokens with 422, as for a wrong
+    # signature.
+    assert response.status_code == 422, response.get_data(as_text=True)
 
 
 def test_checks_can_be_disabled(request, key_pair):
@@ -213,7 +215,86 @@ def test_checks_can_be_disabled(request, key_pair):
     assert response.status_code == 200, response.get_data(as_text=True)
 
 
-def test_environment_without_override_is_unaffected():
-    """Guard: the tests above must not leak environment changes."""
-    assert "JWT_DECODE_AUDIENCE" not in os.environ
-    assert "JWT_DECODE_ISSUER" not in os.environ
+
+@pytest.mark.parametrize("value", [None, "", "  "])
+def test_blank_test_config_disables_checks(request, key_pair, value):
+    """A blank audience or issuer also disables the check when it is set
+    through the Flask config directly (flask-jwt-extended only skips the
+    check for None)."""
+    private_pem, public_pem = key_pair
+    client = _make_client(request, public_pem, value, value)
+    response = _get_me(client, _token(private_pem))
+    assert response.status_code == 200, response.get_data(as_text=True)
+
+
+@pytest.fixture
+def production_app(request, monkeypatch, tmp_path, key_pair, reload_config):
+    """Return a function creating the app like 'flask run' does: from
+    Config, the environment and the plugin configs, without test config."""
+    import dservercore
+    from flask import current_app
+
+    from dservercore import create_app, sql_db
+    from dservercore.utils import register_users
+
+    private_pem, public_pem = key_pair
+    public_key_file = tmp_path / "jwt_key.pub"
+    public_key_file.write_text(public_pem)
+    monkeypatch.setenv("JWT_PUBLIC_KEY_FILE", str(public_key_file))
+    monkeypatch.setenv("SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
+
+    def make(**env):
+        # create_app() uses the Config class imported into dservercore.
+        monkeypatch.setattr(dservercore, "Config", reload_config(**env))
+        app = create_app()
+        context = app.app_context()
+        context.push()
+        sql_db.create_all()
+        register_users([dict(username="grumpy")])
+
+        @request.addfinalizer
+        def teardown():
+            current_app.retrieve.client.drop_database(
+                current_app.config["RETRIEVE_MONGO_DB"])
+            current_app.search.client.drop_database(
+                current_app.config["SEARCH_MONGO_DB"])
+            sql_db.session.remove()
+            context.pop()
+
+        return app
+
+    return make
+
+
+def test_production_app_requires_dserver_audience_and_issuer(
+        production_app, key_pair):
+    private_pem, _ = key_pair
+    app = production_app()
+    assert app.config["JWT_DECODE_AUDIENCE"] == "dserver"
+    assert app.config["JWT_DECODE_ISSUER"] == "dserver"
+    client = app.test_client()
+    assert _get_me(client, _token(private_pem, aud="dserver",
+                                  iss="dserver")).status_code == 200
+    assert _get_me(client, _token(private_pem)).status_code == 422
+
+
+def test_production_app_audience_and_issuer_from_environment(
+        production_app, key_pair):
+    private_pem, _ = key_pair
+    app = production_app(JWT_DECODE_AUDIENCE="my-dserver",
+                         JWT_DECODE_ISSUER="https://idp.example.org")
+    client = app.test_client()
+    token = _token(private_pem, aud="my-dserver",
+                   iss="https://idp.example.org")
+    assert _get_me(client, token).status_code == 200
+    token = _token(private_pem, aud="dserver", iss="dserver")
+    assert _get_me(client, token).status_code == 422
+
+
+def test_production_app_checks_disabled_by_blank_environment(
+        production_app, key_pair):
+    private_pem, _ = key_pair
+    app = production_app(JWT_DECODE_AUDIENCE="", JWT_DECODE_ISSUER=" ")
+    assert app.config["JWT_DECODE_AUDIENCE"] is None
+    assert app.config["JWT_DECODE_ISSUER"] is None
+    assert _get_me(app.test_client(), _token(private_pem)).status_code == 200

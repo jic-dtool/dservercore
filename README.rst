@@ -185,13 +185,29 @@ Audience and issuer of JSON Web Tokens
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 dserver only accepts tokens whose audience (``aud`` claim) and issuer (``iss``
-claim) are ``dserver``. The dserver token generator plugins (OAuth2, LDAP)
-issue such tokens by default, and so does ``flask user token``. If tokens come
-from another issuer, configure the expected values, or disable a check by
-setting it to an empty value::
+claim) are ``dserver``; other tokens are rejected with 422, as tokens with an
+invalid signature. This keeps tokens signed with the same key for another
+purpose out. Configure the expected values, or disable a check by setting it to
+an empty value::
 
     export JWT_DECODE_AUDIENCE=dserver
     export JWT_DECODE_ISSUER=my-identity-provider
+
+Every token issuer must issue tokens with these values:
+
+- ``flask user token`` uses ``JWT_DECODE_AUDIENCE`` / ``JWT_DECODE_ISSUER``.
+- The dserver token generator plugins (OAuth2, LDAP) run inside dserver and use
+  the same values, unless their own ``JWT_AUDIENCE`` / ``JWT_ISSUER`` are set.
+  If you set those, they must match ``JWT_DECODE_AUDIENCE`` /
+  ``JWT_DECODE_ISSUER``, or dserver rejects every token the plugin issues.
+- The standalone `token-generator-ldap
+  <https://github.com/jic-dtool/token-generator-ldap>`_ issues tokens with
+  these claims only in recent versions (configurable with ``JWT_AUDIENCE`` /
+  ``JWT_ISSUER``); older installations issue tokens without them. Update it,
+  or disable the checks with empty ``JWT_DECODE_AUDIENCE`` and
+  ``JWT_DECODE_ISSUER``.
+- Other token issuers must add ``"aud": "dserver"`` and ``"iss": "dserver"``
+  (or the configured values) to their tokens.
 
 Inspecting the flask app configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

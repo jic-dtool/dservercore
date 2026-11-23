@@ -117,7 +117,7 @@ Pre-signed JWT tokens for test users (`snow-white`, `grumpy`, `dopey`, `sleepy`,
 | `SQLALCHEMY_DATABASE_URI` | SQL backend (default: SQLite `app.db`) |
 | `JWT_PUBLIC_KEY` / `JWT_PUBLIC_KEY_FILE` | RSA public key for token verification |
 | `JWT_PRIVATE_KEY_FILE` | RSA private key (only needed to issue tokens) |
-| `JWT_DECODE_AUDIENCE` / `JWT_DECODE_ISSUER` | Required `aud` / `iss` claims of tokens (default `dserver`; empty disables the check). Tokens from `flask user token` carry the same claims |
+| `JWT_DECODE_AUDIENCE` / `JWT_DECODE_ISSUER` | Required `aud` / `iss` claims of tokens (default `dserver`; empty or blank disables the check; rejected tokens get 422). Tokens from `flask user token` and the token generator plugins carry the same claims; plugin `JWT_AUDIENCE` / `JWT_ISSUER`, if set, must match |
 | `DISABLE_JWT_AUTHORISATION` | Bypass auth for dev/testing |
 | `DEFAULT_USER` | Username used when JWT auth is disabled |
 | `OPENAPI_URL_PREFIX` | Path prefix for OpenAPI docs (default `/doc`) |

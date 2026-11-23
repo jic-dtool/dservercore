@@ -15,8 +15,8 @@ CONFIG_EXCLUSIONS = [
 
 
 def _get_optional_env(key, default):
-    """Return environment variable, its default if unset, None if empty."""
-    return os.environ.get(key, default) or None
+    """Return environment variable, its default if unset, None if blank."""
+    return os.environ.get(key, default).strip() or None
 
 
 def _get_file_content(key, default=""):
