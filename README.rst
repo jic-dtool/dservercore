@@ -54,8 +54,8 @@ manage users, base URIs and users' permissions on those base URIs.
 <https://github.com/jic-dtool/dtool-lookup-client>`_, and the
 `dtool-lookup-webapp <https://github.com/jic-dtool/dtool-lookup-webapp>`_.
 Third party applications making use of the dserver have also been
-created, notably the `livMatS/dtool-lookup-gui
-<https://github.com/livMatS/dtool-lookup-gui>`_.
+created, notably the `jic-dtool/dtool-lookup-gui
+<https://github.com/jic-dtool/dtool-lookup-gui>`_.
 
 ``dservercore`` provides the core Flask app central to dserver's
 modular, pluggable framework.
@@ -863,6 +863,6 @@ A respective entry in a ``pyproject.toml`` would look as follows.
 
 Examples of actual plugins include:
 
-- `dserver-direct-mongo-plugin <https://github.com/livMatS/dserver-direct-mongo-plugin>`_
-- `dserver-dependency-graph-plugin <https://github.com/livMatS/dserver-dependency-graph-plugin>`_
-- `dserver-notification-plugin <https://github.com/livMatS/dserver-notification-plugin>`_
+- `dserver-direct-mongo-plugin <https://github.com/jic-dtool/dserver-direct-mongo-plugin>`_
+- `dserver-dependency-graph-plugin <https://github.com/jic-dtool/dserver-dependency-graph-plugin>`_
+- `dserver-notification-plugin <https://github.com/jic-dtool/dserver-notification-plugin>`_
