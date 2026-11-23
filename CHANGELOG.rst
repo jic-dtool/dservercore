@@ -269,11 +269,11 @@ Added
 
 - Added hook to allow the loading of plugins. Scaffold code for implementing a
   plugin can be found in
-  https://github.com/livMatS/dserver-plugin-scaffolding.
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding.
   For examples of actual plugins see:
   https://github.com/livMatS/dserver-dependency-graph-plugin
   and
-  https://github.com/livMatS/dserver-plugin-scaffolding
+  https://github.com/livMatS/dtool-lookup-server-plugin-scaffolding
 - Added /config route; see
   https://github.com/jic-dtool/dservercore/pull/6
 - Added ability to filter searches by UUID by supplying ``uuids`` keyword and list of
