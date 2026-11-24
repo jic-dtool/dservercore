@@ -33,6 +33,15 @@ Added
 
 Changed
 ^^^^^^^
+- **Breaking:** tokens must have audience (``aud``) and issuer (``iss``)
+  ``dserver``; other tokens are rejected with 422. This rejects tokens signed
+  with the same key for another purpose. Configure with
+  ``JWT_DECODE_AUDIENCE`` / ``JWT_DECODE_ISSUER``; an empty (or blank) value
+  disables the respective check. Tokens from ``flask user token`` carry the
+  configured claims, as do tokens from the dserver token generator plugins
+  (OAuth2, LDAP). The standalone ``token-generator-ldap`` must be updated, or
+  the checks disabled; other token issuers must add the claims. See
+  "Audience and issuer of JSON Web Tokens" in the README
 - Dropped support for Python 3.8 and 3.9; minimum is now Python 3.10
 - Upgraded to Flask 3.x (removed ``flask<3`` upper bound)
 - Removed unused ``flask-pymongo`` dependency

@@ -285,6 +285,13 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
+    # A blank audience or issuer disables the check, also when set through a
+    # test or plugin config; flask-jwt-extended only skips it for None.
+    for key in ("JWT_DECODE_AUDIENCE", "JWT_DECODE_ISSUER",
+                "JWT_ENCODE_AUDIENCE", "JWT_ENCODE_ISSUER"):
+        if isinstance(app.config.get(key), str):
+            app.config[key] = app.config[key].strip() or None
+
     CORS(app)
 
     for plugin in app.plugins:
